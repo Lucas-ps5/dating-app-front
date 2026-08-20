@@ -1,0 +1,13 @@
+{
+    "title": "Rejoignez Hot meet",
+    "subtitle": "Créez votre compte",
+    "form": {
+        "name": "Nom complet",
+        "email": "Email",
+        "password": "Mot de passe",
+        "confirm": "Confirmer le mot de passe"
+    },
+    "submit": "Créer un compte",
+    "alreadyHaveAccount": "Vous avez déjà un compte?",
+    "signIn": "Se connecter"
+}
