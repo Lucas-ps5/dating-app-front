@@ -10,9 +10,10 @@ export const registerSchema = yup.object({
   email: yup.string().email("Email is invalid").required("Email is required"),
   password: yup.string().required("Password is required"),
   confirm: yup.string().required("Confirm password is required"),
+  gender: yup.string().required("Gender is required"),
 });
 
-type RegisterForm = yup.InferType<typeof registerSchema>;
+export type RegisterForm = yup.InferType<typeof registerSchema>;
 
 export const useRegister = ({
   onSuccessAction,
@@ -28,6 +29,7 @@ export const useRegister = ({
       email: "",
       password: "",
       confirm: "",
+      gender: "",
     },
   });
 
@@ -52,6 +54,7 @@ export const useRegister = ({
       email: values.email,
       username: values.username,
       password: values.password,
+      gender: values.gender as "male" | "female",
     }),
   );
 

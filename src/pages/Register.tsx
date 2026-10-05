@@ -1,7 +1,8 @@
 import { Heart, Mail, Lock, User, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { useRegister } from "@/composables/useRegister";
+import { useRegister, type RegisterForm } from "@/composables/useRegister";
 import { useAuth } from "@/hooks/useAuth";
+import { Gender } from "@/api/users";
 
 export default function RegisterPage() {
   const { login } = useAuth();
@@ -16,7 +17,13 @@ export default function RegisterPage() {
     },
   });
 
-  const fields = [
+  const fields: {
+    key: keyof RegisterForm;
+    icon: React.ComponentType<{ className?: string }>;
+    type: string;
+    placeholder?: string;
+    options?: string[];
+  }[] = [
     { key: "username", icon: User, type: "text", placeholder: "Full name" },
     { key: "email", icon: Mail, type: "email", placeholder: "Email" },
     { key: "password", icon: Lock, type: "password", placeholder: "Password" },
@@ -25,6 +32,12 @@ export default function RegisterPage() {
       icon: Lock,
       type: "password",
       placeholder: "Confirm password",
+    },
+    {
+      key: "gender",
+      icon: User,
+      type: "radio",
+      options: [Gender.MALE, Gender.FEMALE],
     },
   ] as const;
 
@@ -40,17 +53,35 @@ export default function RegisterPage() {
         </div>
 
         <form onSubmit={createUser} className="space-y-4">
-          {fields.map(({ key, icon: Icon, type, placeholder }) => (
+          {fields.map(({ key, icon: Icon, type, placeholder, options }) => (
             <div key={key} className="relative">
               <Icon className="absolute left-3 top-3 w-5 h-5 text-muted-foreground" />
-              <input
-                {...register(key)}
-                name={key}
-                type={type}
-                placeholder={placeholder}
-                required
-                className="w-full pl-11 pr-4 py-3 rounded-xl bg-card border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
-              />
+              {type === "radio" ? (
+                <div className="flex gap-4">
+                  {options?.map((option) => (
+                    <label key={option} className="flex items-center gap-2">
+                      <input
+                        {...register(key)}
+                        name={key}
+                        type={type}
+                        value={option}
+                        required
+                        className="w-full pl-11 pr-4 py-3 rounded-xl bg-card border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
+                      />
+                      <span>{option}</span>
+                    </label>
+                  ))}
+                </div>
+              ) : (
+                <input
+                  {...register(key)}
+                  name={key}
+                  type={type}
+                  placeholder={placeholder}
+                  required
+                  className="w-full pl-11 pr-4 py-3 rounded-xl bg-card border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
+                />
+              )}
             </div>
           ))}
           <button

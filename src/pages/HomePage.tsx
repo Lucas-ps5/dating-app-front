@@ -6,10 +6,12 @@ import { Heart, MessageCircle, Compass, User, MapPin, Sparkles } from "lucide-re
 import { Link } from "react-router-dom";
 import { userService } from "@/services/user.service";
 import type { MockUser } from "@/mocks/users";
+import { useFetchLikesCount } from "@/composables/useFetchLikesCount";
+import { useFetchMatchsCount } from "@/composables/useFetchMatchsCount";
 
 export default function HomePage() {
-  const user = useAuthStore((s) => s.user);
-  const matchCount = useMatchStore((s) => s.matches.length);
+  const { data: matchCount } = useFetchMatchsCount();
+  const { data: likesCount } = useFetchLikesCount();
   const conversations = useChatStore((s) => s.conversations);
   const messageCount = Object.values(conversations).reduce((a, b) => a + b.length, 0);
   const [newUsers, setNewUsers] = useState<MockUser[]>([]);
@@ -24,7 +26,7 @@ export default function HomePage() {
 
   const cards = [
     { to: "/discover", icon: Compass, label: "Discover", desc: "Find new people", color: "gradient-primary" },
-    { to: "/matches", icon: Heart, label: "Matches", desc: `${matchCount} matches`, color: "bg-accent" },
+    { to: "/matches", icon: Heart, label: "Matches", desc: `${matchCount ?? 0} matches`, color: "bg-accent" },
     { to: "/chat", icon: MessageCircle, label: "Messages", desc: `${messageCount} messages`, color: "bg-success" },
     { to: "/profile", icon: User, label: "Profile", desc: "Edit your profile", color: "bg-secondary" },
   ];

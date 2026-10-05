@@ -1,7 +1,7 @@
 import { Outlet, NavLink, useLocation } from "react-router";
 import { Heart, MessageCircle, User, Compass, LayoutDashboard, ThumbsUp, LogOut } from "lucide-react";
-import { useAuthStore } from "@/store/useAuthStore";
-import { useMatchStore } from "@/store/useMatchStore";
+import { useFetchLikesCount } from "@/composables/useFetchLikesCount";
+import { useFetchMatchsCount } from "@/composables/useFetchMatchsCount";
 
 const navItems = [
   { to: "/dashboard", icon: LayoutDashboard, label: "Home" },
@@ -15,9 +15,10 @@ const navItems = [
 export default function AppLayout() {
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
-  const matchCount = useMatchStore((s) => s.matches.length);
-  const likeCount = useMatchStore((s) => s.likes.length);
   const location = useLocation();
+
+  const { data: matchCount, isLoading: isLoadingMatchs } = useFetchMatchsCount();
+  const { data: likeCount, isLoading: isLoadingLikes } = useFetchLikesCount();
 
   return (
     <div className="flex flex-col h-screen bg-background">
@@ -25,7 +26,7 @@ export default function AppLayout() {
       <header className="hidden md:flex items-center justify-between px-6 py-3 border-b border-border bg-card">
         <div className="flex items-center gap-2">
           <Heart className="w-6 h-6 text-primary fill-primary" />
-          <span className="text-xl font-bold text-foreground">Flame</span>
+          <span className="text-xl font-bold text-foreground">Hot meet</span>
         </div>
         <div className="flex items-center gap-1">
           {navItems.map((item) => (
@@ -40,10 +41,10 @@ export default function AppLayout() {
             >
               <item.icon className="w-4 h-4" />
               {item.label}
-              {item.to === "/matches" && matchCount > 0 && (
+              {item.to === "/matches" && !isLoadingMatchs && matchCount && matchCount.count > 0 && (
                 <span className="ml-1 px-1.5 py-0.5 text-xs rounded-full gradient-primary text-primary-foreground">{matchCount}</span>
               )}
-              {item.to === "/likes" && likeCount > 0 && (
+              {item.to === "/likes" && !isLoadingLikes && likeCount && likeCount.count > 0 && (
                 <span className="ml-1 px-1.5 py-0.5 text-xs rounded-full gradient-primary text-primary-foreground">{likeCount}</span>
               )}
             </NavLink>
