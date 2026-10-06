@@ -183,7 +183,7 @@ components:
 
     CreateLikeRequest:
       type: object
-      required: [receiverId, type]
+      required: [receiverId]
       properties:
         receiverId:
           type: string

@@ -313,13 +313,12 @@ paths:
         Caller identity forwarded via `x-user-id` header.
       operationId: updateProfile
       parameters:
-        - name: x-user-id
-          in: header
+        - name: id
+          in: path
           required: true
           schema:
             type: string
             format: uuid
-          description: Keycloak subject (sub) of the authenticated user
       requestBody:
         required: true
         content:
