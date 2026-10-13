@@ -40,14 +40,12 @@ export const step2Schema = yup.object({
     .number()
     .typeError("Latitude must be a number")
     .min(-90, "Latitude must be between -90 and 90")
-    .max(90, "Latitude must be between -90 and 90")
-    .required("Latitude is required"),
+    .max(90, "Latitude must be between -90 and 90"),
   longitude: yup
     .number()
     .typeError("Longitude must be a number")
     .min(-180, "Longitude must be between -180 and 180")
-    .max(180, "Longitude must be between -180 and 180")
-    .required("Longitude is required"),
+    .max(180, "Longitude must be between -180 and 180"),
 });
 
 // ── Combined schema (full form) ────────────────────────────────────────────────
@@ -101,6 +99,9 @@ export const useRegister = ({
       username: values.username,
       password: values.password,
       gender: values.gender as "male" | "female",
+      birthdate: values.dateOfBirth,
+      latitude: values.latitude,
+      longitude: values.longitude,
     }),
   );
 

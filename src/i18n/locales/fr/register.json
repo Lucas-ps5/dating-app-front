@@ -5,7 +5,8 @@
         "name": "Nom complet",
         "email": "Email",
         "password": "Mot de passe",
-        "confirm": "Confirmer le mot de passe"
+        "confirm": "Confirmer le mot de passe",
+        "gender": "Genre"
     },
     "submit": "Créer un compte",
     "alreadyHaveAccount": "Vous avez déjà un compte?",
@@ -15,5 +16,9 @@
     "location": "Emplacement",
     "useMyLocation": "Utiliser ma position",
     "locationCaptured": "Emplacement capturé",
-    "addLocation": "Ajoutez votre emplacement pour de meilleurs résultats"
+    "addLocation": "Ajoutez votre emplacement pour de meilleurs résultats",
+    "accountDetails": "Compte créé",
+    "aboutYou": "À propos de vous",
+    "dateOfBirth": "Date de naissance",
+    "back": "Retour"
 }

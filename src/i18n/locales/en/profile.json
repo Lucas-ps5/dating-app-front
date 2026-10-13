@@ -1,0 +1,132 @@
+{
+  "header": {
+    "badge": "My profile",
+    "title": "Your profile",
+    "subtitle": "This is how your profile appears to others. Keep it up to date to make a great impression."
+  },
+  "actions": {
+    "edit": "Edit profile",
+    "editAria": "Edit your profile",
+    "backToProfile": "Back to profile",
+    "discover": "Discover people"
+  },
+  "photo": {
+    "noPhoto": "No photo yet",
+    "noPhotoHint": "Add photos so people can get to know you.",
+    "alt": "{{username}}'s profile photo",
+    "altFallback": "Profile photo",
+    "thumbnailAlt": "Photo {{index}}",
+    "prev": "Previous photo",
+    "next": "Next photo",
+    "counter": "{{current}} / {{total}}"
+  },
+  "sections": {
+    "photos": "Profile photos",
+    "about": "About",
+    "details": "Details",
+    "preferences": "Looking for"
+  },
+  "fields": {
+    "username": "Username",
+    "title": "Title",
+    "bio": "Biography",
+    "age": "Age",
+    "birthdate": "Date of birth",
+    "gender": "Gender",
+    "location": "Location",
+    "city": "City",
+    "country": "Country",
+    "status": "Status",
+    "years": "{{count}} yrs"
+  },
+  "gender": {
+    "male": "Male",
+    "female": "Female"
+  },
+  "status": {
+    "active": "Active",
+    "inactive": "Inactive"
+  },
+  "preferences": {
+    "ageRange": "Age range",
+    "from": "From {{min}} yrs",
+    "upTo": "Up to {{max}} yrs",
+    "range": "{{min}} – {{max}} yrs",
+    "gender": "Interested in",
+    "maxDistance": "Max distance",
+    "withinDistance": "Within {{distance}} km"
+  },
+  "empty": {
+    "username": "Member",
+    "title": "No title set",
+    "bio": "No biography yet.",
+    "birthdate": "Not provided",
+    "gender": "Not specified",
+    "location": "Location not set",
+    "preferences": "No preferences set yet."
+  },
+  "loading": {
+    "aria": "Loading your profile"
+  },
+  "error": {
+    "title": "We couldn't load your profile",
+    "defaultMsg": "Something went wrong while fetching your profile. Please try again.",
+    "retry": "Try again"
+  },
+  "imageUpload": {
+    "upload": "Upload Image",
+    "selectForPreview": "Select an image to preview.",
+    "uploading": "Uploading...",
+    "uploaded": "Uploaded successfully",
+    "error": "Failed to upload image. Please try again.",
+    "unsupportedType": "Unsupported file type: {type}. Please upload a JPEG, PNG, WebP, or GIF.",
+    "tooLarge": "File is too large: {size} MB. Max is 10 MB.",
+    "delete": "Delete",
+    "deleting": "Deleting...",
+    "deleteError": "Failed to delete image. Please try again."
+  },
+  "edit": {
+    "title": "Edit profile",
+    "subtitle": "Update your details. Changes are visible on your profile right away.",
+    "loading": "Loading your profile",
+    "loadError": "We couldn't load your profile to edit.",
+    "retry": "Try again",
+    "form": {
+      "username": "Username",
+      "usernamePlaceholder": "your_username",
+      "title": "Title",
+      "titlePlaceholder": "e.g. Software Engineer",
+      "bio": "Biography",
+      "bioPlaceholder": "Tell people a little about yourself",
+      "birthdate": "Date of birth",
+      "gender": "Gender",
+      "preferNotToSay": "Prefer not to say",
+      "city": "City",
+      "cityPlaceholder": "London",
+      "country": "Country",
+      "countryPlaceholder": "United Kingdom",
+      "optional": "Optional"
+    },
+    "gender": {
+      "male": "Male",
+      "female": "Female"
+    },
+    "save": "Save changes",
+    "saving": "Saving…",
+    "cancel": "Cancel",
+    "success": "Profile updated successfully",
+    "error": "Failed to update your profile. Please try again.",
+    "validation": {
+      "usernameRequired": "Username is required",
+      "usernameMin": "Username must be at least 3 characters",
+      "usernameMax": "Username must be at most 20 characters",
+      "usernamePattern": "Use only letters, numbers, hyphens and underscores",
+      "titleMax": "Title must be at most 255 characters",
+      "bioMax": "Biography must be at most 500 characters",
+      "cityMax": "City must be at most 100 characters",
+      "countryMax": "Country must be at most 100 characters",
+      "birthdateInvalid": "Please enter a valid date",
+      "birthdateMinAge": "You must be at least 18 years old"
+    }
+  }
+}

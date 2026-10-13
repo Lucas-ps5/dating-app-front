@@ -16,6 +16,7 @@ import { useTranslation } from "react-i18next";
 import { useGetUserById } from "@/composables/useGetUserById";
 import { calculateAge, formatLocation, formatDistance } from "@/utils/discover";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Image } from "@/components/ui/Image";
 
 export const UserProfilePage: React.FC = () => {
   const { t } = useTranslation("discover");
@@ -107,8 +108,9 @@ export const UserProfilePage: React.FC = () => {
         <div className="md:col-span-6 lg:col-span-5 flex flex-col gap-3">
           <div className="relative aspect-[3/4] w-full rounded-3xl overflow-hidden bg-zinc-900 border border-border/80 shadow-2xl">
             {currentPhoto ? (
-              <img
-                src={currentPhoto}
+              <Image
+                isLocal={false}
+                url={currentPhoto}
                 alt={user.username ? `${user.username}'s photo` : t("card.member")}
                 className="w-full h-full object-cover transition-opacity duration-300"
               />
@@ -170,7 +172,12 @@ export const UserProfilePage: React.FC = () => {
                       : "border-transparent opacity-60 hover:opacity-100"
                   }`}
                 >
-                  <img src={photo} alt="" className="w-full h-full object-cover" />
+                  <Image
+                    isLocal={false}
+                    url={photo}
+                    alt=""
+                    className="w-full h-full object-cover"
+                  />
                 </button>
               ))}
             </div>

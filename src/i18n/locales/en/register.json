@@ -5,7 +5,8 @@
         "name": "Full name",
         "email": "Email",
         "password": "Password",
-        "confirm": "Confirm password"
+        "confirm": "Confirm password",
+        "gender": "Gender"
     },
     "submit": "Create Account",
     "alreadyHaveAccount": "Already have an account?",
@@ -15,5 +16,9 @@
     "location": "Location",
     "useMyLocation": "Use my location",
     "locationCaptured": "Location captured",
-    "addLocation": "Add your location for better matching"
+    "addLocation": "Add your location for better matching",
+    "accountDetails": "Account details",
+    "aboutYou": "About you",
+    "dateOfBirth": "Date of birth",
+    "back": "Back"
 }

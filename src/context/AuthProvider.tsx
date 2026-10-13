@@ -1,37 +1,45 @@
 import React, { useState, useEffect, useMemo } from "react";
 import Keycloak from "keycloak-js";
-import { keycloak } from "@/plugins/keycloak";
+// import { keycloak } from "../plugins/keycloak";
 import { AuthContext, type AuthContextType } from "./AuthContext";
 import Loader from "@/components/ui/Loader";
 import { setToken } from "@/plugins/clients";
 
+// Create Keycloak instance directly here to avoid import issues
+const keycloak = new Keycloak({
+  url: import.meta.env.VITE_KEYCLOAK_URL,
+  realm: import.meta.env.VITE_KEYCLOAK_REALM,
+  clientId: import.meta.env.VITE_KEYCLOAK_CLIENT_ID,
+});
+
+let keycloakInitPromise: Promise<boolean> | undefined;
+
+const initializeKeycloak = () => {
+  if (!keycloakInitPromise) {
+    keycloakInitPromise = keycloak
+      .init({
+        onLoad: "login-required",
+        pkceMethod: "S256",
+        checkLoginIframe: false,
+        silentCheckSsoRedirectUri: `${window.location.origin}/silent-check-sso.html`,
+        redirectUri: window.location.origin + "/",
+      })
+      .catch((error) => {
+        keycloakInitPromise = undefined;
+        throw error;
+      });
+  }
+
+  return keycloakInitPromise;
+};
+
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [authenticated, setAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [keycloakInstance, setKeycloakInstance] = useState<Keycloak | null>(
-    null,
-  );
   const [userInfo, setUserInfo] = useState<Record<string, unknown> | null>(
     null,
   );
-
   useEffect(() => {
-    keycloak
-      .init({
-        onLoad: "check-sso",
-        pkceMethod: "S256",
-        checkLoginIframe: false,
-      })
-      .then((auth) => {
-        setAuthenticated(auth);
-        setKeycloakInstance(keycloak);
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error("Keycloak initialization failed:", error);
-        setLoading(false);
-      });
-
     keycloak.onAuthSuccess = () => {
       setAuthenticated(true);
       setToken(keycloak.token);
@@ -50,6 +58,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setToken(undefined);
     };
 
+    initializeKeycloak()
+      .then((auth) => setAuthenticated(auth))
+      .catch((error) => {
+        console.error("Keycloak initialization failed:", error);
+      })
+      .finally(() => setLoading(false));
+
     return () => {
       keycloak.onAuthSuccess = undefined;
       keycloak.onAuthRefreshSuccess = undefined;
@@ -57,19 +72,33 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     };
   }, []);
 
+  const login = async (options?: { redirectUri?: string }) => {
+    try {
+      await initializeKeycloak();
+      await keycloak.login({
+        redirectUri: window.location.origin + "/",
+        ...options,
+      });
+    } catch (error) {
+      console.error("Keycloak login failed:", error);
+    }
+  };
+
+  const logout = (options?: { redirectUri?: string }) =>
+    keycloak.logout({ redirectUri: window.location.origin + "/", ...options });
+
   const contextValue: AuthContextType = useMemo(
     () => ({
-      keycloak: keycloakInstance,
+      keycloak,
       authenticated,
       loading,
       userInfo,
-      login: (options) =>
-        keycloak.login({ redirectUri: window.location.origin + "/", ...options }),
-      logout: keycloak.logout,
-      token: keycloakInstance?.token,
+      login,
+      logout,
+      token: keycloak.token,
       refreshToken: () => keycloak.updateToken(70),
     }),
-    [authenticated, loading, userInfo, keycloakInstance],
+    [authenticated, loading, userInfo],
   );
 
   if (loading) {

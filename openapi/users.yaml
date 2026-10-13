@@ -136,7 +136,7 @@ components:
 
     CreateUserRequest:
       type: object
-      required: [email, username, password, gender]
+      required: [email, username, password, gender, birthdate, latitude, longitude]
       properties:
         email:
           type: string
@@ -155,6 +155,22 @@ components:
           example: SecretPassword123
         gender:
           $ref: "#/components/schemas/Gender"
+        birthdate:
+          type: string
+          format: date
+          example: "1995-06-15"
+        latitude:
+          type: number
+          format: double
+          minimum: -90
+          maximum: 90
+          example: 51.5074
+        longitude:
+          type: number
+          format: double
+          minimum: -180
+          maximum: 180
+          example: -0.1278
 
     UpdateUserRequest:
       type: object
@@ -313,12 +329,13 @@ paths:
         Caller identity forwarded via `x-user-id` header.
       operationId: updateProfile
       parameters:
-        - name: id
-          in: path
+        - name: x-user-id
+          in: header
           required: true
           schema:
             type: string
             format: uuid
+          description: Keycloak subject (sub) of the authenticated user
       requestBody:
         required: true
         content:
@@ -342,6 +359,13 @@ paths:
       description: Returns a paginated list of active users excluding the caller and already-matched users.
       operationId: discoverUsers
       parameters:
+        - name: currentUserId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Injected by the api-gateway from the JWT
         - name: gender
           in: query
           schema:

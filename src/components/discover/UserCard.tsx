@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { MapPin, Briefcase, User as UserIcon, MessageSquare, ArrowUpRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { Image } from "@/components/ui/Image";
 import type { UserWithDistance } from "@/api/users";
 import { calculateAge, formatLocation, formatDistance } from "@/utils/discover";
 
@@ -53,8 +54,9 @@ export const UserCard: React.FC<UserCardProps> = ({ user, variant = "grid" }) =>
           {/* Avatar / Photo */}
           <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden bg-secondary shrink-0 border border-border/60">
             {hasPhoto ? (
-              <img
-                src={primaryPhoto!}
+              <Image
+                isLocal={false}
+                url={primaryPhoto!}
                 alt={user.username || "User profile photo"}
                 loading="lazy"
                 onError={() => setImageError(true)}
@@ -152,8 +154,9 @@ export const UserCard: React.FC<UserCardProps> = ({ user, variant = "grid" }) =>
       {/* Photo Container */}
       <div className="relative aspect-[3/4] w-full overflow-hidden bg-zinc-900">
         {hasPhoto ? (
-          <img
-            src={primaryPhoto!}
+          <Image
+            isLocal={false}
+            url={primaryPhoto!}
             alt={user.username ? `${user.username}'s profile photo` : "Member photo"}
             loading="lazy"
             onError={() => setImageError(true)}

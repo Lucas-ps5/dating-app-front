@@ -6,6 +6,7 @@ import { useFetchMatchsCount } from "@/composables/useFetchMatchsCount";
 import { useDiscoverUsers } from "@/composables/useDiscoverUsers";
 import { calculateAge, formatLocation } from "@/utils/discover";
 import { useGetMyUnreadMessagesCount } from "@/composables/useGetMyUnreadMessagesCount";
+import { Image } from "@/components/ui/Image";
 
 export default function HomePage() {
   const { t } = useTranslation("home");
@@ -121,8 +122,9 @@ export default function HomePage() {
                 >
                   <div className="relative aspect-[3/4] bg-muted overflow-hidden">
                     {photo ? (
-                      <img
-                        src={photo}
+                      <Image
+                        isLocal={false}
+                        url={photo}
                         alt={u.username || "User"}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                       />

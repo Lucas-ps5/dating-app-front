@@ -84,6 +84,10 @@
     @apply bg-background text-foreground font-sans antialiased;
     font-family: 'Plus Jakarta Sans', sans-serif;
   }
+
+  button {
+    cursor: pointer;
+  }
 }
 
 @layer utilities {

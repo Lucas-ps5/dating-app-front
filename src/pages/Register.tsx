@@ -1,6 +1,5 @@
 import { useState } from "react";
 import {
-  Heart,
   Mail,
   Lock,
   User,
@@ -23,6 +22,7 @@ import { Gender } from "@/api/users";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import Image from "@/components/ui/Image";
 
 const GENDER_OPTIONS = [
   { value: Gender.MALE, label: "Male", emoji: "♂" },
@@ -139,8 +139,8 @@ export default function RegisterPage() {
       <div className="w-full max-w-sm fade-in">
         {/* Header */}
         <div className="text-center mb-6">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl gradient-primary mb-4 glow-primary">
-            <Heart className="w-8 h-8 text-primary-foreground fill-primary-foreground" />
+          <div className="inline-flex items-center justify-center size-32 mb-4">
+            <Image className="size-full" url={"logo.png"} isLocal={true} />
           </div>
           <h1 className="text-3xl font-bold text-foreground">{t("title")}</h1>
           <p className="text-muted-foreground mt-1">{t("subtitle")}</p>
@@ -153,7 +153,7 @@ export default function RegisterPage() {
           {step === 1 && (
             <div className="space-y-4 animate-in slide-in-from-right-4 duration-300">
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest px-1">
-                Account details
+                {t("accountDetails")}
               </p>
 
               <div>
@@ -223,7 +223,7 @@ export default function RegisterPage() {
           {step === 2 && (
             <div className="space-y-5 animate-in slide-in-from-right-4 duration-300">
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest px-1">
-                About you
+                {t("aboutYou")}
               </p>
 
               {/* Gender */}
@@ -277,7 +277,7 @@ export default function RegisterPage() {
               {/* Date of birth */}
               <div>
                 <p className="text-sm font-medium text-muted-foreground px-1 mb-1">
-                  Date of birth
+                  {t("dateOfBirth")}
                 </p>
                 <div className="relative">
                   <Calendar className="absolute left-3 top-3.5 w-5 h-5 text-muted-foreground pointer-events-none" />
@@ -365,7 +365,7 @@ export default function RegisterPage() {
                   className="flex-none py-3 px-4 rounded-xl border border-border text-muted-foreground hover:text-foreground hover:border-primary/50 transition-all flex items-center gap-1"
                 >
                   <ChevronLeft className="w-5 h-5" />
-                  Back
+                  {t("back")}
                 </button>
 
                 <button

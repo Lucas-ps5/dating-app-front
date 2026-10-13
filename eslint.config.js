@@ -2,6 +2,7 @@ import js from "@eslint/js";
 import globals from "globals";
 import reactHooks from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
+import prettier from "eslint-plugin-prettier";
 import tseslint from "typescript-eslint";
 
 export default tseslint.config(
@@ -14,6 +15,7 @@ export default tseslint.config(
       globals: globals.browser,
     },
     plugins: {
+      prettier,
       "react-hooks": reactHooks,
       "react-refresh": reactRefresh,
     },
@@ -39,6 +41,7 @@ export default tseslint.config(
           semi: true,
           singleQuote: false,
           usePrettierrc: true,
+          endOfLine: "auto",
         },
       ],
       "no-nested-ternary": "error",
