@@ -11,5 +11,9 @@
     "alreadyHaveAccount": "Already have an account?",
     "signIn": "Sign in",
     "success": "Account created successfully!",
-    "error": "Failed to create account"
+    "error": "Failed to create account",
+    "location": "Location",
+    "useMyLocation": "Use my location",
+    "locationCaptured": "Location captured",
+    "addLocation": "Add your location for better matching"
 }

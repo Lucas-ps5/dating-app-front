@@ -11,5 +11,9 @@
     "alreadyHaveAccount": "Vous avez déjà un compte?",
     "signIn": "Se connecter",
     "success": "Compte créé avec succès !",
-    "error": "Échec de la création du compte"
+    "error": "Échec de la création du compte",
+    "location": "Emplacement",
+    "useMyLocation": "Utiliser ma position",
+    "locationCaptured": "Emplacement capturé",
+    "addLocation": "Ajoutez votre emplacement pour de meilleurs résultats"
 }
