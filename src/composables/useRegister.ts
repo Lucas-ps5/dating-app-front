@@ -22,7 +22,7 @@ export const useRegister = ({
   onSuccessAction: () => void;
   onErrorAction: () => void;
 }) => {
-  const { register, handleSubmit } = useForm<RegisterForm>({
+  const { register, handleSubmit, setValue, watch } = useForm<RegisterForm>({
     resolver: yupResolver(registerSchema),
     defaultValues: {
       username: "",
@@ -61,6 +61,8 @@ export const useRegister = ({
   return {
     createUser,
     register,
+    setValue,
+    watch,
     isPending,
   };
 };

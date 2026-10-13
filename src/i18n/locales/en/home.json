@@ -1,0 +1,37 @@
+{
+  "greeting": "Hey, {{name}} 👋",
+  "defaultGreeting": "Hey there 👋",
+  "subtitle": "Ready to find your match?",
+  "cards": {
+    "discover": {
+      "title": "Discover",
+      "desc": "Find new people"
+    },
+    "matches": {
+      "title": "Matches",
+      "desc": "{{count}} match",
+      "desc_other": "{{count}} matches"
+    },
+    "messages": {
+      "title": "Messages",
+      "desc": "{{count}} message",
+      "desc_other": "{{count}} messages"
+    },
+    "profile": {
+      "title": "Profile",
+      "desc": "Edit your profile"
+    }
+  },
+  "banner": {
+    "title": "Start Exploring!",
+    "subtitle": "New profiles are waiting for you",
+    "cta": "Go to Discover →"
+  },
+  "newPeople": {
+    "title": "New People",
+    "seeAll": "See all",
+    "badge": "NEW",
+    "yrs": "yrs",
+    "noPhoto": "No photo"
+  }
+}

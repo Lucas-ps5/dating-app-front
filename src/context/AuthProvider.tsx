@@ -3,6 +3,7 @@ import Keycloak from "keycloak-js";
 import { keycloak } from "@/plugins/keycloak";
 import { AuthContext, type AuthContextType } from "./AuthContext";
 import Loader from "@/components/ui/Loader";
+import { setToken } from "@/plugins/clients";
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [authenticated, setAuthenticated] = useState(false);
@@ -25,12 +26,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setAuthenticated(auth);
         setKeycloakInstance(keycloak);
         setLoading(false);
-
-        if (auth) {
-          keycloak.loadUserInfo().then((info) => {
-            setUserInfo(info as Record<string, unknown>);
-          });
-        }
       })
       .catch((error) => {
         console.error("Keycloak initialization failed:", error);
@@ -39,19 +34,26 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     keycloak.onAuthSuccess = () => {
       setAuthenticated(true);
+      setToken(keycloak.token);
       keycloak
         .loadUserInfo()
         .then((info) => setUserInfo(info as Record<string, unknown>));
     };
 
+    keycloak.onAuthRefreshSuccess = () => {
+      setToken(keycloak.token);
+    };
+
     keycloak.onAuthLogout = () => {
       setAuthenticated(false);
       setUserInfo(null);
+      setToken(undefined);
     };
 
     return () => {
-      keycloak.onAuthSuccess = null;
-      keycloak.onAuthLogout = null;
+      keycloak.onAuthSuccess = undefined;
+      keycloak.onAuthRefreshSuccess = undefined;
+      keycloak.onAuthLogout = undefined;
     };
   }, []);
 
@@ -61,7 +63,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       authenticated,
       loading,
       userInfo,
-      login: keycloak.login,
+      login: (options) =>
+        keycloak.login({ redirectUri: window.location.origin + "/", ...options }),
       logout: keycloak.logout,
       token: keycloakInstance?.token,
       refreshToken: () => keycloak.updateToken(70),

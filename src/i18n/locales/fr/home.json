@@ -1,0 +1,37 @@
+{
+  "greeting": "Salut, {{name}} 👋",
+  "defaultGreeting": "Bonjour 👋",
+  "subtitle": "Prêt(e) à faire de belles rencontres ?",
+  "cards": {
+    "discover": {
+      "title": "Découvrir",
+      "desc": "Trouver de nouvelles personnes"
+    },
+    "matches": {
+      "title": "Matchs",
+      "desc": "{{count}} match",
+      "desc_other": "{{count}} matchs"
+    },
+    "messages": {
+      "title": "Messages",
+      "desc": "{{count}} message",
+      "desc_other": "{{count}} messages"
+    },
+    "profile": {
+      "title": "Profil",
+      "desc": "Modifier votre profil"
+    }
+  },
+  "banner": {
+    "title": "Commencez à explorer !",
+    "subtitle": "De nouveaux profils vous attendent",
+    "cta": "Aller sur Découvrir →"
+  },
+  "newPeople": {
+    "title": "Nouveaux profils",
+    "seeAll": "Voir tout",
+    "badge": "NOUVEAU",
+    "yrs": "ans",
+    "noPhoto": "Sans photo"
+  }
+}

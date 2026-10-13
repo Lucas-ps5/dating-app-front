@@ -342,13 +342,6 @@ paths:
       description: Returns a paginated list of active users excluding the caller and already-matched users.
       operationId: discoverUsers
       parameters:
-        - name: currentUserId
-          in: query
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: Injected by the api-gateway from the JWT
         - name: gender
           in: query
           schema:

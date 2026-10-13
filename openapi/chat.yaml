@@ -181,6 +181,15 @@ components:
         error:
           type: string
 
+    CountResponse:
+      type: object
+      required: [count]
+      properties:
+        count:
+          type: integer
+          description: Total count
+          example: 14
+
   responses:
     BadRequest:
       description: Validation error

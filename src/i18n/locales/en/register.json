@@ -9,5 +9,7 @@
     },
     "submit": "Create Account",
     "alreadyHaveAccount": "Already have an account?",
-    "signIn": "Sign in"
+    "signIn": "Sign in",
+    "success": "Account created successfully!",
+    "error": "Failed to create account"
 }

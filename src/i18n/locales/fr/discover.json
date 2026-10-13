@@ -1,0 +1,103 @@
+{
+  "header": {
+    "badge": "Annuaire Découverte",
+    "title": "Découvrir des personnes",
+    "subtitle": "Parcourez des profils authentiques, rencontrez des personnes intéressantes à proximité et filtrez selon vos préférences.",
+    "totalActive": "Total actifs : {{count}}"
+  },
+  "filters": {
+    "searchPlaceholder": "Rechercher parmi les profils chargés (nom, métier, ville)...",
+    "searchAria": "Rechercher localement parmi les profils chargés",
+    "clearSearch": "Effacer la recherche",
+    "button": "Filtres",
+    "reset": "Réinitialiser",
+    "resetFilters": "Réinitialiser les filtres",
+    "clearAll": "Tout effacer",
+    "genderPreference": "Préférence de genre",
+    "allGenders": "Tous",
+    "male": "Homme",
+    "female": "Femme",
+    "ageRange": "Tranche d'âge",
+    "years": "{{min}} – {{max}} ans",
+    "yrs": "ans",
+    "min": "Min :",
+    "max": "Max :",
+    "filtersNotice": "Seuls les filtres supportés par l'API (genre, tranche d'âge) sont envoyés au serveur.",
+    "availableProfiles": "Profils disponibles : {{count}}",
+    "matchingLoaded": "Correspondances chargées : {{filtered}} sur {{total}} au total",
+    "chipGender": "Genre : {{gender}}",
+    "chipAge": "Âge : {{min}} – {{max}}",
+    "chipSearch": "Filtre : « {{query}} »",
+    "viewGrid": "Passer en vue grille",
+    "viewList": "Passer en vue liste"
+  },
+  "drawer": {
+    "title": "Filtrer les profils",
+    "description": "Personnalisez les profils qui apparaissent dans vos suggestions.",
+    "apply": "Appliquer les filtres"
+  },
+  "card": {
+    "noPhoto": "Aucune photo disponible",
+    "member": "Membre",
+    "anonymous": "Anonyme",
+    "message": "Message",
+    "viewProfile": "Voir le profil",
+    "profile": "Profil",
+    "messageAria": "Envoyer un message à {{name}}",
+    "profileAria": "Voir le profil complet de {{name}}"
+  },
+  "distance": {
+    "lessThan1km": "< 1 km",
+    "kmAway": "à {{distance}} km"
+  },
+  "pagination": {
+    "ariaNav": "Pagination de découverte",
+    "showing": "Affichage de {{start}}–{{end}} sur {{total}} personnes",
+    "prev": "Précédent",
+    "next": "Suivant",
+    "perPage": "Par page :",
+    "ariaPage": "Page {{page}}",
+    "ariaPrev": "Page précédente",
+    "ariaNext": "Page suivante",
+    "selectLimit": "Sélectionner le nombre d'éléments par page"
+  },
+  "empty": {
+    "noMatchingTitle": "Aucun profil correspondant trouvé",
+    "noActiveTitle": "Aucun membre actif pour le moment",
+    "noMatchingDesc": "Nous n'avons trouvé aucun profil correspondant à vos filtres actuels. Essayez d'élargir votre tranche d'âge ou de retirer le filtre de genre pour découvrir plus de personnes.",
+    "noActiveDesc": "Il n'y a pas d'autres profils actifs à explorer pour l'instant. Revenez bientôt !",
+    "resetAll": "Réinitialiser tous les filtres",
+    "noLoadedMatchTitle": "Aucun profil chargé ne correspond à « {{query}} »",
+    "noLoadedMatchDesc": "La recherche locale ne filtre que la page de résultats actuellement chargée.",
+    "clearLocalSearch": "Effacer la recherche locale"
+  },
+  "error": {
+    "title": "Impossible de charger les profils",
+    "defaultMsg": "Échec de connexion au service de découverte. Veuillez vérifier votre connexion internet et réessayer.",
+    "retry": "Réessayer"
+  },
+  "profilePage": {
+    "back": "Retour à Découvrir",
+    "activeMember": "Membre actif",
+    "notFoundTitle": "Profil introuvable",
+    "notFoundDesc": "Le profil demandé a peut-être été désactivé ou n'existe pas.",
+    "sendMessage": "Envoyer un message",
+    "keepBrowsing": "Continuer d'explorer",
+    "about": "À propos",
+    "lookingFor": "Recherche",
+    "gender": "Genre",
+    "ageRange": "Tranche d'âge",
+    "maxDistance": "Distance max",
+    "withinDistance": "À moins de {{distance}} km",
+    "any": "Indifférent",
+    "prevPhoto": "Photo précédente",
+    "nextPhoto": "Photo suivante"
+  },
+  "validation": {
+    "minAge18": "L'âge minimum doit être d'au moins 18 ans.",
+    "minAge100": "L'âge minimum ne peut pas dépasser 100 ans.",
+    "maxAge100": "L'âge maximum ne peut pas dépasser 100 ans.",
+    "maxAge18": "L'âge maximum doit être d'au moins 18 ans.",
+    "minGreater": "L'âge minimum ({{min}}) ne peut pas être supérieur à l'âge maximum ({{max}})."
+  }
+}

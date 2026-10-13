@@ -13,7 +13,7 @@
     "generate-api-code-media": "openapi-ts --file openapi/config/media.config.ts",
     "generate-api-code-chat": "openapi-ts --file openapi/config/chat.config.ts",
     "generate-api-code-matches": "openapi-ts --file openapi/config/matches.config.ts",
-    "generate-api-code-all": "npm run generate-api-code-gateway && npm run generate-api-code-users && npm run generate-api-code-media && npm run generate-api-code-chat && npm run generate-api-code-matches"
+    "generate-api-code-all": "npm run generate-api-code-users && npm run generate-api-code-media && npm run generate-api-code-chat && npm run generate-api-code-matches"
   },
   "dependencies": {
     "@hey-api/client-axios": "^0.9.1",

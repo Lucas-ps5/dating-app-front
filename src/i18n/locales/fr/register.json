@@ -9,5 +9,7 @@
     },
     "submit": "Créer un compte",
     "alreadyHaveAccount": "Vous avez déjà un compte?",
-    "signIn": "Se connecter"
+    "signIn": "Se connecter",
+    "success": "Compte créé avec succès !",
+    "error": "Échec de la création du compte"
 }

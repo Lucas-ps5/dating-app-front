@@ -1,12 +1,12 @@
 import { useMutation } from "@tanstack/react-query";
 import { Users } from "@/api/users";
-import type { AddPhotoUrlData } from "@/api/users";
 
 export const useAddPhotoUrl = (keycloakId: string) => {
   return useMutation({
-    mutationFn: async (photoUrl: AddPhotoUrlData) => {
+    mutationFn: async (imageUrl: string) => {
       const { data, error } = await Users.addPhotoUrl({
-        body: photoUrl,
+        path: { keycloakId },
+        body: { imageUrl },
       });
 
       if (error) throw error;

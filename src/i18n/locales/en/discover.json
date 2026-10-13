@@ -1,0 +1,103 @@
+{
+  "header": {
+    "badge": "Discover Directory",
+    "title": "Discover people",
+    "subtitle": "Browse genuine profiles, connect with interesting people nearby, and filter by your preferences.",
+    "totalActive": "Total active: {{count}}"
+  },
+  "filters": {
+    "searchPlaceholder": "Search loaded profiles (name, title, location)...",
+    "searchAria": "Search loaded profiles locally",
+    "clearSearch": "Clear search",
+    "button": "Filters",
+    "reset": "Reset",
+    "resetFilters": "Reset filters",
+    "clearAll": "Clear all",
+    "genderPreference": "Gender Preference",
+    "allGenders": "All",
+    "male": "Male",
+    "female": "Female",
+    "ageRange": "Age Range",
+    "years": "{{min}} – {{max}} years",
+    "yrs": "yrs",
+    "min": "Min:",
+    "max": "Max:",
+    "filtersNotice": "Only endpoints-supported filters (gender, age range) are dispatched to the server.",
+    "availableProfiles": "Available profiles: {{count}}",
+    "matchingLoaded": "Matching loaded: {{filtered}} of {{total}} total",
+    "chipGender": "Gender: {{gender}}",
+    "chipAge": "Age: {{min}} – {{max}}",
+    "chipSearch": "Filter: “{{query}}”",
+    "viewGrid": "Switch to grid view",
+    "viewList": "Switch to list view"
+  },
+  "drawer": {
+    "title": "Filter profiles",
+    "description": "Customize who appears in your discovery feed.",
+    "apply": "Apply Filters"
+  },
+  "card": {
+    "noPhoto": "No photo available",
+    "member": "Member",
+    "anonymous": "Anonymous",
+    "message": "Message",
+    "viewProfile": "View Profile",
+    "profile": "Profile",
+    "messageAria": "Send message to {{name}}",
+    "profileAria": "View full profile of {{name}}"
+  },
+  "distance": {
+    "lessThan1km": "< 1 km away",
+    "kmAway": "{{distance}} km away"
+  },
+  "pagination": {
+    "ariaNav": "Discovery Pagination",
+    "showing": "Showing {{start}}–{{end}} of {{total}} people",
+    "prev": "Prev",
+    "next": "Next",
+    "perPage": "Per page:",
+    "ariaPage": "Page {{page}}",
+    "ariaPrev": "Previous page",
+    "ariaNext": "Next page",
+    "selectLimit": "Select items per page"
+  },
+  "empty": {
+    "noMatchingTitle": "No matching profiles found",
+    "noActiveTitle": "No active members right now",
+    "noMatchingDesc": "We couldn't find any profiles that match your current filters. Try expanding your age range or clearing gender filters to discover more people.",
+    "noActiveDesc": "There are no other active profiles ready to explore at this moment. Please check back shortly!",
+    "resetAll": "Reset all filters",
+    "noLoadedMatchTitle": "No loaded profiles match “{{query}}”",
+    "noLoadedMatchDesc": "The local search filters only the currently loaded page of results.",
+    "clearLocalSearch": "Clear local search"
+  },
+  "error": {
+    "title": "Unable to load profiles",
+    "defaultMsg": "Failed to connect to the discovery service. Please check your internet connection and try again.",
+    "retry": "Try again"
+  },
+  "profilePage": {
+    "back": "Back to Discover",
+    "activeMember": "Active member",
+    "notFoundTitle": "Profile not found",
+    "notFoundDesc": "The requested profile may have been deactivated or does not exist.",
+    "sendMessage": "Send Message",
+    "keepBrowsing": "Keep Browsing",
+    "about": "About",
+    "lookingFor": "Looking For",
+    "gender": "Gender",
+    "ageRange": "Age Range",
+    "maxDistance": "Max Distance",
+    "withinDistance": "Within {{distance}} km",
+    "any": "Any",
+    "prevPhoto": "Previous photo",
+    "nextPhoto": "Next photo"
+  },
+  "validation": {
+    "minAge18": "Minimum age must be at least 18.",
+    "minAge100": "Minimum age cannot exceed 100.",
+    "maxAge100": "Maximum age cannot exceed 100.",
+    "maxAge18": "Maximum age must be at least 18.",
+    "minGreater": "Minimum age ({{min}}) cannot be greater than maximum age ({{max}})."
+  }
+}

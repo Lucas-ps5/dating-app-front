@@ -1,6 +1,7 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
+import "@/plugins/clients"; // register axios interceptors (baseURL + auth token) immediately
 import { RouterProvider } from "react-router";
 import router from "./router";
 import { AuthProvider } from "@/context/AuthProvider";
