@@ -18,7 +18,6 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { ProfileSkeleton } from "@/components/profile/ProfileSkeleton";
 import { ProfileErrorState } from "@/components/profile/ProfileErrorState";
 import { cn } from "@/lib/utils";
-import { ImageUpload } from "@/components/ui/ImageUpload";
 
 const editProfileSchema = yup.object({
   username: yup
@@ -245,17 +244,6 @@ export const EditProfilePage: React.FC = () => {
           />
           <FieldError field="bio" message={errors.bio?.message} />
         </div>
-
-        {/* Image upload */}
-        <ImageUpload
-          context="avatar"
-          onImageUploaded={(url, response) => {
-            // Store the uploaded URL somewhere, e.g., in form state
-            console.log("Image uploaded, URL:", url);
-            console.log("Full response:", response);
-            // You could set it in a form field or state variable here
-          }}
-        />
 
         {/* Birthdate */}
         <div className="flex flex-col gap-1.5">

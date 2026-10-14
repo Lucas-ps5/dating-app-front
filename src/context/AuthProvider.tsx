@@ -4,6 +4,7 @@ import Keycloak from "keycloak-js";
 import { AuthContext, type AuthContextType } from "./AuthContext";
 import Loader from "@/components/ui/Loader";
 import { setToken } from "@/plugins/clients";
+import { getCoordinates } from "@/utils/geolocation";
 
 // Create Keycloak instance directly here to avoid import issues
 const keycloak = new Keycloak({
@@ -18,7 +19,7 @@ const initializeKeycloak = () => {
   if (!keycloakInitPromise) {
     keycloakInitPromise = keycloak
       .init({
-        onLoad: "login-required",
+        onLoad: "check-sso",
         pkceMethod: "S256",
         checkLoginIframe: false,
         silentCheckSsoRedirectUri: `${window.location.origin}/silent-check-sso.html`,
@@ -40,9 +41,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     null,
   );
   useEffect(() => {
-    keycloak.onAuthSuccess = () => {
+    keycloak.onAuthSuccess = async () => {
       setAuthenticated(true);
       setToken(keycloak.token);
+      
+      // Get and store user coordinates on login
+      try {
+        await getCoordinates();
+      } catch (error) {
+        console.warn("Failed to get user coordinates on login:", error);
+      }
+
       keycloak
         .loadUserInfo()
         .then((info) => setUserInfo(info as Record<string, unknown>));

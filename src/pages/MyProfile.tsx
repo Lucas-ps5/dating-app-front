@@ -19,6 +19,7 @@ import { calculateAge, formatLocation } from "@/utils/discover";
 import { ProfileSkeleton } from "@/components/profile/ProfileSkeleton";
 import { ProfileErrorState } from "@/components/profile/ProfileErrorState";
 import { ProfilePhotoGallery } from "@/components/profile/ProfilePhotoGallery";
+import { ImageUpload } from "@/components/ui/ImageUpload";
 import { cn } from "@/lib/utils";
 
 type IconComponent = React.ComponentType<{ className?: string }>;
@@ -150,6 +151,19 @@ export const MyProfilePage: React.FC = () => {
           className="md:col-span-6 lg:col-span-5"
         >
           <ProfilePhotoGallery photos={photos} username={user.username} />
+          
+          {/* Upload new photo */}
+          <div className="mt-6">
+            <ImageUpload
+              context="avatar"
+              onImageUploaded={(url, response) => {
+                console.log("Image uploaded, URL:", url);
+                console.log("Full response:", response);
+                // Refresh the user data to show the new photo
+                refetch();
+              }}
+            />
+          </div>
         </section>
 
         {/* Profile information */}

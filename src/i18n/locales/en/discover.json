@@ -99,5 +99,10 @@
     "maxAge100": "Maximum age cannot exceed 100.",
     "maxAge18": "Maximum age must be at least 18.",
     "minGreater": "Minimum age ({{min}}) cannot be greater than maximum age ({{max}})."
+  },
+  "locationRequired": {
+    "title": "Location Required",
+    "desc": "To discover people near you, we need access to your location. Please enable location permissions in your browser and try again.",
+    "retry": "Try Again"
   }
 }

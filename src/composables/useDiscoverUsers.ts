@@ -1,5 +1,6 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { Gender, Users } from "@/api/users";
+import { getStoredCoordinates } from "@/utils/geolocation";
 
 export type DiscoverUsersFilters = {
   gender?: Gender;
@@ -7,6 +8,8 @@ export type DiscoverUsersFilters = {
   ageMax?: number;
   page?: number;
   limit?: number;
+  currentUserLat?: number;
+  currentUserLon?: number;
 };
 
 export const sanitizeFilters = (filters?: DiscoverUsersFilters): DiscoverUsersFilters => {
@@ -39,6 +42,17 @@ export const sanitizeFilters = (filters?: DiscoverUsersFilters): DiscoverUsersFi
     sanitized.limit = Math.floor(filters.limit);
   }
 
+  // Coordinates - validate lat/lon ranges
+  if (typeof filters.currentUserLat === "number" && Number.isFinite(filters.currentUserLat) && 
+      filters.currentUserLat >= -90 && filters.currentUserLat <= 90) {
+    sanitized.currentUserLat = filters.currentUserLat;
+  }
+
+  if (typeof filters.currentUserLon === "number" && Number.isFinite(filters.currentUserLon) && 
+      filters.currentUserLon >= -180 && filters.currentUserLon <= 180) {
+    sanitized.currentUserLon = filters.currentUserLon;
+  }
+
   return sanitized;
 };
 
@@ -52,7 +66,20 @@ export const useDiscoverUsers = (
   filters?: DiscoverUsersFilters,
   options?: { enabled?: boolean },
 ) => {
-  const sanitizedFilters = sanitizeFilters(filters);
+  // Merge stored coordinates if not explicitly provided
+  const storedCoords = getStoredCoordinates();
+  const mergedFilters: DiscoverUsersFilters = {
+    ...filters,
+    currentUserLat: filters?.currentUserLat ?? storedCoords?.latitude,
+    currentUserLon: filters?.currentUserLon ?? storedCoords?.longitude,
+  };
+
+  const sanitizedFilters = sanitizeFilters(mergedFilters);
+
+  // Disable query if coordinates are not available (API requires them)
+  const hasCoordinates = 
+    sanitizedFilters.currentUserLat !== undefined && 
+    sanitizedFilters.currentUserLon !== undefined;
 
   return useQuery({
     queryKey: usersKeys.discover(sanitizedFilters),
@@ -69,6 +96,6 @@ export const useDiscoverUsers = (
     placeholderData: keepPreviousData,
     staleTime: 60_000,
     refetchOnWindowFocus: false,
-    enabled: options?.enabled ?? true,
+    enabled: hasCoordinates && (options?.enabled ?? true),
   });
 };

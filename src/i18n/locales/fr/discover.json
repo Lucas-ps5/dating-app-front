@@ -99,5 +99,10 @@
     "maxAge100": "L'âge maximum ne peut pas dépasser 100 ans.",
     "maxAge18": "L'âge maximum doit être d'au moins 18 ans.",
     "minGreater": "L'âge minimum ({{min}}) ne peut pas être supérieur à l'âge maximum ({{max}})."
+  },
+  "locationRequired": {
+    "title": "Localisation requise",
+    "desc": "Pour découvrir des personnes près de chez vous, nous avons besoin d'accéder à votre position. Veuillez activer les permissions de localisation dans votre navigateur et réessayer.",
+    "retry": "Réessayer"
   }
 }

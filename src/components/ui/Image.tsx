@@ -31,7 +31,7 @@ export function resolveImageUrl(url: string, isLocal: boolean): string | undefin
   const backendURL: string | undefined = import.meta.env.VITE_REST_API_BASE_URL + "/media/";
 
   if (!url) return undefined;
-  if (!isLocal) return backendURL + url;
+  if (!isLocal) return url;
 
   const cleanPath = url.replace(/^\/?src\/assets\/images\//, "").replace(/^\.?\//, "");
   const fileName = cleanPath.slice(cleanPath.lastIndexOf("/") + 1);

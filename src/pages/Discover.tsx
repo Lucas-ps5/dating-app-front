@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useDeferredValue } from "react";
 import { useSearchParams } from "react-router";
-import { Compass, FilterX } from "lucide-react";
+import { Compass, FilterX, MapPin, RotateCcw } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Gender, type UserWithDistance } from "@/api/users";
 import { useDiscoverUsers } from "@/composables/useDiscoverUsers";
@@ -12,11 +12,13 @@ import { DiscoverPagination } from "@/components/discover/DiscoverPagination";
 import { DiscoverSkeleton } from "@/components/discover/DiscoverSkeleton";
 import { DiscoverEmptyState } from "@/components/discover/DiscoverEmptyState";
 import { DiscoverErrorState } from "@/components/discover/DiscoverErrorState";
+import { getStoredCoordinates, refreshCoordinates } from "@/utils/geolocation";
 
 export const DiscoverPage: React.FC = () => {
   const { t } = useTranslation("discover");
   const [searchParams, setSearchParams] = useSearchParams();
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
+  const [showLocationPrompt, setShowLocationPrompt] = useState(false);
 
   const {
     gender,
@@ -32,6 +34,9 @@ export const DiscoverPage: React.FC = () => {
     setLimit,
     resetFilters,
   } = useDiscoverStore();
+
+  // Check if coordinates are available
+  const hasCoordinates = getStoredCoordinates() !== null;
 
   // Sync initial URL search params into Zustand on mount
   useEffect(() => {
@@ -113,6 +118,12 @@ export const DiscoverPage: React.FC = () => {
     ageMax !== DEFAULT_AGE_MAX ||
     Boolean(clientSearch);
 
+  const handleRefreshLocation = async () => {
+    await refreshCoordinates();
+    setShowLocationPrompt(false);
+    refetch();
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6">
       {/* A. Main Header */}
@@ -160,7 +171,31 @@ export const DiscoverPage: React.FC = () => {
 
       {/* C. User Results & Status Views */}
       <section aria-label="User profiles results" className="min-h-[400px]">
-        {isLoading ? (
+        {!hasCoordinates ? (
+          /* Location Required State */
+          <div className="flex flex-col items-center justify-center p-12 text-center rounded-3xl bg-card/60 border border-border/80 my-8 shadow-sm">
+            <div className="w-16 h-16 rounded-2xl bg-zinc-800/80 border border-zinc-700/60 flex items-center justify-center mb-4 text-zinc-400 shadow-inner">
+              <MapPin className="w-8 h-8 text-zinc-400" />
+            </div>
+
+            <h3 className="text-xl font-bold tracking-tight text-foreground mb-2">
+              {t("locationRequired.title", "Location Required")}
+            </h3>
+
+            <p className="text-sm text-muted-foreground max-w-md mb-6 leading-relaxed">
+              {t("locationRequired.desc", "To discover people near you, we need access to your location. Please enable location permissions in your browser and try again.")}
+            </p>
+
+            <button
+              type="button"
+              onClick={handleRefreshLocation}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm transition-all hover:shadow-glow"
+            >
+              <RotateCcw className="w-4 h-4" />
+              <span>{t("locationRequired.retry", "Try Again")}</span>
+            </button>
+          </div>
+        ) : isLoading ? (
           <DiscoverSkeleton count={limit > 12 ? 12 : limit} variant={viewMode} />
         ) : isError ? (
           <DiscoverErrorState error={error} onRetry={() => refetch()} />
@@ -208,7 +243,7 @@ export const DiscoverPage: React.FC = () => {
       </section>
 
       {/* D. Pagination Component */}
-      {!isLoading && !isError && total > 0 && (
+      {!isLoading && !isError && total > 0 && hasCoordinates && (
         <section aria-label="Results pagination">
           <DiscoverPagination
             page={page}

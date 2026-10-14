@@ -1,28 +1,24 @@
 import * as React from "react";
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
-import { useAuth } from "@/hooks/useAuth";
-import { cn } from "@/lib/utils";
-import axios from "axios";
 import Loader from "@/components/ui/Loader";
-import { Images } from "@/api/media";
+import { Images } from "@/api/media/sdk.gen";
 
 /**
  * Image Upload Component with Delete and i18n
  *
- - Lets the user pick an image file.
- - Uploads automatically on selection.
- - Sends multipart/form-data with a `photo` field to
-   `POST {API_BASE_URL}/api/media/images?context={context}`.
- - Includes the bearer access token via the project's existing
-   auth mechanism (axios interceptors in `src/plugins/clients.ts`).
- - Shows a preview, upload progress or loading state, and a useful error message.
- - Allows the user to select a different image and upload again.
- - Validates JPEG, PNG, WebP, and GIF files up to 10 MB, and validates before uploading.
- - On success, calls an `onImageUploaded` prop with the uploaded image URL so the parent can use it.
- - Provides a delete button to remove the uploaded image via `DELETE /images/{objectName}`.
- - Fully internationalized using react-i18next.
+ * - Lets the user pick an image file.
+ * - Uploads automatically on selection.
+ * - Sends multipart/form-data with a `photo` field to
+ *   `POST {API_BASE_URL}/api/media/images?context={context}`.
+ * - The Bearer token is added by the axios/hey-api interceptors
+ *   configured in `src/plugins/clients.ts`.
+ * - Shows a local preview (instant, independent of the server URL),
+ *   a loading overlay while uploading, and a useful error message.
+ * - Validates JPEG, PNG, WebP and GIF files up to 10 MB before uploading.
+ * - On success, calls `onImageUploaded` with the uploaded image URL.
+ * - Provides a delete button: `DELETE /images/{objectName}`.
  */
 export interface ImageUploadProps {
   /** Context tag for the upload (e.g. "avatar", "chat") */
@@ -33,184 +29,126 @@ export interface ImageUploadProps {
   onImageDeleted?: (objectName: string) => void;
 }
 
-/**
- * Renders a file-picker label and handles the upload lifecycle.
- */
+type Status = "idle" | "uploading" | "success" | "error" | "deleting";
+
+const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+const MAX_SIZE = 10 * 1024 * 1024; // 10 MB
+
 export const ImageUpload: React.FC<ImageUploadProps> = ({
   context,
   onImageUploaded,
   onImageDeleted,
 }) => {
-  const { t, i18n } = useTranslation();
-  const { token } = useAuth();
+  const { t } = useTranslation("profile");
 
-  const [status, setStatus] = useState<
-    | "idle"
-    | "preview"
-    | "uploading"
-    | "success"
-    | "error"
-    | "deleting"
-  >("idle");
+  const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState<string | null>(null);
-  const [progress, setProgress] = useState(0);
   const [uploadedUrl, setUploadedUrl] = useState<string | null>(null);
   const [objectName, setObjectName] = useState<string | null>(null);
-  const [locale, setLocale] = useState<string>("en");
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
-  // Track locale changes (simple i18n refresh)
-  React.useEffect(() => {
-    setLocale(i18n.language);
-  }, [i18n.language]);
-
-  // Keep a ref to the file input so we can programmatically open it.
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const chooseFile = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.click();
-    }
-  };
+  // Keep the latest previewUrl in a ref so the unmount cleanup
+  // revokes the current URL (not a stale one captured at first render).
+  const previewUrlRef = useRef<string | null>(null);
+  useEffect(() => {
+    previewUrlRef.current = previewUrl;
+  }, [previewUrl]);
+
+  useEffect(() => {
+    return () => {
+      if (previewUrlRef.current) {
+        URL.revokeObjectURL(previewUrlRef.current);
+      }
+    };
+  }, []);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) {
-      setStatus("idle");
-      setError(null);
-      return;
-    }
+    if (!file) return;
 
     // Validate MIME type
-    const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
-    if (!allowedTypes.includes(file.type)) {
+    if (!ALLOWED_TYPES.includes(file.type)) {
       setStatus("error");
-      setError(
-        t("imageUpload.unsupportedType", { type: file.type })
-      );
+      setError(t("imageUpload.unsupportedType", { type: file.type }));
+      if (fileInputRef.current) fileInputRef.current.value = "";
       return;
     }
 
-    // Validate size (max 10 MB)
-    const maxSize = 10 * 1024 * 1024; // 10 MB
-    if (file.size > maxSize) {
+    // Validate size
+    if (file.size > MAX_SIZE) {
       setStatus("error");
       setError(
         t("imageUpload.tooLarge", {
           size: (file.size / 1024 / 1024).toFixed(1),
         })
       );
+      if (fileInputRef.current) fileInputRef.current.value = "";
       return;
     }
 
-    // Show preview and start upload
-    setStatus("preview");
+    // Release the previous preview before creating a new one
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    const objectUrl = URL.createObjectURL(file);
+
+    setPreviewUrl(objectUrl);
     setError(null);
-    setProgress(0);
     setUploadedUrl(null);
     setObjectName(null);
-
-    const formData = new FormData();
-    formData.append("photo", file);
-    // The `context` query param is appended in the URL below.
-
     setStatus("uploading");
 
     try {
-      // Use axios directly. The baseURL is already configured in the plugin
-      // (src/plugins/clients.ts) and the interceptor adds the Bearer token.
-      // We intentionally do NOT set a Content-Type header – let the browser
-      // add the multipart boundary.
-      const response = await axios.post<
-        { objectName?: string; url?: string; size?: number; mimetype?: string },
-        unknown,
-        unknown
-      >(
-        `/api/media/images?context=${encodeURIComponent(context)}`,
-        formData,
-        {
-          onUploadProgress: (progressEvent) => {
-            if (progressEvent.total) {
-              const percent = Math.round(
-                (progressEvent.loaded / progressEvent.total) * 100,
-              );
-              setProgress(percent);
-            }
-          },
-        },
-      );
+      const result = await Images.uploadImage({
+        body: { photo: file, context },
+        query: { context },
+      });
 
-      // Backend currently responds with `{ imageUrl, objectName, size, mimetype }`.
-      // Use `imageUrl` as the primary value, and also pass the full response.
-      const responseData = response.data;
-      const imageUrl =
-        typeof responseData === "object" && responseData !== null
-          ? (responseData as { imageUrl?: string }).imageUrl
-          : null;
-      const returnedObjectName =
-        typeof responseData === "object" && responseData !== null
-          ? (responseData as { objectName?: string }).objectName
-          : null;
+      // hey-api does not throw on HTTP errors by default:
+      // it returns { data, error, response }.
+      if (result.error || !result.data) {
+        throw new Error(
+          (result.error as any)?.message ??
+            `Server error ${result.response?.status ?? ""}`.trim()
+        );
+      }
 
-      setUploadedUrl(imageUrl ?? null);
-      setObjectName(returnedObjectName ?? null);
+      // Adapt to the real field name returned by the backend (imageUrl or url)
+      const data = result.data as any;
+      const imageUrl: string | null = data.imageUrl ?? data.url ?? null;
+      const returnedObjectName: string | null = data.objectName ?? null;
+
+      setUploadedUrl(imageUrl);
+      setObjectName(returnedObjectName);
       setStatus("success");
-      setProgress(100);
 
-      // Notify the parent
-      onImageUploaded(imageUrl ?? "", response);
+      onImageUploaded(imageUrl ?? "", result);
     } catch (err: any) {
       console.error("Image upload error:", err);
 
-      let message = t("imageUpload.error");
-
-      if (err.response) {
-        // Server returned a non-2xx status
+      let message: string = t("imageUpload.error");
+      if (err?.response?.data) {
         const data = err.response.data;
-        if (typeof data === "object" && data !== null) {
-          const errData = data as {
-            message?: string;
-            error?: string;
-            statusCode?: number;
-          };
-          message =
-            errData.message ||
-            errData.error ||
-            `Server error ${err.response.status}`;
-        } else if (typeof data === "string") {
-          message = data;
-        }
-      } else if (err.request) {
-        message = "No response received from the server. Check your connection.";
-      } else {
-        message = err.message || "Unexpected error.";
+        message =
+          typeof data === "string"
+            ? data
+            : data.message || data.error || `Server error ${err.response.status}`;
+      } else if (err?.request) {
+        message = t("imageUpload.noResponse");
+      } else if (err?.message) {
+        message = err.message;
       }
 
       setStatus("error");
       setError(message);
+      URL.revokeObjectURL(objectUrl);
+      setPreviewUrl(null);
     } finally {
-      setProgress(0);
+      // Allows selecting the same file again
+      if (fileInputRef.current) fileInputRef.current.value = "";
     }
   };
 
-  // When upload succeeds, reset after a short delay so the user can
-  // re‑select the same image without having to clear the input first.
-  React.useEffect(() => {
-    if (status === "success") {
-      const timer = setTimeout(() => {
-        setStatus("idle");
-        setUploadedUrl(null);
-        setObjectName(null);
-        // Important: reset the file input value so the same file can be
-        // selected again without the browser blocking it.
-        if (fileInputRef.current) {
-          fileInputRef.current.value = "";
-        }
-      }, 300);
-      return () => clearTimeout(timer);
-    }
-  }, [status]);
-
-  // Delete the uploaded image
   const handleDelete = useCallback(async () => {
     if (!objectName) return;
 
@@ -218,36 +156,47 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
     setError(null);
 
     try {
-      // Use the hey-api media client delete method.
-      // The path parameter is { objectName } and the interceptor adds the Bearer token.
       const result = await Images.deleteImage({
         path: { objectName },
       });
 
-      // The delete endpoint returns 204 No Content on success.
-      // result.data should be undefined/void.
+      if (result?.error) {
+        throw new Error(
+          (result.error as any)?.message ??
+            `Server error ${result.response?.status ?? ""}`.trim()
+        );
+      }
+
+      const deletedName = objectName;
+
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+      setPreviewUrl(null);
+      setUploadedUrl(null);
       setObjectName(null);
       setStatus("idle");
 
-      // Notify the parent (if callback provided)
-      onImageDeleted?.(objectName);
+      onImageDeleted?.(deletedName);
     } catch (err: any) {
       console.error("Image delete error:", err);
-
       setError(t("imageUpload.deleteError"));
-      setStatus("error");
-    } finally {
-      setProgress(0);
+      // The image is still on the server: go back to "success"
+      // so the user can retry the deletion.
+      setStatus("success");
     }
-  }, [objectName, onImageDeleted]);
+  }, [objectName, previewUrl, onImageDeleted, t]);
+
+  const isBusy = status === "uploading" || status === "deleting";
+  const showPreview = !!previewUrl && status !== "error";
 
   return (
     <div className="space-y-2" aria-describedby="image-upload-status">
-      {/* File picker button */}
+      {/* File picker: the <label> opens the input natively, no onClick needed */}
       <label
-        className="flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-colors cursor-pointer"
-        onClick={chooseFile}
-        role="button"
+        className={`flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium transition-colors ${
+          isBusy
+            ? "cursor-not-allowed opacity-50"
+            : "cursor-pointer hover:bg-accent hover:text-accent-foreground"
+        }`}
         aria-label={t("imageUpload.upload")}
       >
         <svg
@@ -255,72 +204,90 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
+          aria-hidden="true"
         >
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
             strokeWidth={2}
-            d="M4 16v1a3 3 0 003 3h6a3 3 0 003-3v1m-7-7h2m-5 4h12a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v9m2-3y-2-2 2-2m7.56 3.56a.75.75 0 010 1.06l-1.56 1.56a.75.75 0 01-1.06 0L17 9.58l-1.06-1.06a.75.75 0 010-1.06l1.56-1.56a.75.75 0 011.06 0l3.27 3.27a.75.75 0 01-.33 1.23Z"
-          />
-          <input
-            type="file"
-            accept="image/*"
-            ref={fileInputRef}
-            className="hidden"
-            onChange={handleFileChange}
+            d="M4 16v1a3 3 0 003 3h6a3 3 0 003-3v1m-7-7h2m-5 4h12a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v9m2-3v-2h2v2m7.56 3.56a.75.75 0 010 1.06l-1.56 1.56a.75.75 0 01-1.06 0L17 9.58l-1.06-1.06a.75.75 0 010-1.06l1.56-1.56a.75.75 0 011.06 0l3.27 3.27a.75.75 0 01-.33 1.23Z"
           />
         </svg>
+        <input
+          type="file"
+          accept={ALLOWED_TYPES.join(",")}
+          ref={fileInputRef}
+          className="hidden"
+          onChange={handleFileChange}
+          disabled={isBusy}
+        />
         <span>{t("imageUpload.upload")}</span>
       </label>
 
-      {/* Status display */}
-      {status === "preview" && (
-        <p className="text-sm text-foreground/60">{t("imageUpload.selectForPreview")}</p>
-      )}
+      <div id="image-upload-status" aria-live="polite" className="space-y-2">
+        {/* Preview: local blob first, server URL once the upload is done */}
+        {showPreview && (
+          <div className="relative h-20 w-20 overflow-hidden rounded-md border border-input bg-background">
+            <img
+              src={previewUrl as string}
+              alt={t("imageUpload.previewAlt")}
+              className="h-full w-full object-cover"
+              onError={(e) => {
+                // If the server URL fails to load, fall back to the local preview
+                const img = e.currentTarget;
+                if (previewUrl && img.src !== previewUrl) {
+                  img.src = previewUrl;
+                }
+              }}
+            />
+            {isBusy && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+                <Loader size="sm" />
+              </div>
+            )}
+          </div>
+        )}
 
-      {status === "uploading" && (
-        <div className="flex items-center gap-2">
-          <Loader size="sm" />
-          <span className="text-sm text-foreground/60">{t("imageUpload.uploading")}</span>
-          <span className="text-xs font-medium" style={{ opacity: progress / 100 }}>
-            {progress}%
-          </span>
-        </div>
-      )}
+        {status === "uploading" && (
+          <div className="flex items-center gap-2">
+            <Loader size="sm" />
+            <span className="text-sm text-foreground/60">
+              {t("imageUpload.uploading")}
+            </span>
+          </div>
+        )}
 
-      {status === "success" && (
-        <div className="flex items-center gap-3">
-          <img
-            src={uploadedUrl || ""}
-            alt="Uploaded image preview"
-            className="h-12 w-12 rounded-md object-cover"
-          />
-          <span className="text-sm font-medium text-foreground">{t("imageUpload.uploaded")}</span>
+        {status === "success" && (
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-medium text-foreground">
+              {t("imageUpload.uploaded")}
+            </span>
 
-          {/* Delete button shown only when we have an objectName (image was uploaded) */}
-          {objectName && (
-            <button
-              onClick={handleDelete}
-              className="ml-2 rounded-md border border-destructive text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-              title="Delete image"
-              aria-label="Delete image"
-            >
-              {t("imageUpload.delete")}
-            </button>
-          )}
-        </div>
-      )}
+            {objectName && (
+              <button
+                type="button"
+                onClick={handleDelete}
+                className="rounded-md border border-destructive px-3 py-1 text-sm font-medium text-destructive transition-colors hover:bg-destructive/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                title={t("imageUpload.delete")}
+                aria-label={t("imageUpload.delete")}
+              >
+                {t("imageUpload.delete")}
+              </button>
+            )}
+          </div>
+        )}
 
-      {status === "error" && (
-        <p className="text-sm text-destructive">{error}</p>
-      )}
+        {status === "deleting" && (
+          <div className="flex items-center gap-2">
+            <Loader size="sm" />
+            <span className="text-sm text-foreground/60">
+              {t("imageUpload.deleting")}
+            </span>
+          </div>
+        )}
 
-      {status === "deleting" && (
-        <div className="flex items-center gap-2">
-          <Loader size="sm" />
-          <span className="text-sm text-foreground/60">{t("imageUpload.deleting")}</span>
-        </div>
-      )}
+        {error && <p className="text-sm text-destructive">{error}</p>}
+      </div>
     </div>
   );
 };

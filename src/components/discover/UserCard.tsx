@@ -124,14 +124,6 @@ export const UserCard: React.FC<UserCardProps> = ({ user, variant = "grid" }) =>
             <MessageSquare className="w-3.5 h-3.5 text-zinc-400" />
             <span>{t("card.message")}</span>
           </button>
-          <Link
-            to={`/users/${user.id}`}
-            onClick={(e) => e.stopPropagation()}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-medium bg-primary/90 hover:bg-primary text-primary-foreground transition-all shadow-sm"
-          >
-            <span>{t("card.profile")}</span>
-            <ArrowUpRight className="w-3.5 h-3.5" />
-          </Link>
         </div>
       </div>
     );
@@ -236,16 +228,6 @@ export const UserCard: React.FC<UserCardProps> = ({ user, variant = "grid" }) =>
           <MessageSquare className="w-3.5 h-3.5 text-zinc-400" />
           <span>{t("card.message")}</span>
         </button>
-
-        <Link
-          to={`/users/${user.id}`}
-          onClick={(e) => e.stopPropagation()}
-          aria-label={t("card.profileAria", { name: user.username || t("card.member") })}
-          className="flex-1 inline-flex items-center justify-center gap-1 py-2 px-3 rounded-lg text-xs font-medium bg-primary/90 hover:bg-primary text-primary-foreground transition-all shadow-sm"
-        >
-          <span>{t("card.viewProfile")}</span>
-          <ArrowUpRight className="w-3.5 h-3.5" />
-        </Link>
       </div>
     </div>
   );

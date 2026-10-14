@@ -73,7 +73,7 @@ components:
     UploadImageResponse:
       type: object
       properties:
-        imageUrl:
+        url:
           type: string
           format: uri
           description: URL of the uploaded image in object storage

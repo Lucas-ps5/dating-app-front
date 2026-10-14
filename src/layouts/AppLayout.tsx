@@ -2,6 +2,7 @@ import { Outlet, NavLink, useLocation } from "react-router";
 import { Heart, MessageCircle, User, Compass, LayoutDashboard, ThumbsUp, LogOut } from "lucide-react";
 import { useFetchLikesCount } from "@/composables/useFetchLikesCount";
 import { useFetchMatchsCount } from "@/composables/useFetchMatchsCount";
+import Image from "@/components/ui/Image";
 
 import { useAuth } from "@/hooks/useAuth";
 
@@ -56,7 +57,7 @@ export default function AppLayout() {
         </div>
         <div className="flex items-center gap-3">
           <span className="text-sm text-muted-foreground">
-            {(userInfo?.name as string) || (userInfo?.preferred_username as string) || "Profile"}
+            {(userInfo?.preferred_username as string) || "Profile"}
           </span>
           <button onClick={() => logout()} className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors">
             <LogOut className="w-4 h-4" />
