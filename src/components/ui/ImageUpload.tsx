@@ -1,51 +1,60 @@
 import * as React from "react";
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { CircleCheck, ImagePlus, Trash2 } from "lucide-react";
 
 import Loader from "@/components/ui/Loader";
 import { Images } from "@/api/media/sdk.gen";
+import { cn } from "@/lib/utils";
 
 /**
- * Image Upload Component with Delete and i18n
+ * Image Upload Component (dropzone) with optional delete and i18n
  *
- * - Lets the user pick an image file.
+ * - Click, keyboard (Tab + Enter/Space) or drag & drop to pick an image.
  * - Uploads automatically on selection.
  * - Sends multipart/form-data with a `photo` field to
  *   `POST {API_BASE_URL}/api/media/images?context={context}`.
  * - The Bearer token is added by the axios/hey-api interceptors
  *   configured in `src/plugins/clients.ts`.
- * - Shows a local preview (instant, independent of the server URL),
- *   a loading overlay while uploading, and a useful error message.
  * - Validates JPEG, PNG, WebP and GIF files up to 10 MB before uploading.
  * - On success, calls `onImageUploaded` with the uploaded image URL.
- * - Provides a delete button: `DELETE /images/{objectName}`.
+ * - Delete button (`DELETE /images/{objectName}`) is only rendered when
+ *   `onImageDeleted` is provided, so existing usages that rely on it keep working.
  */
 export interface ImageUploadProps {
   /** Context tag for the upload (e.g. "avatar", "chat") */
   context: string;
   /** Called when the image has been uploaded successfully. */
   onImageUploaded: (url: string, response: unknown) => void;
-  /** Called when the image has been deleted. Receives the deleted objectName. */
+  /** Called when the image has been deleted. Receives the deleted objectName.
+   *  When provided, a delete button is shown after a successful upload. */
   onImageDeleted?: (objectName: string) => void;
+  /** Show a local thumbnail of the uploaded image. Defaults to true.
+   *  Set to false when the parent already displays the image (e.g. a gallery). */
+  showPreview?: boolean;
+  className?: string;
 }
 
 type Status = "idle" | "uploading" | "success" | "error" | "deleting";
 
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 const MAX_SIZE = 10 * 1024 * 1024; // 10 MB
+const SUCCESS_VISIBLE_MS = 3000;
 
 export const ImageUpload: React.FC<ImageUploadProps> = ({
   context,
   onImageUploaded,
   onImageDeleted,
+  showPreview: showPreviewProp = true,
+  className,
 }) => {
   const { t } = useTranslation("profile");
 
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState<string | null>(null);
-  const [uploadedUrl, setUploadedUrl] = useState<string | null>(null);
   const [objectName, setObjectName] = useState<string | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -64,15 +73,25 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
     };
   }, []);
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  // Without a delete button, the success message is only a brief confirmation.
+  useEffect(() => {
+    if (status !== "success" || onImageDeleted) return;
+    const id = window.setTimeout(() => {
+      setStatus("idle");
+      setObjectName(null);
+    }, SUCCESS_VISIBLE_MS);
+    return () => window.clearTimeout(id);
+  }, [status, onImageDeleted]);
 
+  const resetInput = () => {
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const processFile = async (file: File) => {
     // Validate MIME type
     if (!ALLOWED_TYPES.includes(file.type)) {
       setStatus("error");
       setError(t("imageUpload.unsupportedType", { type: file.type }));
-      if (fileInputRef.current) fileInputRef.current.value = "";
       return;
     }
 
@@ -82,9 +101,8 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
       setError(
         t("imageUpload.tooLarge", {
           size: (file.size / 1024 / 1024).toFixed(1),
-        })
+        }),
       );
-      if (fileInputRef.current) fileInputRef.current.value = "";
       return;
     }
 
@@ -94,7 +112,6 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
 
     setPreviewUrl(objectUrl);
     setError(null);
-    setUploadedUrl(null);
     setObjectName(null);
     setStatus("uploading");
 
@@ -109,7 +126,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
       if (result.error || !result.data) {
         throw new Error(
           (result.error as any)?.message ??
-            `Server error ${result.response?.status ?? ""}`.trim()
+            `Server error ${result.response?.status ?? ""}`.trim(),
         );
       }
 
@@ -118,7 +135,6 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
       const imageUrl: string | null = data.imageUrl ?? data.url ?? null;
       const returnedObjectName: string | null = data.objectName ?? null;
 
-      setUploadedUrl(imageUrl);
       setObjectName(returnedObjectName);
       setStatus("success");
 
@@ -143,10 +159,34 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
       setError(message);
       URL.revokeObjectURL(objectUrl);
       setPreviewUrl(null);
-    } finally {
-      // Allows selecting the same file again
-      if (fileInputRef.current) fileInputRef.current.value = "";
     }
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) await processFile(file);
+    // Allows selecting the same file again
+    resetInput();
+  };
+
+  const isBusy = status === "uploading" || status === "deleting";
+
+  const handleDragOver = (e: React.DragEvent<HTMLLabelElement>) => {
+    e.preventDefault();
+    if (!isBusy) setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent<HTMLLabelElement>) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = async (e: React.DragEvent<HTMLLabelElement>) => {
+    e.preventDefault();
+    setIsDragging(false);
+    if (isBusy) return;
+    const file = e.dataTransfer.files?.[0];
+    if (file) await processFile(file);
   };
 
   const handleDelete = useCallback(async () => {
@@ -163,7 +203,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
       if (result?.error) {
         throw new Error(
           (result.error as any)?.message ??
-            `Server error ${result.response?.status ?? ""}`.trim()
+            `Server error ${result.response?.status ?? ""}`.trim(),
         );
       }
 
@@ -171,7 +211,6 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
 
       if (previewUrl) URL.revokeObjectURL(previewUrl);
       setPreviewUrl(null);
-      setUploadedUrl(null);
       setObjectName(null);
       setStatus("idle");
 
@@ -185,92 +224,108 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
     }
   }, [objectName, previewUrl, onImageDeleted, t]);
 
-  const isBusy = status === "uploading" || status === "deleting";
-  const showPreview = !!previewUrl && status !== "error";
+  // La miniature reste affichée jusqu'au prochain envoi (ou à la suppression),
+  // même après la disparition du message de succès.
+  const thumbnailVisible =
+    showPreviewProp && !!previewUrl && status !== "error";
 
   return (
-    <div className="space-y-2" aria-describedby="image-upload-status">
-      {/* File picker: the <label> opens the input natively, no onClick needed */}
+    <div className={cn("flex flex-col gap-2", className)}>
+      {/* Dropzone: le <label> ouvre l'input nativement; l'input reste focusable (sr-only) */}
       <label
-        className={`flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium transition-colors ${
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+        className={cn(
+          "group flex items-center gap-4 rounded-2xl border border-dashed px-4 py-3.5 transition-colors",
+          "focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 focus-within:ring-offset-background",
           isBusy
-            ? "cursor-not-allowed opacity-50"
-            : "cursor-pointer hover:bg-accent hover:text-accent-foreground"
-        }`}
-        aria-label={t("imageUpload.upload")}
+            ? "cursor-not-allowed opacity-60 border-border/70"
+            : "cursor-pointer hover:border-primary/60 hover:bg-primary/5",
+          isDragging
+            ? "border-primary bg-primary/10"
+            : "border-border/70 bg-transparent",
+        )}
       >
-        <svg
-          className="mr-2 h-4 w-4"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-          aria-hidden="true"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M4 16v1a3 3 0 003 3h6a3 3 0 003-3v1m-7-7h2m-5 4h12a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v9m2-3v-2h2v2m7.56 3.56a.75.75 0 010 1.06l-1.56 1.56a.75.75 0 01-1.06 0L17 9.58l-1.06-1.06a.75.75 0 010-1.06l1.56-1.56a.75.75 0 011.06 0l3.27 3.27a.75.75 0 01-.33 1.23Z"
-          />
-        </svg>
         <input
           type="file"
           accept={ALLOWED_TYPES.join(",")}
           ref={fileInputRef}
-          className="hidden"
+          className="sr-only"
           onChange={handleFileChange}
           disabled={isBusy}
         />
-        <span>{t("imageUpload.upload")}</span>
+
+        <span
+          className={cn(
+            "flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border transition-colors",
+            isDragging
+              ? "border-primary/50 bg-primary/15 text-primary"
+              : "border-border/60 bg-secondary/70 text-zinc-300 group-hover:text-primary",
+          )}
+        >
+          {status === "uploading" ? (
+            <Loader size="sm" />
+          ) : (
+            <ImagePlus className="h-5 w-5" aria-hidden="true" />
+          )}
+        </span>
+
+        <span className="min-w-0 flex flex-col">
+          <span className="text-sm font-semibold text-foreground">
+            {t("imageUpload.upload")}
+          </span>
+          <span className="text-xs text-muted-foreground">
+            {t("imageUpload.hint", {
+              defaultValue: "Glissez une image ici ou cliquez. JPEG, PNG, WebP ou GIF, 10 Mo max.",
+            })}
+          </span>
+        </span>
       </label>
 
-      <div id="image-upload-status" aria-live="polite" className="space-y-2">
-        {/* Preview: local blob first, server URL once the upload is done */}
-        {showPreview && (
-          <div className="relative h-20 w-20 overflow-hidden rounded-md border border-input bg-background">
+      {/* Barre indéterminée pendant l'envoi (pas de progression réelle côté hey-api) */}
+      {status === "uploading" && (
+        <div
+          role="progressbar"
+          aria-label={t("imageUpload.uploading")}
+          className="relative h-1 w-full overflow-hidden rounded-full bg-secondary"
+        >
+          <div className="absolute inset-y-0 w-1/3 rounded-full bg-primary animate-pulse motion-reduce:animate-none" />
+        </div>
+      )}
+
+      {/* Statuts annoncés aux lecteurs d'écran */}
+      <div role="status" aria-live="polite" className="flex flex-col gap-2">
+        {thumbnailVisible && (
+          <div className="relative h-16 w-16 overflow-hidden rounded-xl border border-border/60 bg-secondary">
             <img
               src={previewUrl as string}
               alt={t("imageUpload.previewAlt")}
               className="h-full w-full object-cover"
-              onError={(e) => {
-                // If the server URL fails to load, fall back to the local preview
-                const img = e.currentTarget;
-                if (previewUrl && img.src !== previewUrl) {
-                  img.src = previewUrl;
-                }
-              }}
             />
-            {isBusy && (
-              <div className="absolute inset-0 flex items-center justify-center bg-black/50">
-                <Loader size="sm" />
-              </div>
-            )}
           </div>
         )}
 
         {status === "uploading" && (
-          <div className="flex items-center gap-2">
-            <Loader size="sm" />
-            <span className="text-sm text-foreground/60">
-              {t("imageUpload.uploading")}
-            </span>
-          </div>
+          <p className="text-xs text-muted-foreground">
+            {t("imageUpload.uploading")}
+          </p>
         )}
 
         {status === "success" && (
-          <div className="flex items-center gap-3">
-            <span className="text-sm font-medium text-foreground">
+          <div className="flex flex-wrap items-center gap-3">
+            <p className="inline-flex items-center gap-1.5 text-xs font-medium text-success">
+              <CircleCheck className="h-3.5 w-3.5" aria-hidden="true" />
               {t("imageUpload.uploaded")}
-            </span>
+            </p>
 
-            {objectName && (
+            {onImageDeleted && objectName && (
               <button
                 type="button"
                 onClick={handleDelete}
-                className="rounded-md border border-destructive px-3 py-1 text-sm font-medium text-destructive transition-colors hover:bg-destructive/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                title={t("imageUpload.delete")}
-                aria-label={t("imageUpload.delete")}
+                className="inline-flex items-center gap-1.5 rounded-full border border-destructive/40 px-3 py-1 text-xs font-medium text-destructive transition-colors hover:bg-destructive/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive focus-visible:ring-offset-2 focus-visible:ring-offset-background"
               >
+                <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
                 {t("imageUpload.delete")}
               </button>
             )}
@@ -278,16 +333,19 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
         )}
 
         {status === "deleting" && (
-          <div className="flex items-center gap-2">
-            <Loader size="sm" />
-            <span className="text-sm text-foreground/60">
-              {t("imageUpload.deleting")}
-            </span>
-          </div>
+          <p className="text-xs text-muted-foreground">
+            {t("imageUpload.deleting")}
+          </p>
         )}
-
-        {error && <p className="text-sm text-destructive">{error}</p>}
       </div>
+
+      {error && (
+        <p role="alert" className="text-xs text-destructive">
+          {error}
+        </p>
+      )}
     </div>
   );
 };
+
+export default ImageUpload;

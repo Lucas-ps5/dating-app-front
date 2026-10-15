@@ -24,7 +24,28 @@
     "photos": "Photos de profil",
     "about": "À propos",
     "details": "Détails",
-    "preferences": "Recherche"
+    "accountInfo": "Informations du compte",
+    "identity": "Identité",
+    "identityDesc": "Les informations de base visibles sur votre profil.",
+    "location": "Localisation",
+    "locationDesc": "Utilisée pour vous proposer des profils proches de vous.",
+    "family": "Famille",
+    "familyDesc": "Informations sur vos enfants et votre souhait d'en avoir.",
+    "preferences": "Recherche",
+    "preferencesDesc": "Informations sur vos préférences.",
+    "relationshipTypes": "Types de relations recherchées",
+    "relationshipTypesDesc": "Informations sur vos préférences de relations.",
+    "sexualInterests": "Intérêts sexuels",
+    "sexualInterestsDesc": "Informations sur vos intérêts sexuels.",
+    "fantasiesText": "Textes de fantasmes",
+    "fantasiesTextDesc": "Informations sur vos fantasmes.",
+    "hasChildren": "A des enfants",
+    "wantsChildren": "Veut des enfants",
+    "profileVisibility": "Visibilité du profil",
+    "profileVisibilityDesc": "Un seul réglage appliqué aux relations recherchées, centres d'intérêts, fantasmes et enfants",
+    "accountDesc": "Informations du compte",
+    "inactiveHint": "Votre profil est masqué.",
+    "activeHint": "Votre profil est visible."
   },
   "fields": {
     "username": "Nom d'utilisateur",
@@ -37,7 +58,18 @@
     "city": "Ville",
     "country": "Pays",
     "status": "Statut",
-    "years": "{{count}} ans"
+    "years": "{{count}} ans",
+    "createdAt": "Créé le",
+    "updatedAt": "Mis à jour le",
+    "height": "Taille",
+    "languagesSpoken": "Langues parlées",
+    "relationshipTypesSought": "Types de relations recherchées",
+    "hasChildren": "A des enfants",
+    "wantsChildren": "Veut des enfants",
+    "sexualInterestsVisibility": "Visibilité des intérêts sexuels",
+    "relationshipTypesSoughtVisibility": "Visibilité des types de relations recherchées",
+    "sexualInterests": "Intérêts sexuels",
+    "fantasiesText": "Textes de fantasmes"  
   },
   "gender": {
     "male": "Homme",
@@ -54,7 +86,7 @@
     "range": "{{min}} – {{max}} ans",
     "gender": "Intéressé(e) par",
     "maxDistance": "Distance max",
-    "withinDistance": "À moins de {{distance}} km"
+    "withinDistance": "Moins de {{distance}} km"
   },
   "empty": {
     "username": "Membre",
@@ -63,7 +95,18 @@
     "birthdate": "Non renseigné",
     "gender": "Non précisé",
     "location": "Localisation non définie",
-    "preferences": "Aucune préférence définie."
+    "preferences": "Aucune préférence définie.",
+    "createdAt": "Non renseigné",
+    "updatedAt": "Non renseigné",
+    "height": "Non renseigné",
+    "languagesSpoken": "Non renseigné",
+    "relationshipTypesSought": "Non renseigné",
+    "hasChildren": "Non renseigné",
+    "wantsChildren": "Non renseigné",
+    "sexualInterestsVisibility": "Non renseigné",
+    "relationshipTypesSoughtVisibility": "Non renseigné",
+    "sexualInterests": "Non renseigné",
+    "fantasiesText": "Non renseigné"
   },
   "loading": {
     "aria": "Chargement de votre profil"
@@ -86,11 +129,52 @@
     "deleteError": "Échec de la suppression de l'image. Veuillez réessayer."
   },
   "edit": {
+    "relationshipTypes": {
+      "discreetRelationship": "Relation discrète",
+      "enhancedFriendship": "Amitié renforcée",
+      "oneOnOneSex": "Sexe à un seul",
+      "oneNightStand": "Plan cul",
+      "experimenting": "Expérimentation",
+      "eroticFantasies": "Fantaisies érotiques"
+    },
+    "sexualInterests": {
+      "roleplay": "Roleplay",
+      "bdsm": "BDSM",
+      "sensoryPlay": "Jeu sensoriel",
+      "voyeurismExhibitionism": "Voyeurisme/exhibitionnisme",
+      "swinging": "Swinging",
+      "groupExperiences": "Expériences de groupe",
+      "tantra": "Tantra",
+      "powerExchange": "Exchange de pouvoir",
+      "other": "Autre"
+    },
+    "hasChildren": {
+      "no": "Non",
+      "yesLivingWithMe": "Oui, vivant avec moi",
+      "yesNotLivingWithMe": "Oui, pas vivant avec moi",
+      "preferNotToSay": "Je préfère ne pas répondre"
+    },
+    "wantsChildren": {
+      "yes": "Oui",
+      "no": "Non",
+      "maybe": "Peut-être",
+      "preferNotToSay": "Je préfère ne pas répondre"
+    },
+    "visibility": {
+      "public": "Visible par tous",
+      "matchesOnly": "Visible uniquement par vos matchs",
+      "hidden": "Visible uniquement par vous"
+    },
     "title": "Modifier le profil",
     "subtitle": "Mettez à jour vos informations. Les modifications sont visibles immédiatement sur votre profil.",
     "loading": "Chargement de votre profil",
     "loadError": "Impossible de charger votre profil pour le modifier.",
     "retry": "Réessayer",
+    "completion": {
+      "label": "Profil complété"
+    },
+    "invalid": "Certains champs sont invalides, vÃ©rifiez le formulaire.",
+    "unsaved": "Modifications non enregistrées",
     "form": {
       "username": "Nom d'utilisateur",
       "usernamePlaceholder": "votre_nom",
@@ -105,14 +189,65 @@
       "cityPlaceholder": "Paris",
       "country": "Pays",
       "countryPlaceholder": "France",
-      "optional": "Facultatif"
+      "optional": "Facultatif",
+      "height": "Taille (cm)",
+      "heightPlaceholder": "ex. 175",
+      "languagesSpoken": "Langues parlées",
+      "languagesSpacedPlaceholder": "ex. en, fr",
+      "ageMin": "Âge minimum",
+      "ageMinPlaceholder": "ex. 18",
+      "ageMax": "Âge maximum",
+      "ageMaxPlaceholder": "ex. 35",
+      "genderPreference": "Préférence de genre",
+      "selectGenderPlaceholder": "Sélectionner une préférence de genre",
+      "maxDistance": "Distance maximale",
+      "maxDistancePlaceholder": "ex. 50",
+      "heightMinCm": "Taille minimum (cm)",
+      "heightMinCmPlaceholder": "ex. 160",
+      "heightMaxCm": "Taille maximale (cm)",
+      "heightMaxCmPlaceholder": "ex. 190",
+      "photos": "Photos",
+      "photosPlaceholder": "URLs des photos",
+      "discreetRelationship": "Relation discrète",
+      "enhancedFriendship": "Amitié renforcée",
+      "oneOnOneSex": "Sexe à un seul",
+      "oneNightStand": "Plan cul",
+      "experimenting": "Expérimentation",
+      "eroticFantasies": "Fantaisies érotiques",
+      "roleplay": "Roleplay",
+      "bdsm": "BDSM",
+      "sensoryPlay": "Jeu sensoriel",
+      "voyeurismExhibitionism": "Voyeurisme/exhibitionnisme",
+      "swinging": "Swinging",
+      "groupExperiences": "Expériences de groupe",
+      "tantra": "Tantra",
+      "powerExchange": "Exchange de pouvoir",
+      "other": "Autre",
+      "fantasiesText": "Textes de fantasmes",
+      "fantasiesTextPlaceholder": "ex. J'apprécie une connexion tranquille et aventureuse",
+      "hasChildren": "Enfants",
+      "yesLivingWithMe": "Oui, vivant avec moi",
+      "yesNotLivingWithMe": "Oui, pas vivant avec moi",
+      "wantsChildren": "Veut des enfants",
+      "yes": "Oui",
+      "no": "Non",
+      "maybe": "Peut-être",
+      "preferNotToSay2": "Je préfère ne pas répondre",
+      "relationshipTypesSoughtVisibility": "Visibilité des types de relations",
+      "public": "Public",
+      "matchesOnly": "Invités seulement",
+      "hidden": "Caché",
+      "sexualInterestsVisibility": "Visibilité des intérêts sexuels",
+      "isActive": "Statut du compte",
+      "active": "Actif",
+      "inactive": "Inactif"
     },
     "gender": {
       "male": "Homme",
       "female": "Femme"
     },
     "save": "Enregistrer",
-    "saving": "Enregistrement…",
+    "saving": "Enregistrement...",
     "cancel": "Annuler",
     "success": "Profil mis à jour avec succès",
     "error": "Échec de la mise à jour de votre profil. Veuillez réessayer.",
@@ -126,7 +261,14 @@
       "cityMax": "La ville doit contenir au plus 100 caractères",
       "countryMax": "Le pays doit contenir au plus 100 caractères",
       "birthdateInvalid": "Veuillez saisir une date valide",
-      "birthdateMinAge": "Vous devez avoir au moins 18 ans"
+      "birthdateMinAge": "Vous devez avoir au moins 18 ans",
+      "heightMin": "La taille doit être d'au moins 120 cm",
+      "heightMax": "La taille doit être au plus 250 cm",
+      "ageMin": "L'âge minimum doit être d'au moins 18",
+      "ageMax": "L'âge maximum doit être au plus 100",
+      "maxDistance": "La distance maximale doit être d'au moins 0",
+      "heightMinCm": "La taille minimum doit être d'au moins 120 cm",
+      "heightMaxCm": "La taille maximale doit être d'au plus 250 cm"
     }
   }
 }

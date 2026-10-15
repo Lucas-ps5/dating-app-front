@@ -2,19 +2,39 @@ import React, { useState } from "react";
 import { useParams, Link, useNavigate } from "react-router";
 import {
   ArrowLeft,
-  MapPin,
+  Baby,
   Briefcase,
-  User as UserIcon,
-  MessageSquare,
-  Compass,
-  AlertCircle,
-  ShieldCheck,
+  Cake,
+  Calendar,
   ChevronLeft,
   ChevronRight,
+  Clock,
+  Compass,
+  Eye,
+  HeartPulse,
+  Languages,
+  MapPin,
+  MessageSquare,
+  AlertCircle,
+  ShieldCheck,
+  Sparkles,
+  User as UserIcon,
+  Users,
+  Ruler,
+  Shield,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useGetUserById } from "@/composables/useGetUserById";
 import { calculateAge, formatLocation, formatDistance } from "@/utils/discover";
+import {
+  formatBirthdate,
+  formatDateTime,
+  formatHasChildren,
+  formatHeight,
+  formatProfileVisibility,
+  formatRelationshipTypes,
+  formatWantsChildren,
+} from "@/utils/profile";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Image } from "@/components/ui/Image";
 
@@ -289,6 +309,238 @@ export const UserProfilePage: React.FC = () => {
               </div>
             </div>
           )}
+
+          {/* Personal Details Card */}
+          {user.birthdate || user.heightCm || (user.languagesSpoken && user.languagesSpoken.length > 0) ? (
+            <div className="p-6 rounded-3xl bg-card border border-border/80 shadow-sm flex flex-col gap-3">
+              <h2 className="text-xs font-bold uppercase tracking-wider text-zinc-400">
+                {t("profilePage.personalDetails")}
+              </h2>
+              <dl className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {user.birthdate && (
+                  <div className="flex items-center gap-3 p-3 rounded-xl bg-secondary/60 border border-border/40">
+                    <Cake className="w-4 h-4 text-zinc-400 shrink-0" />
+                    <div>
+                      <span className="text-[11px] text-zinc-500 block">{t("profilePage.birthdate")}</span>
+                      <span className="text-xs font-semibold text-foreground">
+                        {formatBirthdate(user.birthdate, "fr-FR")}
+                      </span>
+                    </div>
+                  </div>
+                )}
+                {user.heightCm && (
+                  <div className="flex items-center gap-3 p-3 rounded-xl bg-secondary/60 border border-border/40">
+                    <Ruler className="w-4 h-4 text-zinc-400 shrink-0" />
+                    <div>
+                      <span className="text-[11px] text-zinc-500 block">{t("profilePage.height")}</span>
+                      <span className="text-xs font-semibold text-foreground">
+                        {formatHeight(user.heightCm)}
+                      </span>
+                    </div>
+                  </div>
+                )}
+                {user.languagesSpoken && user.languagesSpoken.length > 0 && (
+                  <div className="flex items-center gap-3 p-3 rounded-xl bg-secondary/60 border border-border/40 sm:col-span-2">
+                    <Languages className="w-4 h-4 text-zinc-400 shrink-0" />
+                    <div>
+                      <span className="text-[11px] text-zinc-500 block">{t("profilePage.languages")}</span>
+                      <div className="flex flex-wrap gap-1.5 mt-1">
+                        {user.languagesSpoken.map((lang) => (
+                          <span
+                            key={lang}
+                            className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-secondary text-foreground border border-border/40"
+                          >
+                            {lang}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </dl>
+            </div>
+          ) : null}
+
+          {/* Relationship & Family Card */}
+          {(user.relationshipTypesSought && user.relationshipTypesSought.length > 0) ||
+          user.hasChildren ||
+          user.wantsChildren ? (
+            <div className="p-6 rounded-3xl bg-card border border-border/80 shadow-sm flex flex-col gap-3">
+              <h2 className="text-xs font-bold uppercase tracking-wider text-zinc-400">
+                {t("profilePage.relationshipFamily")}
+              </h2>
+              <dl className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {user.relationshipTypesSought && user.relationshipTypesSought.length > 0 && (
+                  <div className="flex items-center gap-3 p-3 rounded-xl bg-secondary/60 border border-border/40 sm:col-span-2">
+                    <HeartPulse className="w-4 h-4 text-zinc-400 shrink-0" />
+                    <div>
+                      <span className="text-[11px] text-zinc-500 block">{t("profilePage.relationshipTypesSought")}</span>
+                      <span className="text-xs font-semibold text-foreground">
+                        {formatRelationshipTypes(user.relationshipTypesSought, t)}
+                      </span>
+                    </div>
+                  </div>
+                )}
+                {user.hasChildren && (
+                  <div className="flex items-center gap-3 p-3 rounded-xl bg-secondary/60 border border-border/40">
+                    <Users className="w-4 h-4 text-zinc-400 shrink-0" />
+                    <div>
+                      <span className="text-[11px] text-zinc-500 block">{t("profilePage.hasChildren")}</span>
+                      <span className="text-xs font-semibold text-foreground">
+                        {formatHasChildren(user.hasChildren, t)}
+                      </span>
+                    </div>
+                  </div>
+                )}
+                {user.wantsChildren && (
+                  <div className="flex items-center gap-3 p-3 rounded-xl bg-secondary/60 border border-border/40">
+                    <Baby className="w-4 h-4 text-zinc-400 shrink-0" />
+                    <div>
+                      <span className="text-[11px] text-zinc-500 block">{t("profilePage.wantsChildren")}</span>
+                      <span className="text-xs font-semibold text-foreground">
+                        {formatWantsChildren(user.wantsChildren, t)}
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </dl>
+            </div>
+          ) : null}
+
+          {/* Interests & Fantasies Card */}
+          {(user.sexualInterests && user.sexualInterests.length > 0) || user.fantasiesText ? (
+            <div className="p-6 rounded-3xl bg-card border border-border/80 shadow-sm flex flex-col gap-3">
+              <h2 className="text-xs font-bold uppercase tracking-wider text-zinc-400">
+                {t("profilePage.interestsFantasies")}
+              </h2>
+              {user.sexualInterests && user.sexualInterests.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {user.sexualInterests.map((interest) => (
+                    <span
+                      key={interest}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-secondary/60 text-foreground border border-border/40"
+                    >
+                      <Sparkles className="w-3 h-3 text-primary" />
+                      {t(`sexualInterests.${interest}`, { defaultValue: interest })}
+                    </span>
+                  ))}
+                </div>
+              )}
+              {user.fantasiesText && (
+                <div className="p-3 rounded-xl bg-secondary/60 border border-border/40">
+                  <span className="text-[11px] text-zinc-500 block mb-1">{t("profilePage.fantasies")}</span>
+                  <p className="text-xs text-foreground/90 leading-relaxed whitespace-pre-line">
+                    {user.fantasiesText}
+                  </p>
+                </div>
+              )}
+            </div>
+          ) : null}
+
+          {/* Profile Visibility Card */}
+          {(user.relationshipTypesSoughtVisibility ||
+            user.sexualInterestsVisibility ||
+            user.fantasiesTextVisibility ||
+            user.hasChildrenVisibility ||
+            user.wantsChildrenVisibility) && (
+            <div className="p-6 rounded-3xl bg-card border border-border/80 shadow-sm flex flex-col gap-3">
+              <h2 className="text-xs font-bold uppercase tracking-wider text-zinc-400 flex items-center gap-2">
+                <Shield className="w-4 h-4" />
+                {t("profilePage.profileVisibility")}
+              </h2>
+              <dl className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {user.relationshipTypesSoughtVisibility && (
+                  <div className="flex items-center gap-3 p-3 rounded-xl bg-secondary/60 border border-border/40">
+                    <Eye className="w-4 h-4 text-zinc-400 shrink-0" />
+                    <div>
+                      <span className="text-[11px] text-zinc-500 block">{t("profilePage.relationshipTypesVisibility")}</span>
+                      <span className="text-xs font-semibold text-foreground">
+                        {formatProfileVisibility(user.relationshipTypesSoughtVisibility, t)}
+                      </span>
+                    </div>
+                  </div>
+                )}
+                {user.sexualInterestsVisibility && (
+                  <div className="flex items-center gap-3 p-3 rounded-xl bg-secondary/60 border border-border/40">
+                    <Eye className="w-4 h-4 text-zinc-400 shrink-0" />
+                    <div>
+                      <span className="text-[11px] text-zinc-500 block">{t("profilePage.sexualInterestsVisibility")}</span>
+                      <span className="text-xs font-semibold text-foreground">
+                        {formatProfileVisibility(user.sexualInterestsVisibility, t)}
+                      </span>
+                    </div>
+                  </div>
+                )}
+                {user.fantasiesTextVisibility && (
+                  <div className="flex items-center gap-3 p-3 rounded-xl bg-secondary/60 border border-border/40">
+                    <Eye className="w-4 h-4 text-zinc-400 shrink-0" />
+                    <div>
+                      <span className="text-[11px] text-zinc-500 block">{t("profilePage.fantasiesVisibility")}</span>
+                      <span className="text-xs font-semibold text-foreground">
+                        {formatProfileVisibility(user.fantasiesTextVisibility, t)}
+                      </span>
+                    </div>
+                  </div>
+                )}
+                {user.hasChildrenVisibility && (
+                  <div className="flex items-center gap-3 p-3 rounded-xl bg-secondary/60 border border-border/40">
+                    <Eye className="w-4 h-4 text-zinc-400 shrink-0" />
+                    <div>
+                      <span className="text-[11px] text-zinc-500 block">{t("profilePage.hasChildrenVisibility")}</span>
+                      <span className="text-xs font-semibold text-foreground">
+                        {formatProfileVisibility(user.hasChildrenVisibility, t)}
+                      </span>
+                    </div>
+                  </div>
+                )}
+                {user.wantsChildrenVisibility && (
+                  <div className="flex items-center gap-3 p-3 rounded-xl bg-secondary/60 border border-border/40">
+                    <Eye className="w-4 h-4 text-zinc-400 shrink-0" />
+                    <div>
+                      <span className="text-[11px] text-zinc-500 block">{t("profilePage.wantsChildrenVisibility")}</span>
+                      <span className="text-xs font-semibold text-foreground">
+                        {formatProfileVisibility(user.wantsChildrenVisibility, t)}
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </dl>
+            </div>
+          )}
+
+          {/* Account Info Card */}
+          {user.createdAt || user.updatedAt ? (
+            <div className="p-6 rounded-3xl bg-muted/50 border border-border/50 flex flex-col gap-3">
+              <h2 className="text-xs font-bold uppercase tracking-wider text-zinc-400 flex items-center gap-2">
+                <Calendar className="w-4 h-4" />
+                {t("profilePage.accountInfo")}
+              </h2>
+              <dl className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-muted-foreground">
+                {user.createdAt && (
+                  <div className="flex items-center gap-3 p-3 rounded-xl bg-secondary/30 border border-border/40">
+                    <Calendar className="w-4 h-4 text-zinc-500 shrink-0" />
+                    <div>
+                      <span className="text-[11px] text-zinc-500 block">{t("profilePage.joinedAt")}</span>
+                      <span className="text-xs font-medium text-foreground">
+                        {formatDateTime(user.createdAt, "fr-FR")}
+                      </span>
+                    </div>
+                  </div>
+                )}
+                {user.updatedAt && (
+                  <div className="flex items-center gap-3 p-3 rounded-xl bg-secondary/30 border border-border/40">
+                    <Clock className="w-4 h-4 text-zinc-500 shrink-0" />
+                    <div>
+                      <span className="text-[11px] text-zinc-500 block">{t("profilePage.lastUpdated")}</span>
+                      <span className="text-xs font-medium text-foreground">
+                        {formatDateTime(user.updatedAt, "fr-FR")}
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </dl>
+            </div>
+          ) : null}
         </div>
       </div>
     </div>
