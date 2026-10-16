@@ -50,7 +50,7 @@ export const getCurrentCoordinates = (): Promise<Coordinates> => {
         enableHighAccuracy: true,
         timeout: 10000,
         maximumAge: 0,
-      }
+      },
     );
   });
 };

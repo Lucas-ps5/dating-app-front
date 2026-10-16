@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useParams, Link, useNavigate } from "react-router";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useParams, Link, useNavigate, useLocation } from "react-router";
 import {
   ArrowLeft,
   Baby,
@@ -8,9 +8,6 @@ import {
   Calendar,
   ChevronLeft,
   ChevronRight,
-  Clock,
-  Compass,
-  Eye,
   HeartPulse,
   Languages,
   MapPin,
@@ -21,7 +18,6 @@ import {
   User as UserIcon,
   Users,
   Ruler,
-  Shield,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useGetUserById } from "@/composables/useGetUserById";
@@ -31,41 +27,149 @@ import {
   formatDateTime,
   formatHasChildren,
   formatHeight,
-  formatProfileVisibility,
   formatRelationshipTypes,
   formatWantsChildren,
 } from "@/utils/profile";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Image } from "@/components/ui/Image";
 
+/* -------------------------------------------------------------------------- */
+/*  Petits composants réutilisables                                           */
+/* -------------------------------------------------------------------------- */
+
+type IconType = React.ComponentType<{ className?: string }>;
+
+const SectionCard: React.FC<{ title: string; children: React.ReactNode }> = ({
+  title,
+  children,
+}) => (
+  <section className="p-6 rounded-3xl bg-card border border-border/80 shadow-sm flex flex-col gap-3">
+    <h2 className="text-sm font-semibold text-muted-foreground">{title}</h2>
+    {children}
+  </section>
+);
+
+const InfoTile: React.FC<{
+  icon?: IconType;
+  label: string;
+  children: React.ReactNode;
+  className?: string;
+}> = ({ icon: Icon, label, children, className = "" }) => (
+  <div
+    className={`flex items-center gap-3 p-3 rounded-xl bg-secondary/60 border border-border/40 ${className}`}
+  >
+    {Icon && <Icon className="w-4 h-4 text-muted-foreground shrink-0" />}
+    <div className="min-w-0">
+      <dt className="text-xs text-muted-foreground">{label}</dt>
+      <dd className="text-sm font-semibold text-foreground">{children}</dd>
+    </div>
+  </div>
+);
+
+const Chip: React.FC<{ icon?: IconType; children: React.ReactNode }> = ({
+  icon: Icon,
+  children,
+}) => (
+  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-secondary/60 text-foreground border border-border/40">
+    {Icon && <Icon className="w-3 h-3 text-primary" />}
+    {children}
+  </span>
+);
+
+const SWIPE_THRESHOLD = 50;
+
+/* -------------------------------------------------------------------------- */
+/*  Page                                                                      */
+/* -------------------------------------------------------------------------- */
+
 export const UserProfilePage: React.FC = () => {
-  const { t } = useTranslation("discover");
+  const { t, i18n } = useTranslation("discover");
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const routerLocation = useLocation();
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
+  const touchStartX = useRef<number | null>(null);
 
   const { data: user, isLoading, error, refetch } = useGetUserById(id || "");
 
+  const photos: string[] = user?.photos ?? [];
+  const photoCount = photos.length;
+
+  const showPrev = useCallback(
+    () => setSelectedPhotoIndex((prev) => (prev > 0 ? prev - 1 : photoCount - 1)),
+    [photoCount],
+  );
+  const showNext = useCallback(
+    () => setSelectedPhotoIndex((prev) => (prev < photoCount - 1 ? prev + 1 : 0)),
+    [photoCount],
+  );
+
+  // Revenir à la première photo quand on change de profil
+  useEffect(() => {
+    setSelectedPhotoIndex(0);
+  }, [id]);
+
+  // Navigation clavier dans la galerie (← / →)
+  useEffect(() => {
+    if (photoCount < 2) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (
+        target &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.isContentEditable)
+      ) {
+        return;
+      }
+      if (e.key === "ArrowLeft") showPrev();
+      if (e.key === "ArrowRight") showNext();
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [photoCount, showPrev, showNext]);
+
+  // Retour : historique si on vient de l'app, sinon /discover
+  const goBack = () => {
+    if (routerLocation.key !== "default") navigate(-1);
+    else navigate("/discover");
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null || photoCount < 2) return;
+    const delta = e.changedTouches[0].clientX - touchStartX.current;
+    touchStartX.current = null;
+    if (delta > SWIPE_THRESHOLD) showPrev();
+    else if (delta < -SWIPE_THRESHOLD) showNext();
+  };
+
+  /* ------------------------------- Chargement ------------------------------ */
+  // Même structure que la page finale pour éviter le layout shift
   if (isLoading) {
     return (
-      <div className="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
-        <div className="flex items-center gap-3">
-          <Skeleton className="w-10 h-10 rounded-xl bg-zinc-800" />
-          <Skeleton className="w-36 h-6 rounded-md bg-zinc-800" />
+      <div className="max-w-5xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+        <div className="flex items-center justify-between">
+          <Skeleton className="w-28 h-10 rounded-xl bg-muted" />
+          <Skeleton className="w-24 h-4 rounded-md bg-muted" />
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <Skeleton className="aspect-3/4 w-full rounded-3xl bg-zinc-800" />
-          <div className="space-y-4">
-            <Skeleton className="h-8 w-48 rounded bg-zinc-800" />
-            <Skeleton className="h-4 w-32 rounded bg-zinc-800" />
-            <Skeleton className="h-24 w-full rounded-xl bg-zinc-800" />
-            <Skeleton className="h-10 w-full rounded-xl bg-zinc-800" />
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
+          <div className="md:col-span-6 lg:col-span-5">
+            <Skeleton className="aspect-[3/4] w-full rounded-3xl bg-muted" />
+          </div>
+          <div className="md:col-span-6 lg:col-span-7 flex flex-col gap-6">
+            <Skeleton className="h-44 w-full rounded-3xl bg-muted" />
+            <Skeleton className="h-32 w-full rounded-3xl bg-muted" />
+            <Skeleton className="h-40 w-full rounded-3xl bg-muted" />
           </div>
         </div>
       </div>
     );
   }
 
+  /* --------------------------- Erreur / introuvable ------------------------- */
   if (error || !user) {
     return (
       <div className="max-w-lg mx-auto p-6 sm:p-12 text-center my-12 rounded-3xl bg-card border border-border">
@@ -79,16 +183,19 @@ export const UserProfilePage: React.FC = () => {
           {t("profilePage.notFoundDesc")}
         </p>
         <div className="flex items-center justify-center gap-3">
-          <button
-            type="button"
-            onClick={() => refetch()}
-            className="px-4 py-2 rounded-xl text-xs font-semibold bg-secondary hover:bg-zinc-800 text-foreground transition-colors"
-          >
-            {t("error.retry")}
-          </button>
+          {/* "Réessayer" n'a de sens que pour une vraie erreur (réseau, 500…) */}
+          {error && (
+            <button
+              type="button"
+              onClick={() => refetch()}
+              className="px-4 py-2 rounded-xl text-sm font-semibold bg-secondary hover:bg-secondary/80 text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            >
+              {t("error.retry")}
+            </button>
+          )}
           <Link
             to="/discover"
-            className="px-4 py-2 rounded-xl text-xs font-semibold bg-primary hover:bg-primary/90 text-primary-foreground transition-colors"
+            className="px-4 py-2 rounded-xl text-sm font-semibold bg-primary hover:bg-primary/90 text-primary-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           >
             {t("profilePage.back")}
           </Link>
@@ -97,98 +204,140 @@ export const UserProfilePage: React.FC = () => {
     );
   }
 
+  /* ------------------------------ Données dérivées -------------------------- */
   const age = calculateAge(user.birthdate);
-  const location = formatLocation(user.city, user.country);
+  const locationLabel = formatLocation(user.city, user.country);
   const distanceStr = formatDistance(user.distance, t);
-  const photos = user.photos && user.photos.length > 0 ? user.photos : [];
   const currentPhoto = photos[selectedPhotoIndex] || null;
+  const displayName = user.username || t("card.anonymous");
+  const locale = i18n.language;
+
+  const hasLanguages = !!user.languagesSpoken && user.languagesSpoken.length > 0;
+  const hasRelationshipTypes =
+    !!user.relationshipTypesSought && user.relationshipTypesSought.length > 0;
+  const hasPersonalDetails =
+    !!user.birthdate ||
+    !!user.heightCm ||
+    hasLanguages ||
+    hasRelationshipTypes ||
+    !!user.hasChildren ||
+    !!user.wantsChildren;
+  const hasInterests =
+    (!!user.sexualInterests && user.sexualInterests.length > 0) || !!user.fantasiesText;
+
+  const messageButton = (
+    <button
+      type="button"
+      onClick={() => navigate(`/chat?userId=${user.id}`)}
+      className="w-full inline-flex items-center justify-center gap-2 py-3 px-5 rounded-xl text-sm font-semibold bg-primary hover:bg-primary/90 text-primary-foreground shadow-md transition-all hover:shadow-glow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+    >
+      <MessageSquare className="w-4 h-4" />
+      <span>{t("profilePage.sendMessage")}</span>
+    </button>
+  );
 
   return (
-    <div className="max-w-5xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6 animate-fade-in">
-      {/* Top Navigation */}
+    <div className="max-w-5xl mx-auto p-4 sm:p-6 lg:p-8 pb-28 md:pb-8 space-y-6 animate-fade-in">
+      {/* Navigation du haut */}
       <div className="flex items-center justify-between">
         <button
           type="button"
-          onClick={() => navigate("/discover")}
-          className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-secondary/80 hover:bg-secondary text-sm font-medium text-foreground transition-colors"
+          onClick={goBack}
+          className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-secondary/80 hover:bg-secondary text-sm font-medium text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>{t("profilePage.back")}</span>
         </button>
 
         <span className="text-xs text-muted-foreground flex items-center gap-1.5">
-          <ShieldCheck className="w-4 h-4 text-zinc-500" />
+          <ShieldCheck className="w-4 h-4" />
           <span>{t("profilePage.activeMember")}</span>
         </span>
       </div>
 
-      {/* Main Profile Grid */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
-        {/* Left Column: Photo Gallery */}
-        <div className="md:col-span-6 lg:col-span-5 flex flex-col gap-3">
-          <div className="relative aspect-[3/4] w-full rounded-3xl overflow-hidden bg-zinc-900 border border-border/80 shadow-2xl">
+        {/* ------------------------- Colonne gauche : galerie ------------------------- */}
+        <div className="md:col-span-6 lg:col-span-5 flex flex-col gap-3 md:sticky md:top-6 self-start">
+          <div
+            className="relative aspect-[3/4] w-full rounded-3xl overflow-hidden bg-muted border border-border/80 shadow-2xl touch-pan-y"
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
+          >
             {currentPhoto ? (
+              // key => remonte l'image à chaque changement et rejoue le fondu
               <Image
+                key={currentPhoto}
                 isLocal={false}
                 url={currentPhoto}
-                alt={user.username ? `${user.username}'s photo` : t("card.member")}
-                className="w-full h-full object-cover transition-opacity duration-300"
+                alt={user.username ?? t("card.member")}
+                className="w-full h-full object-cover animate-fade-in"
               />
             ) : (
-              <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-zinc-850 to-zinc-950 text-zinc-500">
-                <UserIcon className="w-16 h-16 text-zinc-600 mb-2" />
+              <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-zinc-800 to-zinc-950 text-muted-foreground">
+                <UserIcon className="w-16 h-16 mb-2 opacity-60" />
                 <span className="text-sm font-medium">{t("card.noPhoto")}</span>
               </div>
             )}
 
-            {/* Gallery Navigation Buttons */}
-            {photos.length > 1 && (
+            {/* Badge distance */}
+            {distanceStr && (
+              <span className="absolute top-4 left-4 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-black/70 backdrop-blur-md text-zinc-100 border border-white/10 shadow-md">
+                <MapPin className="w-3.5 h-3.5 text-primary" />
+                {distanceStr}
+              </span>
+            )}
+
+            {/* Compteur de photos */}
+            {photoCount > 1 && (
+              <span className="absolute top-4 right-4 px-2.5 py-1 rounded-full text-xs font-semibold tabular-nums bg-black/70 backdrop-blur-md text-zinc-100 border border-white/10 shadow-md">
+                {selectedPhotoIndex + 1} / {photoCount}
+              </span>
+            )}
+
+            {/* Flèches */}
+            {photoCount > 1 && (
               <>
                 <button
                   type="button"
                   aria-label={t("profilePage.prevPhoto")}
-                  onClick={() =>
-                    setSelectedPhotoIndex((prev) => (prev > 0 ? prev - 1 : photos.length - 1))
-                  }
-                  className="absolute left-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-md text-white transition-all shadow-md"
+                  onClick={showPrev}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-md text-white transition-colors shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                 >
                   <ChevronLeft className="w-4 h-4" />
                 </button>
                 <button
                   type="button"
                   aria-label={t("profilePage.nextPhoto")}
-                  onClick={() =>
-                    setSelectedPhotoIndex((prev) => (prev < photos.length - 1 ? prev + 1 : 0))
-                  }
-                  className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-md text-white transition-all shadow-md"
+                  onClick={showNext}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-md text-white transition-colors shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                 >
                   <ChevronRight className="w-4 h-4" />
                 </button>
               </>
             )}
 
-            {/* Floating Distance Badge */}
-            {distanceStr && (
-              <div className="absolute top-4 left-4">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-black/70 backdrop-blur-md text-zinc-200 border border-white/10 shadow-md">
-                  <MapPin className="w-3.5 h-3.5 text-primary" />
-                  {distanceStr}
-                </span>
-              </div>
-            )}
+            {/* Nom + âge superposés (mobile uniquement) */}
+            <div className="md:hidden pointer-events-none absolute inset-x-0 bottom-0 px-5 pb-5 pt-20 bg-gradient-to-t from-black/85 via-black/40 to-transparent">
+              <h1 className="text-2xl font-extrabold tracking-tight text-white flex items-baseline gap-2">
+                <span>{displayName}</span>
+                {age !== null && <span className="text-xl font-normal text-white/80">{age}</span>}
+              </h1>
+            </div>
           </div>
 
-          {/* Photo Thumbnails */}
-          {photos.length > 1 && (
+          {/* Miniatures */}
+          {photoCount > 1 && (
             <div className="flex items-center gap-2 overflow-x-auto pb-1">
               {photos.map((photo, idx) => (
                 <button
-                  key={idx}
+                  key={photo + idx}
                   type="button"
+                  aria-label={`${idx + 1} / ${photoCount}`}
+                  aria-current={idx === selectedPhotoIndex}
                   onClick={() => setSelectedPhotoIndex(idx)}
-                  className={`relative w-16 h-20 rounded-xl overflow-hidden shrink-0 border-2 transition-all ${
+                  className={`relative w-16 h-20 rounded-xl overflow-hidden shrink-0 border-2 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
                     idx === selectedPhotoIndex
-                      ? "border-primary scale-105 shadow-md"
+                      ? "border-primary"
                       : "border-transparent opacity-60 hover:opacity-100"
                   }`}
                 >
@@ -204,344 +353,169 @@ export const UserProfilePage: React.FC = () => {
           )}
         </div>
 
-        {/* Right Column: Profile Info */}
+        {/* ------------------------ Colonne droite : infos ------------------------ */}
         <div className="md:col-span-6 lg:col-span-7 flex flex-col gap-6">
-          {/* Header Card */}
+          {/* En-tête */}
           <div className="p-6 rounded-3xl bg-card border border-border/80 shadow-sm flex flex-col gap-4">
             <div className="flex items-start justify-between gap-4">
-              <div>
-                <h1 className="text-3xl font-extrabold tracking-tight text-foreground flex items-baseline gap-3">
-                  <span>{user.username || t("card.anonymous")}</span>
+              <div className="min-w-0">
+                {/* Sur mobile, le nom est affiché sur la photo */}
+                <h1 className="hidden md:flex text-3xl font-extrabold tracking-tight text-foreground items-baseline gap-3">
+                  <span className="truncate">{displayName}</span>
                   {age !== null && (
                     <span className="text-2xl font-normal text-muted-foreground">{age}</span>
                   )}
                 </h1>
 
                 {user.title && (
-                  <div className="flex items-center gap-2 text-sm text-zinc-300 font-medium mt-1">
-                    <Briefcase className="w-4 h-4 text-zinc-400 shrink-0" />
+                  <div className="flex items-center gap-2 text-sm text-foreground/80 font-medium md:mt-1">
+                    <Briefcase className="w-4 h-4 text-muted-foreground shrink-0" />
                     <span>{user.title}</span>
+                  </div>
+                )}
+
+                {locationLabel && (
+                  <div className="flex items-center gap-1.5 text-sm text-muted-foreground mt-1.5">
+                    <MapPin className="w-4 h-4 shrink-0" />
+                    <span>{locationLabel}</span>
                   </div>
                 )}
               </div>
 
               {user.gender && (
-                <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-secondary text-zinc-300 border border-border">
-                  {user.gender}
+                <span className="px-3 py-1 rounded-full text-xs font-semibold capitalize bg-secondary text-foreground/80 border border-border shrink-0">
+                  {t(`filters.${user.gender}`)}
                 </span>
               )}
             </div>
 
-            {location && (
-              <div className="flex items-center gap-1.5 text-sm text-muted-foreground pt-1">
-                <MapPin className="w-4 h-4 text-zinc-400 shrink-0" />
-                <span>{location}</span>
-                {distanceStr && <span>• {distanceStr}</span>}
-              </div>
-            )}
-
-            {/* Quick Actions */}
-            <div className="flex items-center gap-3 pt-3 border-t border-border/50">
-              <button
-                type="button"
-                onClick={() => navigate(`/chat?userId=${user.id}`)}
-                className="flex-1 inline-flex items-center justify-center gap-2 py-3 px-5 rounded-xl text-sm font-semibold bg-primary hover:bg-primary/90 text-primary-foreground shadow-md transition-all hover:shadow-glow"
-              >
-                <MessageSquare className="w-4 h-4" />
-                <span>{t("profilePage.sendMessage")}</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => navigate("/discover")}
-                className="inline-flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-sm font-medium bg-secondary hover:bg-zinc-800 text-foreground transition-colors"
-              >
-                <Compass className="w-4 h-4" />
-                <span>{t("profilePage.keepBrowsing")}</span>
-              </button>
-            </div>
+            {/* CTA desktop (sur mobile : barre fixe en bas) */}
+            <div className="hidden md:block pt-4 border-t border-border/50">{messageButton}</div>
           </div>
 
-          {/* About / Bio Card */}
+          {/* À propos */}
           {user.bio && (
-            <div className="p-6 rounded-3xl bg-card border border-border/80 shadow-sm flex flex-col gap-2.5">
-              <h2 className="text-xs font-bold uppercase tracking-wider text-zinc-400">
-                {t("profilePage.about")}
-              </h2>
-              <p className="text-sm text-foreground/90 leading-relaxed whitespace-pre-line">
+            <SectionCard title={t("profilePage.about")}>
+              <p className="text-sm text-foreground/90 leading-relaxed whitespace-pre-line max-w-prose">
                 {user.bio}
               </p>
-            </div>
+            </SectionCard>
           )}
 
-          {/* Preferences Card */}
+          {/* Recherche */}
           {user.preferences && (
-            <div className="p-6 rounded-3xl bg-card border border-border/80 shadow-sm flex flex-col gap-3">
-              <h2 className="text-xs font-bold uppercase tracking-wider text-zinc-400">
-                {t("profilePage.lookingFor")}
-              </h2>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            <SectionCard title={t("profilePage.lookingFor")}>
+              <dl className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 {user.preferences.genderPreference && (
-                  <div className="p-3 rounded-xl bg-secondary/60 border border-border/40">
-                    <span className="text-[11px] text-zinc-500 block">{t("profilePage.gender")}</span>
-                    <span className="text-xs font-semibold capitalize text-foreground">
-                      {user.preferences.genderPreference}
-                    </span>
-                  </div>
+                  <InfoTile label={t("profilePage.gender")}>
+                    <span className="capitalize">{t(`filters.${user.preferences.genderPreference}`)}</span>
+                  </InfoTile>
                 )}
                 {(user.preferences.ageMin || user.preferences.ageMax) && (
-                  <div className="p-3 rounded-xl bg-secondary/60 border border-border/40">
-                    <span className="text-[11px] text-zinc-500 block">{t("profilePage.ageRange")}</span>
-                    <span className="text-xs font-semibold text-foreground">
-                      {user.preferences.ageMin || 18} – {user.preferences.ageMax || t("profilePage.any")}{" "}
-                      {t("filters.yrs")}
-                    </span>
-                  </div>
+                  <InfoTile label={t("profilePage.ageRange")}>
+                    {user.preferences.ageMin || 18} – {user.preferences.ageMax || t("profilePage.any")}{" "}
+                    {t("filters.yrs")}
+                  </InfoTile>
                 )}
                 {user.preferences.maxDistance && (
-                  <div className="p-3 rounded-xl bg-secondary/60 border border-border/40">
-                    <span className="text-[11px] text-zinc-500 block">{t("profilePage.maxDistance")}</span>
-                    <span className="text-xs font-semibold text-foreground">
-                      {t("profilePage.withinDistance", { distance: user.preferences.maxDistance })}
-                    </span>
-                  </div>
+                  <InfoTile label={t("profilePage.maxDistance")}>
+                    {t("profilePage.withinDistance", { distance: user.preferences.maxDistance })}
+                  </InfoTile>
                 )}
-              </div>
-            </div>
+              </dl>
+            </SectionCard>
           )}
 
-          {/* Personal Details Card */}
-          {user.birthdate || user.heightCm || (user.languagesSpoken && user.languagesSpoken.length > 0) ? (
-            <div className="p-6 rounded-3xl bg-card border border-border/80 shadow-sm flex flex-col gap-3">
-              <h2 className="text-xs font-bold uppercase tracking-wider text-zinc-400">
-                {t("profilePage.personalDetails")}
-              </h2>
+          {/* Détails personnels + relation & famille (fusionnés) */}
+          {hasPersonalDetails && (
+            <SectionCard title={t("profilePage.personalDetails")}>
               <dl className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {user.birthdate && (
-                  <div className="flex items-center gap-3 p-3 rounded-xl bg-secondary/60 border border-border/40">
-                    <Cake className="w-4 h-4 text-zinc-400 shrink-0" />
-                    <div>
-                      <span className="text-[11px] text-zinc-500 block">{t("profilePage.birthdate")}</span>
-                      <span className="text-xs font-semibold text-foreground">
-                        {formatBirthdate(user.birthdate, "fr-FR")}
-                      </span>
-                    </div>
-                  </div>
+                  <InfoTile icon={Cake} label={t("profilePage.birthdate")}>
+                    {formatBirthdate(user.birthdate, locale)}
+                  </InfoTile>
                 )}
                 {user.heightCm && (
-                  <div className="flex items-center gap-3 p-3 rounded-xl bg-secondary/60 border border-border/40">
-                    <Ruler className="w-4 h-4 text-zinc-400 shrink-0" />
-                    <div>
-                      <span className="text-[11px] text-zinc-500 block">{t("profilePage.height")}</span>
-                      <span className="text-xs font-semibold text-foreground">
-                        {formatHeight(user.heightCm)}
-                      </span>
-                    </div>
-                  </div>
+                  <InfoTile icon={Ruler} label={t("profilePage.height")}>
+                    {formatHeight(user.heightCm)}
+                  </InfoTile>
                 )}
-                {user.languagesSpoken && user.languagesSpoken.length > 0 && (
-                  <div className="flex items-center gap-3 p-3 rounded-xl bg-secondary/60 border border-border/40 sm:col-span-2">
-                    <Languages className="w-4 h-4 text-zinc-400 shrink-0" />
-                    <div>
-                      <span className="text-[11px] text-zinc-500 block">{t("profilePage.languages")}</span>
-                      <div className="flex flex-wrap gap-1.5 mt-1">
-                        {user.languagesSpoken.map((lang) => (
-                          <span
-                            key={lang}
-                            className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-secondary text-foreground border border-border/40"
-                          >
-                            {lang}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </dl>
-            </div>
-          ) : null}
-
-          {/* Relationship & Family Card */}
-          {(user.relationshipTypesSought && user.relationshipTypesSought.length > 0) ||
-          user.hasChildren ||
-          user.wantsChildren ? (
-            <div className="p-6 rounded-3xl bg-card border border-border/80 shadow-sm flex flex-col gap-3">
-              <h2 className="text-xs font-bold uppercase tracking-wider text-zinc-400">
-                {t("profilePage.relationshipFamily")}
-              </h2>
-              <dl className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {user.relationshipTypesSought && user.relationshipTypesSought.length > 0 && (
-                  <div className="flex items-center gap-3 p-3 rounded-xl bg-secondary/60 border border-border/40 sm:col-span-2">
-                    <HeartPulse className="w-4 h-4 text-zinc-400 shrink-0" />
-                    <div>
-                      <span className="text-[11px] text-zinc-500 block">{t("profilePage.relationshipTypesSought")}</span>
-                      <span className="text-xs font-semibold text-foreground">
-                        {formatRelationshipTypes(user.relationshipTypesSought, t)}
-                      </span>
-                    </div>
-                  </div>
+                {hasRelationshipTypes && (
+                  <InfoTile
+                    icon={HeartPulse}
+                    label={t("profilePage.relationshipTypesSought")}
+                    className="sm:col-span-2"
+                  >
+                    {formatRelationshipTypes(user.relationshipTypesSought, t)}
+                  </InfoTile>
                 )}
                 {user.hasChildren && (
-                  <div className="flex items-center gap-3 p-3 rounded-xl bg-secondary/60 border border-border/40">
-                    <Users className="w-4 h-4 text-zinc-400 shrink-0" />
-                    <div>
-                      <span className="text-[11px] text-zinc-500 block">{t("profilePage.hasChildren")}</span>
-                      <span className="text-xs font-semibold text-foreground">
-                        {formatHasChildren(user.hasChildren, t)}
-                      </span>
-                    </div>
-                  </div>
+                  <InfoTile icon={Users} label={t("profilePage.hasChildren")}>
+                    {formatHasChildren(user.hasChildren, t)}
+                  </InfoTile>
                 )}
                 {user.wantsChildren && (
-                  <div className="flex items-center gap-3 p-3 rounded-xl bg-secondary/60 border border-border/40">
-                    <Baby className="w-4 h-4 text-zinc-400 shrink-0" />
-                    <div>
-                      <span className="text-[11px] text-zinc-500 block">{t("profilePage.wantsChildren")}</span>
-                      <span className="text-xs font-semibold text-foreground">
-                        {formatWantsChildren(user.wantsChildren, t)}
-                      </span>
-                    </div>
-                  </div>
+                  <InfoTile icon={Baby} label={t("profilePage.wantsChildren")}>
+                    {formatWantsChildren(user.wantsChildren, t)}
+                  </InfoTile>
+                )}
+                {hasLanguages && (
+                  <InfoTile
+                    icon={Languages}
+                    label={t("profilePage.languages")}
+                    className="sm:col-span-2"
+                  >
+                    <span className="flex flex-wrap gap-1.5 mt-1">
+                      {user.languagesSpoken.map((lang: string) => (
+                        <Chip key={lang}>{lang}</Chip>
+                      ))}
+                    </span>
+                  </InfoTile>
                 )}
               </dl>
-            </div>
-          ) : null}
+            </SectionCard>
+          )}
 
-          {/* Interests & Fantasies Card */}
-          {(user.sexualInterests && user.sexualInterests.length > 0) || user.fantasiesText ? (
-            <div className="p-6 rounded-3xl bg-card border border-border/80 shadow-sm flex flex-col gap-3">
-              <h2 className="text-xs font-bold uppercase tracking-wider text-zinc-400">
-                {t("profilePage.interestsFantasies")}
-              </h2>
+          {/* Centres d'intérêt & fantasmes */}
+          {hasInterests && (
+            <SectionCard title={t("profilePage.interestsFantasies")}>
               {user.sexualInterests && user.sexualInterests.length > 0 && (
                 <div className="flex flex-wrap gap-2">
-                  {user.sexualInterests.map((interest) => (
-                    <span
-                      key={interest}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-secondary/60 text-foreground border border-border/40"
-                    >
-                      <Sparkles className="w-3 h-3 text-primary" />
-                      {t(`sexualInterests.${interest}`, { defaultValue: interest })}
-                    </span>
+                  {user.sexualInterests.map((interest: string) => (
+                    <Chip key={interest} icon={Sparkles}>
+                      {t(`sexualInterests.${interest}`)}
+                    </Chip>
                   ))}
                 </div>
               )}
               {user.fantasiesText && (
                 <div className="p-3 rounded-xl bg-secondary/60 border border-border/40">
-                  <span className="text-[11px] text-zinc-500 block mb-1">{t("profilePage.fantasies")}</span>
-                  <p className="text-xs text-foreground/90 leading-relaxed whitespace-pre-line">
+                  <span className="text-xs text-muted-foreground block mb-1">
+                    {t("profilePage.fantasies")}
+                  </span>
+                  <p className="text-sm text-foreground/90 leading-relaxed whitespace-pre-line max-w-prose">
                     {user.fantasiesText}
                   </p>
                 </div>
               )}
-            </div>
-          ) : null}
-
-          {/* Profile Visibility Card */}
-          {(user.relationshipTypesSoughtVisibility ||
-            user.sexualInterestsVisibility ||
-            user.fantasiesTextVisibility ||
-            user.hasChildrenVisibility ||
-            user.wantsChildrenVisibility) && (
-            <div className="p-6 rounded-3xl bg-card border border-border/80 shadow-sm flex flex-col gap-3">
-              <h2 className="text-xs font-bold uppercase tracking-wider text-zinc-400 flex items-center gap-2">
-                <Shield className="w-4 h-4" />
-                {t("profilePage.profileVisibility")}
-              </h2>
-              <dl className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {user.relationshipTypesSoughtVisibility && (
-                  <div className="flex items-center gap-3 p-3 rounded-xl bg-secondary/60 border border-border/40">
-                    <Eye className="w-4 h-4 text-zinc-400 shrink-0" />
-                    <div>
-                      <span className="text-[11px] text-zinc-500 block">{t("profilePage.relationshipTypesVisibility")}</span>
-                      <span className="text-xs font-semibold text-foreground">
-                        {formatProfileVisibility(user.relationshipTypesSoughtVisibility, t)}
-                      </span>
-                    </div>
-                  </div>
-                )}
-                {user.sexualInterestsVisibility && (
-                  <div className="flex items-center gap-3 p-3 rounded-xl bg-secondary/60 border border-border/40">
-                    <Eye className="w-4 h-4 text-zinc-400 shrink-0" />
-                    <div>
-                      <span className="text-[11px] text-zinc-500 block">{t("profilePage.sexualInterestsVisibility")}</span>
-                      <span className="text-xs font-semibold text-foreground">
-                        {formatProfileVisibility(user.sexualInterestsVisibility, t)}
-                      </span>
-                    </div>
-                  </div>
-                )}
-                {user.fantasiesTextVisibility && (
-                  <div className="flex items-center gap-3 p-3 rounded-xl bg-secondary/60 border border-border/40">
-                    <Eye className="w-4 h-4 text-zinc-400 shrink-0" />
-                    <div>
-                      <span className="text-[11px] text-zinc-500 block">{t("profilePage.fantasiesVisibility")}</span>
-                      <span className="text-xs font-semibold text-foreground">
-                        {formatProfileVisibility(user.fantasiesTextVisibility, t)}
-                      </span>
-                    </div>
-                  </div>
-                )}
-                {user.hasChildrenVisibility && (
-                  <div className="flex items-center gap-3 p-3 rounded-xl bg-secondary/60 border border-border/40">
-                    <Eye className="w-4 h-4 text-zinc-400 shrink-0" />
-                    <div>
-                      <span className="text-[11px] text-zinc-500 block">{t("profilePage.hasChildrenVisibility")}</span>
-                      <span className="text-xs font-semibold text-foreground">
-                        {formatProfileVisibility(user.hasChildrenVisibility, t)}
-                      </span>
-                    </div>
-                  </div>
-                )}
-                {user.wantsChildrenVisibility && (
-                  <div className="flex items-center gap-3 p-3 rounded-xl bg-secondary/60 border border-border/40">
-                    <Eye className="w-4 h-4 text-zinc-400 shrink-0" />
-                    <div>
-                      <span className="text-[11px] text-zinc-500 block">{t("profilePage.wantsChildrenVisibility")}</span>
-                      <span className="text-xs font-semibold text-foreground">
-                        {formatProfileVisibility(user.wantsChildrenVisibility, t)}
-                      </span>
-                    </div>
-                  </div>
-                )}
-              </dl>
-            </div>
+            </SectionCard>
           )}
 
-          {/* Account Info Card */}
-          {user.createdAt || user.updatedAt ? (
-            <div className="p-6 rounded-3xl bg-muted/50 border border-border/50 flex flex-col gap-3">
-              <h2 className="text-xs font-bold uppercase tracking-wider text-zinc-400 flex items-center gap-2">
-                <Calendar className="w-4 h-4" />
-                {t("profilePage.accountInfo")}
-              </h2>
-              <dl className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-muted-foreground">
-                {user.createdAt && (
-                  <div className="flex items-center gap-3 p-3 rounded-xl bg-secondary/30 border border-border/40">
-                    <Calendar className="w-4 h-4 text-zinc-500 shrink-0" />
-                    <div>
-                      <span className="text-[11px] text-zinc-500 block">{t("profilePage.joinedAt")}</span>
-                      <span className="text-xs font-medium text-foreground">
-                        {formatDateTime(user.createdAt, "fr-FR")}
-                      </span>
-                    </div>
-                  </div>
-                )}
-                {user.updatedAt && (
-                  <div className="flex items-center gap-3 p-3 rounded-xl bg-secondary/30 border border-border/40">
-                    <Clock className="w-4 h-4 text-zinc-500 shrink-0" />
-                    <div>
-                      <span className="text-[11px] text-zinc-500 block">{t("profilePage.lastUpdated")}</span>
-                      <span className="text-xs font-medium text-foreground">
-                        {formatDateTime(user.updatedAt, "fr-FR")}
-                      </span>
-                    </div>
-                  </div>
-                )}
-              </dl>
-            </div>
-          ) : null}
+          {/* Membre depuis (simple ligne discrète, plus de carte dédiée) */}
+          {user.createdAt && (
+            <p className="flex items-center gap-2 text-xs text-muted-foreground px-1">
+              <Calendar className="w-4 h-4 shrink-0" />
+              <span>
+                {t("profilePage.joinedAt")} {formatDateTime(user.createdAt, locale)}
+              </span>
+            </p>
+          )}
         </div>
+      </div>
+
+      {/* Barre d'action fixe (mobile uniquement) */}
+      <div className="md:hidden fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/85 backdrop-blur px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+        {messageButton}
       </div>
     </div>
   );

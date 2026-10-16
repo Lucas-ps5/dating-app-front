@@ -91,7 +91,36 @@
     "withinDistance": "À moins de {{distance}} km",
     "any": "Indifférent",
     "prevPhoto": "Photo précédente",
-    "nextPhoto": "Photo suivante"
+    "nextPhoto": "Photo suivante",
+    "personalDetails": "Détails personnels",
+    "birthdate": "Date de naissance",
+    "height": "Taille",
+    "relationshipTypesSought": "Type de relation recherché",
+    "hasChildren": "Enfants",
+    "wantsChildren": "Souhait d'enfants",
+    "languages": "Langues parlées",
+    "interestsFantasies": "Centres d'intérêt & fantasmes",
+    "fantasies": "Fantasmes",
+    "joinedAt": "Membre depuis"
+  },
+  "sexualInterests": {
+    "ROLEPLAY": "Jeu de rôle",
+    "BDSM": "BDSM",
+    "SENSORY_PLAY": "Jeu sensoriel",
+    "VOYEURISM_EXHIBITIONISM": "Voyeurisme / Exhibitionnisme",
+    "SWINGING": "Échangisme",
+    "GROUP_EXPERIENCES": "Partouze",
+    "TANTRA": "Tantra",
+    "POWER_EXCHANGE": "Échange de pouvoir",
+    "OTHER": "Autre"
+  },
+  "relationshipTypes": {
+    "DISCREET_RELATIONSHIP": "Relation discrète",
+    "ENHANCED_FRIENDSHIP": "Amitié renforcée",
+    "ONE_ON_ONE_SEX": "Sexe à deux",
+    "ONE_NIGHT_STAND": "Coup d'un soir",
+    "EXPERIMENTING": "Expérimentation",
+    "EROTIC_FANTASIES": "Fantasmes érotiques"
   },
   "validation": {
     "minAge18": "L'âge minimum doit être d'au moins 18 ans.",
@@ -104,5 +133,16 @@
     "title": "Localisation requise",
     "desc": "Pour découvrir des personnes près de chez vous, nous avons besoin d'accéder à votre position. Veuillez activer les permissions de localisation dans votre navigateur et réessayer.",
     "retry": "Réessayer"
+  },
+  "hasChildren": {
+    "NO": "Non",
+    "YES_LIVING_WITH_ME": "Oui - vivant avec moi",
+    "YES_NOT_LIVING_WITH_ME": "Oui - ne vit pas avec moi",
+    "PREFER_NOT_TO_SAY": "Préfère ne pas répondre"
+  },
+  "wantsChildren": {
+    "NO": "Non",
+    "YES": "Oui",
+    "PREFER_NOT_TO_SAY": "Préfère ne pas répondre"
   }
 }

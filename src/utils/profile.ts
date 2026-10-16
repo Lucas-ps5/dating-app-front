@@ -42,7 +42,7 @@ export const formatRelationshipTypes = (
   t: (key: string, options?: any) => string,
 ): string | null => {
   if (!types || types.length === 0) return null;
-  return types.map((type) => t(`relationshipTypes.${type}`, { defaultValue: type })).join(", ");
+  return types.map((type) => t(`relationshipTypes.${type}`)).join(", ");
 };
 
 /**

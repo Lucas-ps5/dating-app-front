@@ -768,10 +768,10 @@ export const EditProfilePage: FC = () => {
         wantsChildren: formValues.wantsChildren,
         relationshipTypesSoughtVisibility:
           formValues.relationshipTypesSoughtVisibility,
-        sexualInterestsVisibility: formValues.sexualInterestsVisibility,
-        fantasiesTextVisibility: formValues.fantasiesTextVisibility,
-        hasChildrenVisibility: formValues.hasChildrenVisibility,
-        wantsChildrenVisibility: formValues.wantsChildrenVisibility,
+        sexualInterestsVisibility: "PUBLIC",
+        fantasiesTextVisibility: "PUBLIC",
+        hasChildrenVisibility: "PUBLIC",
+        wantsChildrenVisibility: "PUBLIC",
       };
 
       updateProfile(payload);
@@ -800,17 +800,6 @@ export const EditProfilePage: FC = () => {
   )
     .toISOString()
     .split("T")[0];
-
-  const applyVisibilityToAll = (visibility: ProfileVisibility) => {
-    (
-      [
-        "sexualInterestsVisibility",
-        "fantasiesTextVisibility",
-        "hasChildrenVisibility",
-        "wantsChildrenVisibility",
-      ] as const
-    ).forEach((field) => setValue(field, visibility, { shouldDirty: true }));
-  };
 
   return (
     <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 pb-0 animate-fade-in">
@@ -1027,6 +1016,7 @@ export const EditProfilePage: FC = () => {
               <Input
                 id="city"
                 type="text"
+                readOnly
                 autoComplete="address-level2"
                 placeholder={t("edit.form.cityPlaceholder")}
                 aria-invalid={Boolean(errors.city)}
@@ -1045,6 +1035,7 @@ export const EditProfilePage: FC = () => {
               <Input
                 id="country"
                 type="text"
+                readOnly
                 autoComplete="country-name"
                 placeholder={t("edit.form.countryPlaceholder")}
                 aria-invalid={Boolean(errors.country)}
@@ -1083,7 +1074,7 @@ export const EditProfilePage: FC = () => {
                     ? "preferences.ageMin-error"
                     : undefined
                 }
-                className={cn(inputClass, "text-right")}
+                className={cn(inputClass, "text-left")}
                 {...register("preferences.ageMin", { valueAsNumber: true })}
               />
             </Field>
@@ -1108,7 +1099,7 @@ export const EditProfilePage: FC = () => {
                     ? "preferences.ageMax-error"
                     : undefined
                 }
-                className={cn(inputClass, "text-right")}
+                className={cn(inputClass, "text-left")}
                 {...register("preferences.ageMax", { valueAsNumber: true })}
               />
             </Field>
@@ -1242,7 +1233,7 @@ export const EditProfilePage: FC = () => {
           </div>
         </Section>
 
-        {/* ---- VisibilitÃ© ---- */}
+        {/* ---- VisibilitÃ© ----
         <Section
           icon={Eye}
           title={t("sections.profileVisibility")}
@@ -1250,9 +1241,9 @@ export const EditProfilePage: FC = () => {
         >
           <VisibilityPicker
             control={control}
-            onValueChange={applyVisibilityToAll}
+            onValueChange={() => {}}
           />
-        </Section>
+        </Section> */}
 
         {/* ---- Statut du compte ---- */}
         <Section

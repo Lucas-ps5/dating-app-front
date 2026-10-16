@@ -69,7 +69,7 @@
     "sexualInterestsVisibility": "Visibilité des intérêts sexuels",
     "relationshipTypesSoughtVisibility": "Visibilité des types de relations recherchées",
     "sexualInterests": "Intérêts sexuels",
-    "fantasiesText": "Textes de fantasmes"  
+    "fantasiesText": "Textes de fantasmes"
   },
   "gender": {
     "male": "Homme",
@@ -132,7 +132,7 @@
     "relationshipTypes": {
       "discreetRelationship": "Relation discrète",
       "enhancedFriendship": "Amitié renforcée",
-      "oneOnOneSex": "Sexe à un seul",
+      "oneOnOneSex": "Sexe à deux",
       "oneNightStand": "Plan cul",
       "experimenting": "Expérimentation",
       "eroticFantasies": "Fantaisies érotiques"
@@ -143,7 +143,7 @@
       "sensoryPlay": "Jeu sensoriel",
       "voyeurismExhibitionism": "Voyeurisme/exhibitionnisme",
       "swinging": "Swinging",
-      "groupExperiences": "Expériences de groupe",
+      "groupExperiences": "Partouze",
       "tantra": "Tantra",
       "powerExchange": "Exchange de pouvoir",
       "other": "Autre"
@@ -210,7 +210,7 @@
       "photosPlaceholder": "URLs des photos",
       "discreetRelationship": "Relation discrète",
       "enhancedFriendship": "Amitié renforcée",
-      "oneOnOneSex": "Sexe à un seul",
+      "oneOnOneSex": "Sexe à deux",
       "oneNightStand": "Plan cul",
       "experimenting": "Expérimentation",
       "eroticFantasies": "Fantaisies érotiques",
@@ -219,7 +219,7 @@
       "sensoryPlay": "Jeu sensoriel",
       "voyeurismExhibitionism": "Voyeurisme/exhibitionnisme",
       "swinging": "Swinging",
-      "groupExperiences": "Expériences de groupe",
+      "groupExperiences": "Partouze",
       "tantra": "Tantra",
       "powerExchange": "Exchange de pouvoir",
       "other": "Autre",
@@ -240,7 +240,9 @@
       "sexualInterestsVisibility": "Visibilité des intérêts sexuels",
       "isActive": "Statut du compte",
       "active": "Actif",
-      "inactive": "Inactif"
+      "inactive": "Inactif",
+      "inactiveHint": "Votre profil est masqué.",
+      "activeHint": "Votre profil est visible."
     },
     "gender": {
       "male": "Homme",

@@ -11,6 +11,8 @@ export interface DiscoverState {
   limit: number;
   clientSearch: string;
   viewMode: ViewMode;
+  currentUserLat?: number;
+  currentUserLon?: number;
 
   // Actions
   setGender: (gender?: Gender) => void;
@@ -19,6 +21,7 @@ export interface DiscoverState {
   setLimit: (limit: number) => void;
   setClientSearch: (search: string) => void;
   setViewMode: (mode: ViewMode) => void;
+  setCoordinates: (lat: number, lon: number) => void;
   removeFilter: (filterKey: "gender" | "age") => void;
   resetFilters: () => void;
 }
@@ -36,6 +39,8 @@ export const useDiscoverStore = create<DiscoverState>((set) => ({
   limit: DEFAULT_LIMIT,
   clientSearch: "",
   viewMode: "grid",
+  currentUserLat: undefined,
+  currentUserLon: undefined,
 
   setGender: (gender) =>
     set({
@@ -69,6 +74,13 @@ export const useDiscoverStore = create<DiscoverState>((set) => ({
   setViewMode: (viewMode) =>
     set({
       viewMode,
+    }),
+
+  setCoordinates: (lat, lon) =>
+    set({
+      currentUserLat: lat,
+      currentUserLon: lon,
+      page: 1,
     }),
 
   removeFilter: (filterKey) =>

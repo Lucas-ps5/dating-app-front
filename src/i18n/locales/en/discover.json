@@ -15,8 +15,8 @@
     "clearAll": "Clear all",
     "genderPreference": "Gender Preference",
     "allGenders": "All",
-    "male": "Male",
-    "female": "Female",
+    "male": "Man",
+    "female": "Woman",
     "ageRange": "Age Range",
     "years": "{{min}} – {{max}} years",
     "yrs": "yrs",
@@ -91,7 +91,36 @@
     "withinDistance": "Within {{distance}} km",
     "any": "Any",
     "prevPhoto": "Previous photo",
-    "nextPhoto": "Next photo"
+    "nextPhoto": "Next photo",
+    "personalDetails": "Personal Details",
+    "birthdate": "Birthdate",
+    "height": "Height",
+    "relationshipTypesSought": "Looking for",
+    "hasChildren": "Has children",
+    "wantsChildren": "Wants children",
+    "languages": "Languages",
+    "interestsFantasies": "Interests & Fantasies",
+    "fantasies": "Fantasies",
+    "joinedAt": "Member since"
+  },
+  "sexualInterests": {
+    "ROLEPLAY": "Roleplay",
+    "BDSM": "BDSM",
+    "SENSORY_PLAY": "Sensory play",
+    "VOYEURISM_EXHIBITIONISM": "Voyeurism / Exhibitionism",
+    "SWINGING": "Swinging",
+    "GROUP_EXPERIENCES": "Orgy",
+    "TANTRA": "Tantra",
+    "POWER_EXCHANGE": "Power exchange",
+    "OTHER": "Other"
+  },
+  "relationshipTypes": {
+    "DISCREET_RELATIONSHIP": "Discreet relationship",
+    "ENHANCED_FRIENDSHIP": "Enhanced friendship",
+    "ONE_ON_ONE_SEX": "One-on-one sex",
+    "ONE_NIGHT_STAND": "One-night stand",
+    "EXPERIMENTING": "Experimenting",
+    "EROTIC_FANTASIES": "Erotic fantasies"
   },
   "validation": {
     "minAge18": "Minimum age must be at least 18.",
@@ -104,5 +133,16 @@
     "title": "Location Required",
     "desc": "To discover people near you, we need access to your location. Please enable location permissions in your browser and try again.",
     "retry": "Try Again"
+  },
+  "hasChildren": {
+    "NO": "No",
+    "YES_LIVING_WITH_ME": "Yes - living with me",
+    "YES_NOT_LIVING_WITH_ME": "Yes - not living with me",
+    "PREFER_NOT_TO_SAY": "Prefer not to say"
+  },
+  "wantsChildren": {
+    "NO": "No",
+    "YES": "Yes",
+    "PREFER_NOT_TO_SAY": "Prefer not to say"
   }
 }

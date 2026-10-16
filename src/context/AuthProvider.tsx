@@ -5,6 +5,8 @@ import { AuthContext, type AuthContextType } from "./AuthContext";
 import Loader from "@/components/ui/Loader";
 import { setToken } from "@/plugins/clients";
 import { getCoordinates } from "@/utils/geolocation";
+import { useDiscoverStore } from "@/store/useDiscoverStore";
+import { checkAndUpdateLocationIfNeeded } from "@/utils/locationUpdate";
 
 // Create Keycloak instance directly here to avoid import issues
 const keycloak = new Keycloak({
@@ -40,16 +42,27 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [userInfo, setUserInfo] = useState<Record<string, unknown> | null>(
     null,
   );
+  const { setCoordinates } = useDiscoverStore();
   useEffect(() => {
     keycloak.onAuthSuccess = async () => {
       setAuthenticated(true);
       setToken(keycloak.token);
-      
+
       // Get and store user coordinates on login
       try {
-        await getCoordinates();
+        const coords = await getCoordinates();
+        if (coords) {
+          setCoordinates(coords.latitude, coords.longitude);
+        }
       } catch (error) {
         console.warn("Failed to get user coordinates on login:", error);
+      }
+
+      // Check if location needs updating (7+ days old) and update if necessary
+      try {
+        await checkAndUpdateLocationIfNeeded();
+      } catch (error) {
+        console.warn("Failed to check/update location:", error);
       }
 
       keycloak
