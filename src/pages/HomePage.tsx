@@ -1,6 +1,13 @@
 import { Link } from "react-router";
 import { useTranslation } from "react-i18next";
-import { Heart, MessageCircle, Compass, User, MapPin, Sparkles } from "lucide-react";
+import {
+  Heart,
+  MessageCircle,
+  Compass,
+  User,
+  MapPin,
+  Sparkles,
+} from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useFetchMatchsCount } from "@/composables/useFetchMatchsCount";
 import { useDiscoverUsers } from "@/composables/useDiscoverUsers";
@@ -14,13 +21,18 @@ export default function HomePage() {
 
   const { data: matchCountData } = useFetchMatchsCount();
   const { data: messagesCountData } = useGetMyUnreadMessagesCount();
-  const { data: discoverData, isLoading: loadingUsers } = useDiscoverUsers({ limit: 6 });
+  const { data: discoverData, isLoading: loadingUsers } = useDiscoverUsers({
+    limit: 6,
+  });
 
   const matchCount = matchCountData?.count ?? 0;
   const messagesCount = messagesCountData?.count ?? 0;
   const newUsers = discoverData?.data?.slice(0, 6) ?? [];
 
-  const rawName = (userInfo?.name as string) || (userInfo?.preferred_username as string) || "";
+  const rawName =
+    (userInfo?.name as string) ||
+    (userInfo?.preferred_username as string) ||
+    "";
   const firstName = rawName ? rawName.split(" ")[0] : "";
 
   const cards = [
@@ -58,7 +70,9 @@ export default function HomePage() {
     <div className="max-w-lg mx-auto p-4 fade-in">
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-foreground">
-          {firstName ? t("greeting", { name: firstName }) : t("defaultGreeting")}
+          {firstName
+            ? t("greeting", { name: firstName })
+            : t("defaultGreeting")}
         </h1>
         <p className="text-muted-foreground mt-1">{t("subtitle")}</p>
       </div>
@@ -70,7 +84,9 @@ export default function HomePage() {
             to={card.to}
             className="p-4 rounded-2xl bg-card border border-border hover:border-primary/30 transition-all group"
           >
-            <div className={`w-10 h-10 rounded-xl ${card.color} flex items-center justify-center mb-3`}>
+            <div
+              className={`w-10 h-10 rounded-xl ${card.color} flex items-center justify-center mb-3`}
+            >
               <card.icon className="w-5 h-5 text-primary-foreground" />
             </div>
             <h3 className="font-semibold text-foreground">{card.label}</h3>
@@ -80,8 +96,12 @@ export default function HomePage() {
       </div>
 
       <div className="mt-8 p-4 rounded-2xl gradient-primary glow-primary text-center">
-        <h2 className="text-lg font-bold text-primary-foreground">{t("banner.title")}</h2>
-        <p className="text-primary-foreground/80 text-sm mt-1">{t("banner.subtitle")}</p>
+        <h2 className="text-lg font-bold text-primary-foreground">
+          {t("banner.title")}
+        </h2>
+        <p className="text-primary-foreground/80 text-sm mt-1">
+          {t("banner.subtitle")}
+        </p>
         <Link
           to="/discover"
           className="mt-3 inline-block px-6 py-2 rounded-xl bg-background/20 text-primary-foreground font-medium hover:bg-background/30 transition-colors"
@@ -104,7 +124,10 @@ export default function HomePage() {
         {loadingUsers ? (
           <div className="flex gap-3 overflow-hidden">
             {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="min-w-[140px] h-48 rounded-2xl bg-muted animate-pulse" />
+              <div
+                key={i}
+                className="min-w-[140px] h-48 rounded-2xl bg-muted animate-pulse"
+              />
             ))}
           </div>
         ) : (
@@ -112,7 +135,8 @@ export default function HomePage() {
             {newUsers.map((u) => {
               const age = calculateAge(u.birthdate);
               const location = formatLocation(u.city, u.country);
-              const photo = u.photos && u.photos.length > 0 ? u.photos[0] : null;
+              const photo =
+                u.photos && u.photos.length > 0 ? u.photos[0] : null;
 
               return (
                 <Link

@@ -169,16 +169,15 @@ const enumArray = <T extends string>(opts: ReadonlyArray<{ value: T }>) =>
 const enumField = <T extends string>(opts: ReadonlyArray<{ value: T }>) =>
   yup.mixed<T>().oneOf(optionValues(opts)).optional();
 
-
 /** "fr, en  de" -> ["fr", "en", "de"] */
 const parseList = (v: unknown): string[] =>
   Array.isArray(v)
     ? (v as string[])
     : typeof v === "string"
       ? v
-        .split(/[\s,]+/)
-        .map((s) => s.trim())
-        .filter(Boolean)
+          .split(/[\s,]+/)
+          .map((s) => s.trim())
+          .filter(Boolean)
       : [];
 
 const parseLines = (v: string): string[] =>
@@ -376,64 +375,64 @@ const ChipGroup: FC<{
   ariaLabel,
   onValueChange,
 }) => {
-    const { t } = useTranslation("profile");
-    return (
-      <Controller
-        control={control}
-        name={name}
-        render={({ field }) => {
-          const current = field.value as string | string[] | undefined;
-          const isSelected = (v: string) =>
-            multiple
-              ? Array.isArray(current) && current.includes(v)
-              : current === v;
-          const select = (v: string) => {
-            if (!multiple) {
-              field.onChange(v);
-              onValueChange?.(v);
-              return;
-            }
-            const list = Array.isArray(current) ? current : [];
-            field.onChange(
-              list.includes(v) ? list.filter((x) => x !== v) : [...list, v],
-            );
-          };
-          return (
-            <div
-              role={multiple ? "group" : "radiogroup"}
-              aria-label={ariaLabel}
-              className="flex flex-wrap gap-2"
-            >
-              {options.map(({ value, labelKey }) => (
-                <label
-                  key={value}
-                  className={cn(
-                    "inline-flex items-center gap-1.5 rounded-xl border py-2.5 px-3.5 text-sm font-medium transition-all duration-200 select-none cursor-pointer",
-                    "bg-background/60 text-muted-foreground border-border",
-                    "hover:border-primary/50 hover:text-foreground active:scale-[0.97]",
-                    "focus-within:ring-2 focus-within:ring-primary/50",
-                    isSelected(value) &&
-                    "border-primary bg-primary/10 text-primary shadow-[0_0_12px_hsl(350_80%_60%/0.2)]",
-                  )}
-                >
-                  <input
-                    type={multiple ? "checkbox" : "radio"}
-                    name={name}
-                    value={value}
-                    checked={isSelected(value)}
-                    onChange={() => select(value)}
-                    onBlur={field.onBlur}
-                    className="sr-only"
-                  />
-                  {t(labelKey)}
-                </label>
-              ))}
-            </div>
+  const { t } = useTranslation("profile");
+  return (
+    <Controller
+      control={control}
+      name={name}
+      render={({ field }) => {
+        const current = field.value as string | string[] | undefined;
+        const isSelected = (v: string) =>
+          multiple
+            ? Array.isArray(current) && current.includes(v)
+            : current === v;
+        const select = (v: string) => {
+          if (!multiple) {
+            field.onChange(v);
+            onValueChange?.(v);
+            return;
+          }
+          const list = Array.isArray(current) ? current : [];
+          field.onChange(
+            list.includes(v) ? list.filter((x) => x !== v) : [...list, v],
           );
-        }}
-      />
-    );
-  };
+        };
+        return (
+          <div
+            role={multiple ? "group" : "radiogroup"}
+            aria-label={ariaLabel}
+            className="flex flex-wrap gap-2"
+          >
+            {options.map(({ value, labelKey }) => (
+              <label
+                key={value}
+                className={cn(
+                  "inline-flex items-center gap-1.5 rounded-xl border py-2.5 px-3.5 text-sm font-medium transition-all duration-200 select-none cursor-pointer",
+                  "bg-background/60 text-muted-foreground border-border",
+                  "hover:border-primary/50 hover:text-foreground active:scale-[0.97]",
+                  "focus-within:ring-2 focus-within:ring-primary/50",
+                  isSelected(value) &&
+                    "border-primary bg-primary/10 text-primary shadow-[0_0_12px_hsl(350_80%_60%/0.2)]",
+                )}
+              >
+                <input
+                  type={multiple ? "checkbox" : "radio"}
+                  name={name}
+                  value={value}
+                  checked={isSelected(value)}
+                  onChange={() => select(value)}
+                  onBlur={field.onBlur}
+                  className="sr-only"
+                />
+                {t(labelKey)}
+              </label>
+            ))}
+          </div>
+        );
+      }}
+    />
+  );
+};
 
 /** Radix Select interdit value="" : on utilise une valeur sentinelle. */
 const NONE = "__none__";
@@ -542,7 +541,7 @@ const VisibilityPicker: FC<{
                   "bg-background/60 border-border hover:border-primary/50",
                   "focus-within:ring-2 focus-within:ring-primary/50",
                   selected &&
-                  "border-primary bg-primary/10 shadow-[0_0_12px_hsl(350_80%_60%/0.15)]",
+                    "border-primary bg-primary/10 shadow-[0_0_12px_hsl(350_80%_60%/0.15)]",
                 )}
               >
                 <input
@@ -777,9 +776,7 @@ export const EditProfilePage: FC = () => {
       updateProfile(payload);
     },
     () => {
-      toast.error(
-        t("edit.invalid"),
-      );
+      toast.error(t("edit.invalid"));
     },
   );
 
@@ -1266,11 +1263,11 @@ export const EditProfilePage: FC = () => {
               <span className="text-[11px] text-muted-foreground">
                 {isActive === false
                   ? t("edit.form.inactiveHint", {
-                    defaultValue: "Votre profil est masque.",
-                  })
+                      defaultValue: "Votre profil est masque.",
+                    })
                   : t("edit.form.activeHint", {
-                    defaultValue: "Votre profil est visible.",
-                  })}
+                      defaultValue: "Votre profil est visible.",
+                    })}
               </span>
             </div>
             <Toggle

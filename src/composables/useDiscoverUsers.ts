@@ -12,7 +12,9 @@ export type DiscoverUsersFilters = {
   currentUserLon?: number;
 };
 
-export const sanitizeFilters = (filters?: DiscoverUsersFilters): DiscoverUsersFilters => {
+export const sanitizeFilters = (
+  filters?: DiscoverUsersFilters,
+): DiscoverUsersFilters => {
   if (!filters) return {};
   const sanitized: DiscoverUsersFilters = {};
 
@@ -20,36 +22,65 @@ export const sanitizeFilters = (filters?: DiscoverUsersFilters): DiscoverUsersFi
     sanitized.gender = filters.gender;
   }
 
-  if (typeof filters.ageMin === "number" && Number.isFinite(filters.ageMin) && filters.ageMin >= 18) {
+  if (
+    typeof filters.ageMin === "number" &&
+    Number.isFinite(filters.ageMin) &&
+    filters.ageMin >= 18
+  ) {
     sanitized.ageMin = Math.floor(filters.ageMin);
   }
 
-  if (typeof filters.ageMax === "number" && Number.isFinite(filters.ageMax) && filters.ageMax <= 100) {
+  if (
+    typeof filters.ageMax === "number" &&
+    Number.isFinite(filters.ageMax) &&
+    filters.ageMax <= 100
+  ) {
     sanitized.ageMax = Math.floor(filters.ageMax);
   }
 
   // Prevent invalid range where min > max
-  if (sanitized.ageMin !== undefined && sanitized.ageMax !== undefined && sanitized.ageMin > sanitized.ageMax) {
+  if (
+    sanitized.ageMin !== undefined &&
+    sanitized.ageMax !== undefined &&
+    sanitized.ageMin > sanitized.ageMax
+  ) {
     delete sanitized.ageMin;
     delete sanitized.ageMax;
   }
 
-  if (typeof filters.page === "number" && Number.isFinite(filters.page) && filters.page >= 1) {
+  if (
+    typeof filters.page === "number" &&
+    Number.isFinite(filters.page) &&
+    filters.page >= 1
+  ) {
     sanitized.page = Math.floor(filters.page);
   }
 
-  if (typeof filters.limit === "number" && Number.isFinite(filters.limit) && filters.limit >= 1 && filters.limit <= 100) {
+  if (
+    typeof filters.limit === "number" &&
+    Number.isFinite(filters.limit) &&
+    filters.limit >= 1 &&
+    filters.limit <= 100
+  ) {
     sanitized.limit = Math.floor(filters.limit);
   }
 
   // Coordinates - validate lat/lon ranges
-  if (typeof filters.currentUserLat === "number" && Number.isFinite(filters.currentUserLat) && 
-      filters.currentUserLat >= -90 && filters.currentUserLat <= 90) {
+  if (
+    typeof filters.currentUserLat === "number" &&
+    Number.isFinite(filters.currentUserLat) &&
+    filters.currentUserLat >= -90 &&
+    filters.currentUserLat <= 90
+  ) {
     sanitized.currentUserLat = filters.currentUserLat;
   }
 
-  if (typeof filters.currentUserLon === "number" && Number.isFinite(filters.currentUserLon) && 
-      filters.currentUserLon >= -180 && filters.currentUserLon <= 180) {
+  if (
+    typeof filters.currentUserLon === "number" &&
+    Number.isFinite(filters.currentUserLon) &&
+    filters.currentUserLon >= -180 &&
+    filters.currentUserLon <= 180
+  ) {
     sanitized.currentUserLon = filters.currentUserLon;
   }
 
@@ -77,8 +108,8 @@ export const useDiscoverUsers = (
   const sanitizedFilters = sanitizeFilters(mergedFilters);
 
   // Disable query if coordinates are not available (API requires them)
-  const hasCoordinates = 
-    sanitizedFilters.currentUserLat !== undefined && 
+  const hasCoordinates =
+    sanitizedFilters.currentUserLat !== undefined &&
     sanitizedFilters.currentUserLon !== undefined;
 
   return useQuery({

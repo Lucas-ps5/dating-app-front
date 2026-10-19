@@ -8,6 +8,7 @@ import {
   Calendar,
   ChevronLeft,
   ChevronRight,
+  Heart,
   HeartPulse,
   Languages,
   MapPin,
@@ -18,9 +19,13 @@ import {
   User as UserIcon,
   Users,
   Ruler,
+  X,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useGetUserById } from "@/composables/useGetUserById";
+import { useHasLiked } from "@/composables/useHasLiked";
+import { useCreateLike } from "@/composables/useCreateLike";
+import { useSendMessage } from "@/composables/useSendMessage";
 import { calculateAge, formatLocation, formatDistance } from "@/utils/discover";
 import {
   formatBirthdate,
@@ -83,7 +88,7 @@ const SWIPE_THRESHOLD = 50;
 /* -------------------------------------------------------------------------- */
 
 export const UserProfilePage: React.FC = () => {
-  const { t, i18n } = useTranslation("discover");
+  const { t, i18n } = useTranslation(["profile", "discover"]);
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const routerLocation = useLocation();
@@ -92,15 +97,39 @@ export const UserProfilePage: React.FC = () => {
 
   const { data: user, isLoading, error, refetch } = useGetUserById(id || "");
 
+  const {
+    data: hasLiked,
+    isLoading: isCheckingLike,
+    refetch: refetchHasLiked,
+  } = useHasLiked(id || "");
+  const { mutate: createLike, isPending: isLiking } = useCreateLike();
+  const { mutate: sendMessage, isPending: isSendingMessage } = useSendMessage();
+  const [isMessageModalOpen, setIsMessageModalOpen] = useState(false);
+  const [messageContent, setMessageContent] = useState("");
+
+  const handleLike = () => {
+    if (!id || hasLiked?.liked || isLiking) return;
+    createLike(
+      { receiverId: id },
+      {
+        onSuccess: () => {
+          refetchHasLiked();
+        },
+      },
+    );
+  };
+
   const photos: string[] = user?.photos ?? [];
   const photoCount = photos.length;
 
   const showPrev = useCallback(
-    () => setSelectedPhotoIndex((prev) => (prev > 0 ? prev - 1 : photoCount - 1)),
+    () =>
+      setSelectedPhotoIndex((prev) => (prev > 0 ? prev - 1 : photoCount - 1)),
     [photoCount],
   );
   const showNext = useCallback(
-    () => setSelectedPhotoIndex((prev) => (prev < photoCount - 1 ? prev + 1 : 0)),
+    () =>
+      setSelectedPhotoIndex((prev) => (prev < photoCount - 1 ? prev + 1 : 0)),
     [photoCount],
   );
 
@@ -157,7 +186,7 @@ export const UserProfilePage: React.FC = () => {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
           <div className="md:col-span-6 lg:col-span-5">
-            <Skeleton className="aspect-[3/4] w-full rounded-3xl bg-muted" />
+            <Skeleton className="aspect-3/4 w-full rounded-3xl bg-muted" />
           </div>
           <div className="md:col-span-6 lg:col-span-7 flex flex-col gap-6">
             <Skeleton className="h-44 w-full rounded-3xl bg-muted" />
@@ -212,7 +241,8 @@ export const UserProfilePage: React.FC = () => {
   const displayName = user.username || t("card.anonymous");
   const locale = i18n.language;
 
-  const hasLanguages = !!user.languagesSpoken && user.languagesSpoken.length > 0;
+  const hasLanguages =
+    !!user.languagesSpoken && user.languagesSpoken.length > 0;
   const hasRelationshipTypes =
     !!user.relationshipTypesSought && user.relationshipTypesSought.length > 0;
   const hasPersonalDetails =
@@ -223,16 +253,41 @@ export const UserProfilePage: React.FC = () => {
     !!user.hasChildren ||
     !!user.wantsChildren;
   const hasInterests =
-    (!!user.sexualInterests && user.sexualInterests.length > 0) || !!user.fantasiesText;
+    (!!user.sexualInterests && user.sexualInterests.length > 0) ||
+    !!user.fantasiesText;
 
   const messageButton = (
     <button
       type="button"
-      onClick={() => navigate(`/chat?userId=${user.id}`)}
-      className="w-full inline-flex items-center justify-center gap-2 py-3 px-5 rounded-xl text-sm font-semibold bg-primary hover:bg-primary/90 text-primary-foreground shadow-md transition-all hover:shadow-glow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+      onClick={() => setIsMessageModalOpen(true)}
+      className="flex-1 inline-flex items-center justify-center gap-2 py-3 px-5 rounded-xl text-sm font-semibold bg-primary hover:bg-primary/90 text-primary-foreground shadow-md transition-all hover:shadow-glow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
     >
       <MessageSquare className="w-4 h-4" />
       <span>{t("profilePage.sendMessage")}</span>
+    </button>
+  );
+
+  const likeButton = (
+    <button
+      type="button"
+      onClick={handleLike}
+      disabled={isCheckingLike || hasLiked?.liked || isLiking || !id}
+      className={`flex-1 inline-flex items-center justify-center gap-2 py-3 px-5 rounded-xl text-sm font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background ${
+        hasLiked?.liked
+          ? "bg-destructive/10 text-destructive hover:bg-destructive/20 border border-destructive/20"
+          : "bg-secondary hover:bg-secondary/80 text-foreground"
+      } ${isLiking ? "opacity-70 cursor-not-allowed" : ""}`}
+    >
+      <Heart
+        className={`w-4 h-4 ${hasLiked?.liked ? "fill-destructive text-destructive" : ""}`}
+      />
+      <span>
+        {(() => {
+          if (isCheckingLike) return t("loading");
+          if (hasLiked?.liked) return t("profilePage.liked");
+          return t("profilePage.like");
+        })()}
+      </span>
     </button>
   );
 
@@ -320,7 +375,11 @@ export const UserProfilePage: React.FC = () => {
             <div className="md:hidden pointer-events-none absolute inset-x-0 bottom-0 px-5 pb-5 pt-20 bg-gradient-to-t from-black/85 via-black/40 to-transparent">
               <h1 className="text-2xl font-extrabold tracking-tight text-white flex items-baseline gap-2">
                 <span>{displayName}</span>
-                {age !== null && <span className="text-xl font-normal text-white/80">{age}</span>}
+                {age !== null && (
+                  <span className="text-xl font-normal text-white/80">
+                    {age}
+                  </span>
+                )}
               </h1>
             </div>
           </div>
@@ -363,7 +422,9 @@ export const UserProfilePage: React.FC = () => {
                 <h1 className="hidden md:flex text-3xl font-extrabold tracking-tight text-foreground items-baseline gap-3">
                   <span className="truncate">{displayName}</span>
                   {age !== null && (
-                    <span className="text-2xl font-normal text-muted-foreground">{age}</span>
+                    <span className="text-2xl font-normal text-muted-foreground">
+                      {age}
+                    </span>
                   )}
                 </h1>
 
@@ -390,7 +451,12 @@ export const UserProfilePage: React.FC = () => {
             </div>
 
             {/* CTA desktop (sur mobile : barre fixe en bas) */}
-            <div className="hidden md:block pt-4 border-t border-border/50">{messageButton}</div>
+            <div className="hidden md:block pt-4 border-t border-border/50">
+              <div className="flex items-center gap-3">
+                {messageButton}
+                {likeButton}
+              </div>
+            </div>
           </div>
 
           {/* À propos */}
@@ -408,18 +474,23 @@ export const UserProfilePage: React.FC = () => {
               <dl className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 {user.preferences.genderPreference && (
                   <InfoTile label={t("profilePage.gender")}>
-                    <span className="capitalize">{t(`filters.${user.preferences.genderPreference}`)}</span>
+                    <span className="capitalize">
+                      {t(`filters.${user.preferences.genderPreference}`)}
+                    </span>
                   </InfoTile>
                 )}
                 {(user.preferences.ageMin || user.preferences.ageMax) && (
                   <InfoTile label={t("profilePage.ageRange")}>
-                    {user.preferences.ageMin || 18} – {user.preferences.ageMax || t("profilePage.any")}{" "}
+                    {user.preferences.ageMin || 18} –{" "}
+                    {user.preferences.ageMax || t("profilePage.any")}{" "}
                     {t("filters.yrs")}
                   </InfoTile>
                 )}
                 {user.preferences.maxDistance && (
                   <InfoTile label={t("profilePage.maxDistance")}>
-                    {t("profilePage.withinDistance", { distance: user.preferences.maxDistance })}
+                    {t("profilePage.withinDistance", {
+                      distance: user.preferences.maxDistance,
+                    })}
                   </InfoTile>
                 )}
               </dl>
@@ -506,7 +577,8 @@ export const UserProfilePage: React.FC = () => {
             <p className="flex items-center gap-2 text-xs text-muted-foreground px-1">
               <Calendar className="w-4 h-4 shrink-0" />
               <span>
-                {t("profilePage.joinedAt")} {formatDateTime(user.createdAt, locale)}
+                {t("profilePage.joinedAt")}{" "}
+                {formatDateTime(user.createdAt, locale)}
               </span>
             </p>
           )}
@@ -515,8 +587,86 @@ export const UserProfilePage: React.FC = () => {
 
       {/* Barre d'action fixe (mobile uniquement) */}
       <div className="md:hidden fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/85 backdrop-blur px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
-        {messageButton}
+        <div className="flex items-center gap-3">
+          {messageButton}
+          {likeButton}
+        </div>
       </div>
+
+      {/* Message Modal */}
+      {isMessageModalOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+          onClick={() => setIsMessageModalOpen(false)}
+        >
+          <div
+            className="w-full max-w-md bg-card border border-border rounded-3xl shadow-xl p-6 animate-slide-up"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-foreground">
+                {t("profilePage.sendMessage")}
+              </h2>
+              <button
+                type="button"
+                onClick={() => setIsMessageModalOpen(false)}
+                className="p-1 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <p className="text-sm text-muted-foreground mb-4">
+              {t("profilePage.messageTo", { username: displayName })}
+            </p>
+            <textarea
+              value={messageContent}
+              onChange={(e) => setMessageContent(e.target.value)}
+              placeholder={t("profilePage.messagePlaceholder")}
+              className="w-full min-h-[120px] p-4 rounded-xl bg-secondary/60 border border-border/40 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+              maxLength={2000}
+              disabled={isSendingMessage}
+            />
+            <div className="flex items-center justify-between mt-4">
+              <span className="text-xs text-muted-foreground">
+                {messageContent.length}/2000
+              </span>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMessageContent("");
+                    setIsMessageModalOpen(false);
+                  }}
+                  disabled={isSendingMessage}
+                  className="px-4 py-2 rounded-xl text-sm font-semibold bg-secondary hover:bg-secondary/80 text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {t("common.cancel")}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (messageContent.trim() && user.id) {
+                      sendMessage(
+                        { receiverId: user.id, content: messageContent.trim() },
+                        {
+                          onSuccess: () => {
+                            setMessageContent("");
+                            setIsMessageModalOpen(false);
+                          },
+                        },
+                      );
+                    }
+                  }}
+                  disabled={isSendingMessage || !messageContent.trim()}
+                  className="px-4 py-2 rounded-xl text-sm font-semibold bg-primary hover:bg-primary/90 text-primary-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isSendingMessage ? t("loading") : t("common.send")}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

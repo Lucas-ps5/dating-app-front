@@ -27,20 +27,28 @@ for (const [path, src] of Object.entries(localImageModules)) {
  * - External images (`isLocal` false) are returned untouched.
  * - Local images are looked up inside `src/assets/images` by path or file name.
  */
-export function resolveImageUrl(url: string, isLocal: boolean): string | undefined {
-  const backendURL: string | undefined = import.meta.env.VITE_REST_API_BASE_URL + "/media/";
+export function resolveImageUrl(
+  url: string,
+  isLocal: boolean,
+): string | undefined {
+  const backendURL: string | undefined =
+    import.meta.env.VITE_REST_API_BASE_URL + "/media/";
 
   if (!url) return undefined;
   if (!isLocal) return url;
 
-  const cleanPath = url.replace(/^\/?src\/assets\/images\//, "").replace(/^\.?\//, "");
+  const cleanPath = url
+    .replace(/^\/?src\/assets\/images\//, "")
+    .replace(/^\.?\//, "");
   const fileName = cleanPath.slice(cleanPath.lastIndexOf("/") + 1);
 
   return localImages[cleanPath] ?? localImages[fileName] ?? undefined;
 }
 
-export interface ImageProps
-  extends Omit<React.ImgHTMLAttributes<HTMLImageElement>, "src"> {
+export interface ImageProps extends Omit<
+  React.ImgHTMLAttributes<HTMLImageElement>,
+  "src"
+> {
   /** When `true`, `url` is resolved from `src/assets/images/`. */
   isLocal: boolean;
   /** External image URL, or the name/path of a local image. */

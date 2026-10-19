@@ -15,7 +15,7 @@ export const useUpdateProfile = ({
     mutationFn: async (userData: UpdateUserRequest) => {
       const { data, error } = await Users.updateProfile({
         body: userData,
-        path: { id }
+        path: { id },
       });
 
       if (error) throw error;

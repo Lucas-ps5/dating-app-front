@@ -30,9 +30,15 @@ export function useToast() {
   const toast = React.useCallback(
     ({ title, description, ...props }: ToastProps) => {
       const id = String(Date.now());
-      setToasts((prev) => [...prev.slice(-(TOAST_LIMIT - 1)), { id, title, description, ...props }]);
+      setToasts((prev) => [
+        ...prev.slice(-(TOAST_LIMIT - 1)),
+        { id, title, description, ...props },
+      ]);
       if (typeof title === "string") {
-        sonnerToast(title, { description: typeof description === "string" ? description : undefined });
+        sonnerToast(title, {
+          description:
+            typeof description === "string" ? description : undefined,
+        });
       }
       return { id };
     },
@@ -52,6 +58,9 @@ export function useToast() {
 
 export const toast = (props: ToastProps) => {
   if (typeof props.title === "string") {
-    sonnerToast(props.title, { description: typeof props.description === "string" ? props.description : undefined });
+    sonnerToast(props.title, {
+      description:
+        typeof props.description === "string" ? props.description : undefined,
+    });
   }
 };

@@ -15,9 +15,8 @@ export const generateClient = ({ name }: { name: string }) => {
       },
       {
         name: "@hey-api/sdk",
-        operations: { strategy: "byTags" }
+        operations: { strategy: "byTags" },
       },
     ],
   });
 };
-

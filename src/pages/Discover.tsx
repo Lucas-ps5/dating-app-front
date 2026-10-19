@@ -4,7 +4,12 @@ import { Compass, FilterX, MapPin, RotateCcw } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Gender, type UserWithDistance } from "@/api/users";
 import { useDiscoverUsers } from "@/composables/useDiscoverUsers";
-import { useDiscoverStore, DEFAULT_AGE_MIN, DEFAULT_AGE_MAX, DEFAULT_LIMIT } from "@/store/useDiscoverStore";
+import {
+  useDiscoverStore,
+  DEFAULT_AGE_MIN,
+  DEFAULT_AGE_MAX,
+  DEFAULT_LIMIT,
+} from "@/store/useDiscoverStore";
 import { UserCard } from "@/components/discover/UserCard";
 import { DiscoverFilters } from "@/components/discover/DiscoverFilters";
 import { MobileFilterDrawer } from "@/components/discover/MobileFilterDrawer";
@@ -62,7 +67,6 @@ export const DiscoverPage: React.FC = () => {
       const l = parseInt(urlLimit, 10);
       if (!isNaN(l) && l > 0 && l <= 100) setLimit(l);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Sync state back to URL query parameters
@@ -90,7 +94,8 @@ export const DiscoverPage: React.FC = () => {
   );
 
   // TanStack Query via composable
-  const { data, isLoading, isError, error, refetch, isFetching } = useDiscoverUsers(queryFilters);
+  const { data, isLoading, isError, error, refetch, isFetching } =
+    useDiscoverUsers(queryFilters);
 
   const users: UserWithDistance[] = data?.data ?? [];
   const total = data?.total ?? 0;
@@ -137,7 +142,10 @@ export const DiscoverPage: React.FC = () => {
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground flex items-center gap-3">
             <span>{t("header.title")}</span>
             {isFetching && !isLoading && (
-              <span className="w-2 h-2 rounded-full bg-primary animate-ping" title="Updating..." />
+              <span
+                className="w-2 h-2 rounded-full bg-primary animate-ping"
+                title="Updating..."
+              />
             )}
           </h1>
 
@@ -183,7 +191,10 @@ export const DiscoverPage: React.FC = () => {
             </h3>
 
             <p className="text-sm text-muted-foreground max-w-md mb-6 leading-relaxed">
-              {t("locationRequired.desc", "To discover people near you, we need access to your location. Please enable location permissions in your browser and try again.")}
+              {t(
+                "locationRequired.desc",
+                "To discover people near you, we need access to your location. Please enable location permissions in your browser and try again.",
+              )}
             </p>
 
             <button
@@ -196,7 +207,10 @@ export const DiscoverPage: React.FC = () => {
             </button>
           </div>
         ) : isLoading ? (
-          <DiscoverSkeleton count={limit > 12 ? 12 : limit} variant={viewMode} />
+          <DiscoverSkeleton
+            count={limit > 12 ? 12 : limit}
+            variant={viewMode}
+          />
         ) : isError ? (
           <DiscoverErrorState error={error} onRetry={() => refetch()} />
         ) : filteredUsers.length === 0 ? (
@@ -236,7 +250,11 @@ export const DiscoverPage: React.FC = () => {
             }
           >
             {filteredUsers.map((user) => (
-              <UserCard key={user.id || user.username} user={user} variant={viewMode} />
+              <UserCard
+                key={user.id || user.username}
+                user={user}
+                variant={viewMode}
+              />
             ))}
           </div>
         )}

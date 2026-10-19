@@ -1,5 +1,13 @@
 import { Outlet, NavLink, useLocation } from "react-router";
-import { Heart, MessageCircle, User, Compass, LayoutDashboard, ThumbsUp, LogOut } from "lucide-react";
+import {
+  Heart,
+  MessageCircle,
+  User,
+  Compass,
+  LayoutDashboard,
+  ThumbsUp,
+  LogOut,
+} from "lucide-react";
 import { useFetchLikesCount } from "@/composables/useFetchLikesCount";
 import { useFetchMatchsCount } from "@/composables/useFetchMatchsCount";
 import Image from "@/components/ui/Image";
@@ -19,7 +27,8 @@ export default function AppLayout() {
   const { userInfo, logout } = useAuth();
   const location = useLocation();
 
-  const { data: matchCount, isLoading: isLoadingMatchs } = useFetchMatchsCount();
+  const { data: matchCount, isLoading: isLoadingMatchs } =
+    useFetchMatchsCount();
   const { data: likeCount, isLoading: isLoadingLikes } = useFetchLikesCount();
 
   const matchesTotal = matchCount?.count ?? 0;
@@ -40,17 +49,25 @@ export default function AppLayout() {
               to={item.to}
               className={({ isActive }) =>
                 `flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  isActive ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+                  isActive
+                    ? "bg-primary/10 text-primary"
+                    : "text-muted-foreground hover:text-foreground hover:bg-secondary"
                 }`
               }
             >
               <item.icon className="w-4 h-4" />
               {item.label}
-              {item.to === "/matches" && !isLoadingMatchs && matchesTotal > 0 && (
-                <span className="ml-1 px-1.5 py-0.5 text-xs rounded-full gradient-primary text-primary-foreground">{matchesTotal}</span>
-              )}
+              {item.to === "/matches" &&
+                !isLoadingMatchs &&
+                matchesTotal > 0 && (
+                  <span className="ml-1 px-1.5 py-0.5 text-xs rounded-full gradient-primary text-primary-foreground">
+                    {matchesTotal}
+                  </span>
+                )}
               {item.to === "/likes" && !isLoadingLikes && likesTotal > 0 && (
-                <span className="ml-1 px-1.5 py-0.5 text-xs rounded-full gradient-primary text-primary-foreground">{likesTotal}</span>
+                <span className="ml-1 px-1.5 py-0.5 text-xs rounded-full gradient-primary text-primary-foreground">
+                  {likesTotal}
+                </span>
               )}
             </NavLink>
           ))}
@@ -59,7 +76,10 @@ export default function AppLayout() {
           <span className="text-sm text-muted-foreground">
             {(userInfo?.preferred_username as string) || "Profile"}
           </span>
-          <button onClick={() => logout()} className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors">
+          <button
+            onClick={() => logout()}
+            className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+          >
             <LogOut className="w-4 h-4" />
           </button>
         </div>
@@ -75,14 +95,28 @@ export default function AppLayout() {
         {navItems.map((item) => {
           const isActive = location.pathname === item.to;
           return (
-            <NavLink key={item.to} to={item.to} className="flex flex-col items-center gap-0.5 p-1 relative">
-              <item.icon className={`w-5 h-5 ${isActive ? "text-primary" : "text-muted-foreground"}`} />
-              <span className={`text-[10px] ${isActive ? "text-primary font-semibold" : "text-muted-foreground"}`}>{item.label}</span>
+            <NavLink
+              key={item.to}
+              to={item.to}
+              className="flex flex-col items-center gap-0.5 p-1 relative"
+            >
+              <item.icon
+                className={`w-5 h-5 ${isActive ? "text-primary" : "text-muted-foreground"}`}
+              />
+              <span
+                className={`text-[10px] ${isActive ? "text-primary font-semibold" : "text-muted-foreground"}`}
+              >
+                {item.label}
+              </span>
               {item.to === "/matches" && matchesTotal > 0 && (
-                <span className="absolute -top-1 right-0 w-4 h-4 text-[9px] flex items-center justify-center rounded-full gradient-primary text-primary-foreground">{matchesTotal}</span>
+                <span className="absolute -top-1 right-0 w-4 h-4 text-[9px] flex items-center justify-center rounded-full gradient-primary text-primary-foreground">
+                  {matchesTotal}
+                </span>
               )}
               {item.to === "/likes" && likesTotal > 0 && (
-                <span className="absolute -top-1 right-0 w-4 h-4 text-[9px] flex items-center justify-center rounded-full gradient-primary text-primary-foreground">{likesTotal}</span>
+                <span className="absolute -top-1 right-0 w-4 h-4 text-[9px] flex items-center justify-center rounded-full gradient-primary text-primary-foreground">
+                  {likesTotal}
+                </span>
               )}
             </NavLink>
           );

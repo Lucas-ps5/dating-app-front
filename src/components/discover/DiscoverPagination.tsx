@@ -35,7 +35,10 @@ export const DiscoverPagination: React.FC<DiscoverPaginationProps> = ({
   const startItem = (safeCurrentPage - 1) * limit + 1;
   const endItem = Math.min(safeCurrentPage * limit, total);
 
-  const paginationRange = generatePaginationRange(safeCurrentPage, safeTotalPages);
+  const paginationRange = generatePaginationRange(
+    safeCurrentPage,
+    safeTotalPages,
+  );
 
   return (
     <nav
@@ -73,7 +76,10 @@ export const DiscoverPagination: React.FC<DiscoverPaginationProps> = ({
           paginationRange.map((item, index) => {
             if (item === "ellipsis-start" || item === "ellipsis-end") {
               return (
-                <span key={`ellipsis-${index}`} className="px-1.5 text-zinc-600 select-none">
+                <span
+                  key={`ellipsis-${index}`}
+                  className="px-1.5 text-zinc-600 select-none"
+                >
                   …
                 </span>
               );

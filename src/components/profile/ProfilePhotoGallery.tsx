@@ -49,9 +49,7 @@ export const ProfilePhotoGallery: React.FC<ProfilePhotoGalleryProps> = ({
             isLocal={false}
             url={currentPhoto ?? ""}
             alt={
-              username
-                ? t("photo.alt", { username })
-                : t("photo.altFallback")
+              username ? t("photo.alt", { username }) : t("photo.altFallback")
             }
             onError={() => setImageFailed(true)}
             className="w-full h-full object-cover"

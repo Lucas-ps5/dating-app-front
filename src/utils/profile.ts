@@ -23,13 +23,18 @@ export const formatDateTime = (
   if (!value) return null;
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return null;
-  return new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(date);
+  return new Intl.DateTimeFormat(locale, {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(date);
 };
 
 /**
  * Format height in centimeters.
  */
-export const formatHeight = (heightCm: number | null | undefined): string | null => {
+export const formatHeight = (
+  heightCm: number | null | undefined,
+): string | null => {
   if (!heightCm) return null;
   return `${heightCm} cm`;
 };
@@ -53,7 +58,11 @@ export const formatSexualInterests = (
   t: (key: string, options?: any) => string,
 ): string | null => {
   if (!interests || interests.length === 0) return null;
-  return interests.map((interest) => t(`sexualInterests.${interest}`, { defaultValue: interest })).join(", ");
+  return interests
+    .map((interest) =>
+      t(`sexualInterests.${interest}`, { defaultValue: interest }),
+    )
+    .join(", ");
 };
 
 /**
@@ -121,7 +130,9 @@ export const buildProfileCompletionChecklist = (
   },
   {
     done: hasPreferences,
-    label: t("completion.preferences", { defaultValue: "Définir vos préférences" }),
+    label: t("completion.preferences", {
+      defaultValue: "Définir vos préférences",
+    }),
   },
   {
     done: Boolean(user.heightCm),
@@ -132,8 +143,12 @@ export const buildProfileCompletionChecklist = (
     label: t("completion.languages", { defaultValue: "Ajouter vos langues" }),
   },
   {
-    done: Boolean(user.relationshipTypesSought && user.relationshipTypesSought.length > 0),
-    label: t("completion.relationshipTypes", { defaultValue: "Définir vos types de relations" }),
+    done: Boolean(
+      user.relationshipTypesSought && user.relationshipTypesSought.length > 0,
+    ),
+    label: t("completion.relationshipTypes", {
+      defaultValue: "Définir vos types de relations",
+    }),
   },
   {
     done: Boolean(user.hasChildren || user.wantsChildren),
@@ -144,7 +159,9 @@ export const buildProfileCompletionChecklist = (
 /**
  * Calculate profile completion percentage from checklist.
  */
-export const calculateProfileCompletionPercent = (checklist: CompletionChecklistItem[]): number => {
+export const calculateProfileCompletionPercent = (
+  checklist: CompletionChecklistItem[],
+): number => {
   const missing = checklist.filter((i) => !i.done).length;
   return Math.round(((checklist.length - missing) / checklist.length) * 100);
 };

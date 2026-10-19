@@ -2,7 +2,11 @@ import { useEffect, useState } from "react";
 import { useLocation } from "react-router";
 import { useAuth } from "@/hooks/useAuth";
 
-export default function ProtectedRoute({ children }: { children: React.ReactNode }) {
+export default function ProtectedRoute({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const { authenticated, loading, keycloak } = useAuth();
   const location = useLocation();
   const [isVerifying, setIsVerifying] = useState(false);
@@ -19,7 +23,10 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
           }
         })
         .catch((err) => {
-          console.warn("[AuthGuard] Session expired or invalid on navigation:", err);
+          console.warn(
+            "[AuthGuard] Session expired or invalid on navigation:",
+            err,
+          );
           keycloak.login();
         })
         .finally(() => {

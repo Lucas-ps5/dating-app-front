@@ -95,13 +95,15 @@
     "personalDetails": "Personal Details",
     "birthdate": "Birthdate",
     "height": "Height",
-    "relationshipTypesSought": "Looking for",
+    "relationshipTypesSought": "Relationship types sought",
     "hasChildren": "Has children",
     "wantsChildren": "Wants children",
     "languages": "Languages",
     "interestsFantasies": "Interests & Fantasies",
     "fantasies": "Fantasies",
-    "joinedAt": "Member since"
+    "joinedAt": "Member since",
+    "like": "Like",
+    "liked": "Liked"
   },
   "sexualInterests": {
     "ROLEPLAY": "Roleplay",

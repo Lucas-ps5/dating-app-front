@@ -11,20 +11,28 @@ import profileFr from "./locales/fr/profile.json";
 
 const locale = navigator.language.split("-")[0] || "en";
 
-i18n
-  .use(initReactI18next)
-  .init({
-    resources: {
-      en: { register: registerEn, discover: discoverEn, home: homeEn, profile: profileEn },
-      fr: { register: registerFr, discover: discoverFr, home: homeFr, profile: profileFr },
+i18n.use(initReactI18next).init({
+  resources: {
+    en: {
+      register: registerEn,
+      discover: discoverEn,
+      home: homeEn,
+      profile: profileEn,
     },
-    lng: locale,
-    fallbackLng: "en",
-    ns: ["register", "discover", "home", "profile"],
-    defaultNS: "discover",
-    interpolation: {
-      escapeValue: false,
+    fr: {
+      register: registerFr,
+      discover: discoverFr,
+      home: homeFr,
+      profile: profileFr,
     },
-  });
+  },
+  lng: locale,
+  fallbackLng: "en",
+  ns: ["register", "discover", "home", "profile"],
+  defaultNS: "discover",
+  interpolation: {
+    escapeValue: false,
+  },
+});
 
 export default i18n;

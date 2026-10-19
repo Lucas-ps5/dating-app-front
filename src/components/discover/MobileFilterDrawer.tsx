@@ -2,7 +2,11 @@ import React, { useState, useEffect } from "react";
 import { AlertCircle, RotateCcw, Check } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Gender } from "@/api/users";
-import { useDiscoverStore, DEFAULT_AGE_MIN, DEFAULT_AGE_MAX } from "@/store/useDiscoverStore";
+import {
+  useDiscoverStore,
+  DEFAULT_AGE_MIN,
+  DEFAULT_AGE_MAX,
+} from "@/store/useDiscoverStore";
 import { validateAgeRange } from "@/utils/discover";
 import { Slider } from "@/components/ui/slider";
 import {
@@ -23,10 +27,14 @@ export const MobileFilterDrawer: React.FC<MobileFilterDrawerProps> = ({
   onOpenChange,
 }) => {
   const { t } = useTranslation("discover");
-  const { gender, ageMin, ageMax, setGender, setAgeRange, resetFilters } = useDiscoverStore();
+  const { gender, ageMin, ageMax, setGender, setAgeRange, resetFilters } =
+    useDiscoverStore();
 
   const [localGender, setLocalGender] = useState<Gender | undefined>(gender);
-  const [localAgeRange, setLocalAgeRange] = useState<[number, number]>([ageMin, ageMax]);
+  const [localAgeRange, setLocalAgeRange] = useState<[number, number]>([
+    ageMin,
+    ageMax,
+  ]);
 
   useEffect(() => {
     if (open) {
@@ -54,7 +62,10 @@ export const MobileFilterDrawer: React.FC<MobileFilterDrawerProps> = ({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="bottom" className="rounded-t-3xl max-h-[90vh] overflow-y-auto bg-card border-border p-6">
+      <SheetContent
+        side="bottom"
+        className="rounded-t-3xl max-h-[90vh] overflow-y-auto bg-card border-border p-6"
+      >
         <SheetHeader className="text-left mb-6">
           <SheetTitle className="text-xl font-bold tracking-tight text-foreground">
             {t("drawer.title")}
@@ -134,7 +145,9 @@ export const MobileFilterDrawer: React.FC<MobileFilterDrawerProps> = ({
 
             <div className="flex items-center justify-between gap-4">
               <div className="flex items-center gap-2">
-                <span className="text-xs text-zinc-400">{t("filters.min")}</span>
+                <span className="text-xs text-zinc-400">
+                  {t("filters.min")}
+                </span>
                 <input
                   type="number"
                   min={18}
@@ -149,7 +162,9 @@ export const MobileFilterDrawer: React.FC<MobileFilterDrawerProps> = ({
               </div>
 
               <div className="flex items-center gap-2">
-                <span className="text-xs text-zinc-400">{t("filters.max")}</span>
+                <span className="text-xs text-zinc-400">
+                  {t("filters.max")}
+                </span>
                 <input
                   type="number"
                   min={18}

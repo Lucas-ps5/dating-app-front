@@ -148,7 +148,9 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
         message =
           typeof data === "string"
             ? data
-            : data.message || data.error || `Server error ${err.response.status}`;
+            : data.message ||
+              data.error ||
+              `Server error ${err.response.status}`;
       } else if (err?.request) {
         message = t("imageUpload.noResponse");
       } else if (err?.message) {
@@ -277,7 +279,8 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
           </span>
           <span className="text-xs text-muted-foreground">
             {t("imageUpload.hint", {
-              defaultValue: "Glissez une image ici ou cliquez. JPEG, PNG, WebP ou GIF, 10 Mo max.",
+              defaultValue:
+                "Glissez une image ici ou cliquez. JPEG, PNG, WebP ou GIF, 10 Mo max.",
             })}
           </span>
         </span>

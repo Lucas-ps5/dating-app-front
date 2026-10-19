@@ -55,7 +55,11 @@ interface SectionTitleProps {
   className?: string;
 }
 
-const SectionTitle: React.FC<SectionTitleProps> = ({ children, icon: Icon, className }) => (
+const SectionTitle: React.FC<SectionTitleProps> = ({
+  children,
+  icon: Icon,
+  className,
+}) => (
   <h2
     className={cn(
       "flex items-center gap-2 text-base font-semibold tracking-tight text-foreground",
@@ -110,7 +114,13 @@ interface DetailRowProps {
 }
 
 /** Ligne label / valeur séparée par un filet. */
-const DetailRow: React.FC<DetailRowProps> = ({ icon: Icon, label, value, emptyLabel, trailing }) => {
+const DetailRow: React.FC<DetailRowProps> = ({
+  icon: Icon,
+  label,
+  value,
+  emptyLabel,
+  trailing,
+}) => {
   const hasValue = Boolean(value && value.trim().length > 0);
 
   return (
@@ -122,7 +132,9 @@ const DetailRow: React.FC<DetailRowProps> = ({ icon: Icon, label, value, emptyLa
       <dd
         className={cn(
           "flex items-center gap-2 text-right text-sm break-words",
-          hasValue ? "font-medium text-foreground" : "italic text-muted-foreground/70",
+          hasValue
+            ? "font-medium text-foreground"
+            : "italic text-muted-foreground/70",
         )}
       >
         {trailing}
@@ -137,18 +149,20 @@ const DetailList: React.FC<{ children: React.ReactNode }> = ({ children }) => (
 );
 
 /** Jauge de complétion : n'apparaît que tant que le profil n'est pas complet. */
-const ProfileCompletion: React.FC<{ percent: number; missing: string[]; title: string }> = ({
-  percent,
-  missing,
-  title,
-}) => (
+const ProfileCompletion: React.FC<{
+  percent: number;
+  missing: string[];
+  title: string;
+}> = ({ percent, missing, title }) => (
   <section
     aria-label={title}
     className="flex flex-col gap-4 rounded-3xl border border-primary/25 bg-gradient-to-br from-primary/10 to-primary/5 p-5"
   >
     <div className="flex items-baseline justify-between gap-4">
       <SectionTitle icon={Sparkles}>{title}</SectionTitle>
-      <span className="text-sm font-semibold tabular-nums text-primary">{percent}%</span>
+      <span className="text-sm font-semibold tabular-nums text-primary">
+        {percent}%
+      </span>
     </div>
 
     <div
@@ -181,7 +195,10 @@ const ProfileCompletion: React.FC<{ percent: number; missing: string[]; title: s
 );
 
 /** Badge compact (genre, statut…). */
-const Badge: React.FC<{ className?: string; children: React.ReactNode }> = ({ className, children }) => (
+const Badge: React.FC<{ className?: string; children: React.ReactNode }> = ({
+  className,
+  children,
+}) => (
   <span
     className={cn(
       "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium",
@@ -194,16 +211,20 @@ const Badge: React.FC<{ className?: string; children: React.ReactNode }> = ({ cl
 
 /** Texte long (bio, fantasmes) avec lecture confortable. */
 const Prose: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <p className="max-w-prose whitespace-pre-line text-[15px] leading-7 text-foreground/90">{children}</p>
+  <p className="max-w-prose whitespace-pre-line text-[15px] leading-7 text-foreground/90">
+    {children}
+  </p>
 );
 
 /* -------------------------------------------------------------------------- */
 /*  Helpers                                                                   */
 /* -------------------------------------------------------------------------- */
 
-const capitalize = (value: string): string => value.charAt(0).toUpperCase() + value.slice(1);
+const capitalize = (value: string): string =>
+  value.charAt(0).toUpperCase() + value.slice(1);
 
-const hasNumber = (n: unknown): n is number => typeof n === "number" && Number.isFinite(n);
+const hasNumber = (n: unknown): n is number =>
+  typeof n === "number" && Number.isFinite(n);
 
 const VISIBILITY_ICONS: Record<string, LucideIcon> = {
   PUBLIC: Globe,
@@ -217,7 +238,13 @@ const VISIBILITY_ICONS: Record<string, LucideIcon> = {
 
 export const MyProfilePage: React.FC = () => {
   const { t, i18n } = useTranslation("profile");
-  const { data: user, isLoading, isError, error, refetch } = useFetchCurrentUser();
+  const {
+    data: user,
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useFetchCurrentUser();
   const [photos, setPhotos] = useState<string[]>([]);
 
   useEffect(() => {
@@ -230,12 +257,20 @@ export const MyProfilePage: React.FC = () => {
   const visibilityEntries = useMemo(() => {
     if (!user) return [];
     return [
-      { key: "relationshipTypesSoughtVisibility", value: user.relationshipTypesSoughtVisibility },
-      { key: "sexualInterestsVisibility", value: user.sexualInterestsVisibility },
+      {
+        key: "relationshipTypesSoughtVisibility",
+        value: user.relationshipTypesSoughtVisibility,
+      },
+      {
+        key: "sexualInterestsVisibility",
+        value: user.sexualInterestsVisibility,
+      },
       { key: "fantasiesTextVisibility", value: user.fantasiesTextVisibility },
       { key: "hasChildrenVisibility", value: user.hasChildrenVisibility },
       { key: "wantsChildrenVisibility", value: user.wantsChildrenVisibility },
-    ].filter((e): e is { key: string; value: NonNullable<typeof e.value> } => Boolean(e.value));
+    ].filter((e): e is { key: string; value: NonNullable<typeof e.value> } =>
+      Boolean(e.value),
+    );
   }, [user]);
 
   if (isLoading) {
@@ -259,11 +294,16 @@ export const MyProfilePage: React.FC = () => {
   const hasAgeMin = hasNumber(prefs?.ageMin);
   const hasAgeMax = hasNumber(prefs?.ageMax);
   const hasMaxDistance = hasNumber(prefs?.maxDistance);
-  const hasPreferences = Boolean(prefGender || hasAgeMin || hasAgeMax || hasMaxDistance);
+  const hasPreferences = Boolean(
+    prefGender || hasAgeMin || hasAgeMax || hasMaxDistance,
+  );
 
   let ageRangeLabel: string | null = null;
   if (hasAgeMin && hasAgeMax) {
-    ageRangeLabel = t("preferences.range", { min: prefs?.ageMin, max: prefs?.ageMax });
+    ageRangeLabel = t("preferences.range", {
+      min: prefs?.ageMin,
+      max: prefs?.ageMax,
+    });
   } else if (hasAgeMin) {
     ageRangeLabel = t("preferences.from", { min: prefs?.ageMin });
   } else if (hasAgeMax) {
@@ -275,20 +315,32 @@ export const MyProfilePage: React.FC = () => {
     : null;
 
   /* ---- Sections conditionnelles ---- */
-  const hasLanguages = Boolean(user.languagesSpoken && user.languagesSpoken.length > 0);
+  const hasLanguages = Boolean(
+    user.languagesSpoken && user.languagesSpoken.length > 0,
+  );
   const hasRelationshipTypes = Boolean(
     user.relationshipTypesSought && user.relationshipTypesSought.length > 0,
   );
   const hasRelationshipFamily =
-    hasRelationshipTypes || Boolean(user.hasChildren) || Boolean(user.wantsChildren);
-  const hasInterests = Boolean(user.sexualInterests && user.sexualInterests.length > 0);
+    hasRelationshipTypes ||
+    Boolean(user.hasChildren) ||
+    Boolean(user.wantsChildren);
+  const hasInterests = Boolean(
+    user.sexualInterests && user.sexualInterests.length > 0,
+  );
   const hasInterestsOrFantasies = hasInterests || Boolean(user.fantasiesText);
 
   const allSameVisibility =
-    visibilityEntries.length > 1 && new Set(visibilityEntries.map((e) => e.value)).size === 1;
+    visibilityEntries.length > 1 &&
+    new Set(visibilityEntries.map((e) => e.value)).size === 1;
 
   /* ---- Complétion du profil ---- */
-  const checklist = buildProfileCompletionChecklist(user, photos, hasPreferences, t);
+  const checklist = buildProfileCompletionChecklist(
+    user,
+    photos,
+    hasPreferences,
+    t,
+  );
   const missing = checklist.filter((i) => !i.done).map((i) => i.label);
   const percent = calculateProfileCompletionPercent(checklist);
 
@@ -300,7 +352,9 @@ export const MyProfilePage: React.FC = () => {
           <h1 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">
             {t("header.title")}
           </h1>
-          <p className="mt-0.5 max-w-md text-sm text-muted-foreground">{t("header.subtitle")}</p>
+          <p className="mt-0.5 max-w-md text-sm text-muted-foreground">
+            {t("header.subtitle")}
+          </p>
         </div>
 
         <Link
@@ -338,7 +392,9 @@ export const MyProfilePage: React.FC = () => {
           <section className="flex flex-col gap-4">
             <div className="flex flex-wrap items-center gap-2">
               {genderLabel && (
-                <Badge className="border-border bg-secondary text-foreground/80">{genderLabel}</Badge>
+                <Badge className="border-border bg-secondary text-foreground/80">
+                  {genderLabel}
+                </Badge>
               )}
               {typeof user.isActive === "boolean" && (
                 <Badge
@@ -375,19 +431,29 @@ export const MyProfilePage: React.FC = () => {
 
             <div className="flex flex-col gap-1.5 text-sm">
               <p className="flex items-center gap-2 text-foreground/80">
-                <Briefcase className="h-4 w-4 shrink-0 text-muted-foreground/70" aria-hidden="true" />
+                <Briefcase
+                  className="h-4 w-4 shrink-0 text-muted-foreground/70"
+                  aria-hidden="true"
+                />
                 {user.title ? (
                   <span className="break-words">{user.title}</span>
                 ) : (
-                  <span className="italic text-muted-foreground/70">{t("empty.title")}</span>
+                  <span className="italic text-muted-foreground/70">
+                    {t("empty.title")}
+                  </span>
                 )}
               </p>
               <p className="flex items-center gap-2 text-foreground/80">
-                <MapPin className="h-4 w-4 shrink-0 text-muted-foreground/70" aria-hidden="true" />
+                <MapPin
+                  className="h-4 w-4 shrink-0 text-muted-foreground/70"
+                  aria-hidden="true"
+                />
                 {location ? (
                   <span>{location}</span>
                 ) : (
-                  <span className="italic text-muted-foreground/70">{t("empty.location")}</span>
+                  <span className="italic text-muted-foreground/70">
+                    {t("empty.location")}
+                  </span>
                 )}
               </p>
             </div>
@@ -398,7 +464,9 @@ export const MyProfilePage: React.FC = () => {
             <ProfileCompletion
               percent={percent}
               missing={missing}
-              title={t("completion.heading", { defaultValue: "Complétez votre profil" })}
+              title={t("completion.heading", {
+                defaultValue: "Complétez votre profil",
+              })}
             />
           )}
 
@@ -451,7 +519,9 @@ export const MyProfilePage: React.FC = () => {
           {/* Langues */}
           {hasLanguages && (
             <Card ariaLabel={t("sections.languages")}>
-              <SectionTitle icon={Languages}>{t("sections.languages")}</SectionTitle>
+              <SectionTitle icon={Languages}>
+                {t("sections.languages")}
+              </SectionTitle>
               <ul className="flex flex-wrap gap-2">
                 {user.languagesSpoken?.map((lang) => (
                   <Chip key={lang} icon={Languages}>
@@ -465,7 +535,9 @@ export const MyProfilePage: React.FC = () => {
           {/* Préférences de recherche */}
           {hasPreferences && (
             <Card ariaLabel={t("sections.preferences")}>
-              <SectionTitle icon={Heart}>{t("sections.preferences")}</SectionTitle>
+              <SectionTitle icon={Heart}>
+                {t("sections.preferences")}
+              </SectionTitle>
               <ul className="flex flex-wrap gap-2.5">
                 {prefGenderLabel && (
                   <Chip icon={Heart} srLabel={t("preferences.gender")}>
@@ -479,7 +551,9 @@ export const MyProfilePage: React.FC = () => {
                 )}
                 {hasMaxDistance && (
                   <Chip icon={Ruler} srLabel={t("preferences.maxDistance")}>
-                    {t("preferences.withinDistance", { distance: prefs?.maxDistance })}
+                    {t("preferences.withinDistance", {
+                      distance: prefs?.maxDistance,
+                    })}
                   </Chip>
                 )}
               </ul>
@@ -489,13 +563,18 @@ export const MyProfilePage: React.FC = () => {
           {/* Relations & famille */}
           {hasRelationshipFamily && (
             <Card ariaLabel={t("sections.relationshipFamily")}>
-              <SectionTitle icon={HeartPulse}>{t("sections.relationshipFamily")}</SectionTitle>
+              <SectionTitle icon={HeartPulse}>
+                {t("sections.relationshipFamily")}
+              </SectionTitle>
               <DetailList>
                 {hasRelationshipTypes && (
                   <DetailRow
                     icon={HeartPulse}
                     label={t("fields.relationshipTypesSought")}
-                    value={formatRelationshipTypes(user.relationshipTypesSought ?? [], t)}
+                    value={formatRelationshipTypes(
+                      user.relationshipTypesSought ?? [],
+                      t,
+                    )}
                     emptyLabel={t("empty.relationshipTypesSought")}
                   />
                 )}
@@ -522,13 +601,17 @@ export const MyProfilePage: React.FC = () => {
           {/* Centres d'intérêt & fantasmes */}
           {hasInterestsOrFantasies && (
             <Card ariaLabel={t("sections.interestsFantasies")}>
-              <SectionTitle icon={Sparkles}>{t("sections.interestsFantasies")}</SectionTitle>
+              <SectionTitle icon={Sparkles}>
+                {t("sections.interestsFantasies")}
+              </SectionTitle>
               {hasInterests && (
                 <ul className="flex flex-wrap gap-2">
                   {user.sexualInterests?.map((interest) => (
                     <Chip key={interest} icon={Sparkles}>
                       <span className="capitalize">
-                        {t(`sexualInterests.${interest}`, { defaultValue: interest })}
+                        {t(`sexualInterests.${interest}`, {
+                          defaultValue: interest,
+                        })}
                       </span>
                     </Chip>
                   ))}
@@ -541,7 +624,9 @@ export const MyProfilePage: React.FC = () => {
           {/* Visibilité du profil */}
           {visibilityEntries.length > 0 && (
             <Card ariaLabel={t("sections.profileVisibility")}>
-              <SectionTitle icon={Shield}>{t("sections.profileVisibility")}</SectionTitle>
+              <SectionTitle icon={Shield}>
+                {t("sections.profileVisibility")}
+              </SectionTitle>
               {allSameVisibility ? (
                 <div className="flex items-center gap-3 rounded-2xl border border-border/60 bg-background/60 p-4">
                   {(() => {
@@ -558,7 +643,8 @@ export const MyProfilePage: React.FC = () => {
                           </span>
                           <span className="text-xs text-muted-foreground">
                             {t("visibility.appliesToAll", {
-                              defaultValue: "Appliqué à toutes vos informations sensibles",
+                              defaultValue:
+                                "Appliqué à toutes vos informations sensibles",
                             })}
                           </span>
                         </div>
@@ -577,7 +663,12 @@ export const MyProfilePage: React.FC = () => {
                         label={t(`fields.${key}`)}
                         value={formatProfileVisibility(value, t)}
                         emptyLabel={t("empty.profileVisibility")}
-                        trailing={<Icon className="h-3.5 w-3.5 text-primary" aria-hidden="true" />}
+                        trailing={
+                          <Icon
+                            className="h-3.5 w-3.5 text-primary"
+                            aria-hidden="true"
+                          />
+                        }
                       />
                     );
                   })}

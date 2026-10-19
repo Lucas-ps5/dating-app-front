@@ -1,6 +1,12 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router";
-import { MapPin, Briefcase, User as UserIcon, MessageSquare, ArrowUpRight } from "lucide-react";
+import {
+  MapPin,
+  Briefcase,
+  User as UserIcon,
+  MessageSquare,
+  ArrowUpRight,
+} from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Image } from "@/components/ui/Image";
 import type { UserWithDistance } from "@/api/users";
@@ -11,7 +17,10 @@ interface UserCardProps {
   variant?: "grid" | "list";
 }
 
-export const UserCard: React.FC<UserCardProps> = ({ user, variant = "grid" }) => {
+export const UserCard: React.FC<UserCardProps> = ({
+  user,
+  variant = "grid",
+}) => {
   const { t } = useTranslation("discover");
   const navigate = useNavigate();
   const [imageError, setImageError] = useState(false);
@@ -19,7 +28,8 @@ export const UserCard: React.FC<UserCardProps> = ({ user, variant = "grid" }) =>
   const age = calculateAge(user.birthdate);
   const location = formatLocation(user.city, user.country);
   const distanceStr = formatDistance(user.distance, t);
-  const primaryPhoto = user.photos && user.photos.length > 0 ? user.photos[0] : null;
+  const primaryPhoto =
+    user.photos && user.photos.length > 0 ? user.photos[0] : null;
   const hasPhoto = Boolean(primaryPhoto && !imageError);
 
   const handleCardClick = () => {
@@ -118,7 +128,9 @@ export const UserCard: React.FC<UserCardProps> = ({ user, variant = "grid" }) =>
           <button
             type="button"
             onClick={handleMessageClick}
-            aria-label={t("card.messageAria", { name: user.username || t("card.member") })}
+            aria-label={t("card.messageAria", {
+              name: user.username || t("card.member"),
+            })}
             className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium bg-secondary hover:bg-zinc-800 text-zinc-200 transition-colors"
           >
             <MessageSquare className="w-3.5 h-3.5 text-zinc-400" />
@@ -149,7 +161,11 @@ export const UserCard: React.FC<UserCardProps> = ({ user, variant = "grid" }) =>
           <Image
             isLocal={false}
             url={primaryPhoto!}
-            alt={user.username ? `${user.username}'s profile photo` : "Member photo"}
+            alt={
+              user.username
+                ? `${user.username}'s profile photo`
+                : "Member photo"
+            }
             loading="lazy"
             onError={() => setImageError(true)}
             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
@@ -162,7 +178,9 @@ export const UserCard: React.FC<UserCardProps> = ({ user, variant = "grid" }) =>
             <p className="text-sm font-semibold text-zinc-300">
               {user.username || t("card.member")}
             </p>
-            <span className="text-xs text-zinc-600 mt-1">{t("card.noPhoto")}</span>
+            <span className="text-xs text-zinc-600 mt-1">
+              {t("card.noPhoto")}
+            </span>
           </div>
         )}
 
@@ -222,7 +240,9 @@ export const UserCard: React.FC<UserCardProps> = ({ user, variant = "grid" }) =>
         <button
           type="button"
           onClick={handleMessageClick}
-          aria-label={t("card.messageAria", { name: user.username || t("card.member") })}
+          aria-label={t("card.messageAria", {
+            name: user.username || t("card.member"),
+          })}
           className="flex-1 inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-xs font-medium bg-secondary/80 hover:bg-secondary text-zinc-200 transition-colors"
         >
           <MessageSquare className="w-3.5 h-3.5 text-zinc-400" />

@@ -270,7 +270,91 @@
       "ageMax": "L'âge maximum doit être au plus 100",
       "maxDistance": "La distance maximale doit être d'au moins 0",
       "heightMinCm": "La taille minimum doit être d'au moins 120 cm",
-      "heightMaxCm": "La taille maximale doit être d'au plus 250 cm"
+      "heightMaxCm": "La taille maximale doit être au plus 250 cm"
     }
+  },
+  "profilePage": {
+    "notFoundTitle": "Profil introuvable",
+    "notFoundDesc": "Ce profil n'existe pas ou n'est plus disponible.",
+    "back": "Retour",
+    "sendMessage": "Envoyer un message",
+    "liked": "liké",
+    "like": "liker",
+    "activeMember": "Membre actif",
+    "prevPhoto": "Photo précédente",
+    "nextPhoto": "Photo suivante",
+    "about": "À propos",
+    "lookingFor": "Recherche",
+    "gender": "Genre",
+    "ageRange": "Tranche d'âge",
+    "any": "Tous",
+    "maxDistance": "Distance max",
+    "withinDistance": "Moins de {{distance}} km",
+    "personalDetails": "Détails personnels",
+    "birthdate": "Date de naissance",
+    "height": "Taille",
+    "relationshipTypesSought": "Types de relations recherchées",
+    "hasChildren": "A des enfants",
+    "wantsChildren": "Veut des enfants",
+    "languages": "Langues",
+    "interestsFantasies": "Centres d'intérêt & fantasmes",
+    "fantasies": "Fantasmes",
+    "joinedAt": "Inscrit depuis"
+  },
+  "sexualInterests": {
+    "ROLEPLAY": "Jeu de rôle",
+    "BDSM": "BDSM",
+    "SENSORY_PLAY": "Jeu sensoriel",
+    "VOYEURISM_EXHIBITIONISM": "Voyeurisme / Exhibitionnisme",
+    "SWINGING": "Échangisme",
+    "GROUP_EXPERIENCES": "Partouze",
+    "TANTRA": "Tantra",
+    "POWER_EXCHANGE": "Échange de pouvoir",
+    "OTHER": "Autre"
+  },
+  "relationshipTypes": {
+    "DISCREET_RELATIONSHIP": "Relation discrète",
+    "ENHANCED_FRIENDSHIP": "Amitié renforcée",
+    "ONE_ON_ONE_SEX": "Sexe à deux",
+    "ONE_NIGHT_STAND": "Coup d'un soir",
+    "EXPERIMENTING": "Expérimentation",
+    "EROTIC_FANTASIES": "Fantasmes érotiques"
+  },
+  "hasChildren": {
+    "NO": "Non",
+    "YES_LIVING_WITH_ME": "Oui - vivant avec moi",
+    "YES_NOT_LIVING_WITH_ME": "Oui - ne vit pas avec moi",
+    "PREFER_NOT_TO_SAY": "Préfère ne pas répondre"
+  },
+  "wantsChildren": {
+    "NO": "Non",
+    "YES": "Oui",
+    "PREFER_NOT_TO_SAY": "Préfère ne pas répondre"
+  },
+  "filters": {
+    "searchPlaceholder": "Rechercher parmi les profils chargés (nom, métier, ville)...",
+    "searchAria": "Rechercher localement parmi les profils chargés",
+    "clearSearch": "Effacer la recherche",
+    "button": "Filtres",
+    "reset": "Réinitialiser",
+    "resetFilters": "Réinitialiser les filtres",
+    "clearAll": "Tout effacer",
+    "genderPreference": "Préférence de genre",
+    "allGenders": "Tous",
+    "male": "Homme",
+    "female": "Femme",
+    "ageRange": "Tranche d'âge",
+    "years": "{{min}} – {{max}} ans",
+    "yrs": "ans",
+    "min": "Min :",
+    "max": "Max :",
+    "filtersNotice": "Seuls les filtres supportés par l'API (genre, tranche d'âge) sont envoyés au serveur.",
+    "availableProfiles": "Profils disponibles : {{count}}",
+    "matchingLoaded": "Correspondances chargées : {{filtered}} sur {{total}} au total",
+    "chipGender": "Genre : {{gender}}",
+    "chipAge": "Âge : {{min}} – {{max}}",
+    "chipSearch": "Filtre : « {{query}} »",
+    "viewGrid": "Passer en vue grille",
+    "viewList": "Passer en vue liste"
   }
 }

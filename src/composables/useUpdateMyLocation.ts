@@ -1,6 +1,9 @@
 import { useMutation } from "@tanstack/react-query";
 import { Users } from "@/api/users";
-import type { UpdateLocationRequest, UpdateLocationResponse } from "@/api/users";
+import type {
+  UpdateLocationRequest,
+  UpdateLocationResponse,
+} from "@/api/users";
 
 export const useUpdateMyLocation = ({
   userId,

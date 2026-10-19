@@ -10,7 +10,11 @@ import {
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Gender } from "@/api/users";
-import { useDiscoverStore, DEFAULT_AGE_MIN, DEFAULT_AGE_MAX } from "@/store/useDiscoverStore";
+import {
+  useDiscoverStore,
+  DEFAULT_AGE_MIN,
+  DEFAULT_AGE_MAX,
+} from "@/store/useDiscoverStore";
 import { validateAgeRange } from "@/utils/discover";
 import { Slider } from "@/components/ui/slider";
 
@@ -42,7 +46,10 @@ export const DiscoverFilters: React.FC<DiscoverFiltersProps> = ({
   } = useDiscoverStore();
 
   // Local draft state for smooth slider interactions before committing or validation
-  const [sliderValues, setSliderValues] = useState<[number, number]>([ageMin, ageMax]);
+  const [sliderValues, setSliderValues] = useState<[number, number]>([
+    ageMin,
+    ageMax,
+  ]);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   // Keep local slider in sync with store
@@ -261,7 +268,10 @@ export const DiscoverFilters: React.FC<DiscoverFiltersProps> = ({
                   {t("filters.ageRange")}
                 </label>
                 <span className="text-xs font-semibold text-primary">
-                  {t("filters.years", { min: sliderValues[0], max: sliderValues[1] })}
+                  {t("filters.years", {
+                    min: sliderValues[0],
+                    max: sliderValues[1],
+                  })}
                 </span>
               </div>
 
@@ -281,7 +291,9 @@ export const DiscoverFilters: React.FC<DiscoverFiltersProps> = ({
               {/* Manual numeric inputs */}
               <div className="flex items-center gap-3 pt-1">
                 <div className="flex items-center gap-2">
-                  <span className="text-[11px] text-zinc-500 font-medium">{t("filters.min")}</span>
+                  <span className="text-[11px] text-zinc-500 font-medium">
+                    {t("filters.min")}
+                  </span>
                   <input
                     type="number"
                     min={18}
@@ -293,7 +305,9 @@ export const DiscoverFilters: React.FC<DiscoverFiltersProps> = ({
                 </div>
                 <span className="text-zinc-600">—</span>
                 <div className="flex items-center gap-2">
-                  <span className="text-[11px] text-zinc-500 font-medium">{t("filters.max")}</span>
+                  <span className="text-[11px] text-zinc-500 font-medium">
+                    {t("filters.max")}
+                  </span>
                   <input
                     type="number"
                     min={18}
@@ -339,7 +353,10 @@ export const DiscoverFilters: React.FC<DiscoverFiltersProps> = ({
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-zinc-800 text-zinc-200 border border-zinc-700/60">
               <span>
                 {t("filters.chipGender", {
-                  gender: gender === Gender.MALE ? t("filters.male") : t("filters.female"),
+                  gender:
+                    gender === Gender.MALE
+                      ? t("filters.male")
+                      : t("filters.female"),
                 })}
               </span>
               <button
@@ -396,7 +413,10 @@ export const DiscoverFilters: React.FC<DiscoverFiltersProps> = ({
         <div className="text-xs text-muted-foreground ml-auto">
           {filteredCount !== undefined && clientSearch ? (
             <span>
-              {t("filters.matchingLoaded", { filtered: filteredCount, total: totalResults })}
+              {t("filters.matchingLoaded", {
+                filtered: filteredCount,
+                total: totalResults,
+              })}
             </span>
           ) : (
             <span>

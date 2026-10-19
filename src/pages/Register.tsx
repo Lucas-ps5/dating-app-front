@@ -284,11 +284,13 @@ export default function RegisterPage() {
                   <input
                     {...register("dateOfBirth")}
                     type="date"
-                    max={new Date(
-                      new Date().setFullYear(new Date().getFullYear() - 18),
-                    )
-                      .toISOString()
-                      .split("T")[0]}
+                    max={
+                      new Date(
+                        new Date().setFullYear(new Date().getFullYear() - 18),
+                      )
+                        .toISOString()
+                        .split("T")[0]
+                    }
                     className={cn(inputClass, "cursor-pointer")}
                   />
                 </div>
@@ -332,7 +334,7 @@ export default function RegisterPage() {
                     "flex items-center gap-2 rounded-xl border py-2 px-3",
                     watch("latitude") && watch("longitude")
                       ? "border-green-500/30 bg-green-500/5 text-green-600 dark:text-green-400"
-                      : "border-border bg-card text-muted-foreground"
+                      : "border-border bg-card text-muted-foreground",
                   )}
                 >
                   <MapPin
@@ -340,7 +342,7 @@ export default function RegisterPage() {
                       "w-4 h-4",
                       watch("latitude") && watch("longitude")
                         ? "text-green-600 dark:text-green-400"
-                        : "text-muted-foreground"
+                        : "text-muted-foreground",
                     )}
                   />
                   <span className="text-sm">

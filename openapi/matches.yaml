@@ -183,7 +183,7 @@ components:
 
     CreateLikeRequest:
       type: object
-      required: [receiverId]
+      required: [receiverId, type]
       properties:
         receiverId:
           type: string
@@ -223,6 +223,15 @@ components:
           type: integer
           description: Total count
           example: 14
+
+    HasLikedResponse:
+      type: object
+      required: [liked]
+      properties:
+        liked:
+          type: boolean
+          description: Whether the authenticated user has liked the requested user
+          example: true
 
     CreationResponse:
       type: object
@@ -390,27 +399,27 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /matches/count-my-matches:
-    get:
-      tags: [matches]
-      operationId: countMyMatches
-      summary: Count total matches for the authenticated user
-      description: Returns the total number of active matches for the user identified by the `x-user-id` header.
-      parameters:
-        - $ref: "#/components/parameters/UserIdHeader"
-      responses:
-        "200":
-          description: Total count of matches for the user
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/CountResponse"
-          example:
-            count: 5
+    /count-my-matches:
+      get:
+        tags: [matches]
+        operationId: countMyMatches
+        summary: Count total matches for the authenticated user
+        description: Returns the total number of active matches for the user identified by the `x-user-id` header.
+        parameters:
+          - $ref: "#/components/parameters/UserIdHeader"
+        responses:
+          "200":
+            description: Total count of matches for the user
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/CountResponse"
+                example:
+                  count: 5
 
-  # ---------------------------------------------------------------------------
-  # Paths — Likes
-  # ---------------------------------------------------------------------------
+# ---------------------------------------------------------------------------
+# Paths — Likes
+# ---------------------------------------------------------------------------
 
   /likes/create:
     post:
@@ -553,14 +562,6 @@ paths:
       summary: List likes received by a user (paginated)
       description: Returns all likes where `receiverId` matches the given `userId`, ordered by `createdAt` descending.
       parameters:
-        - name: userId
-          in: path
-          required: true
-          description: UUID of the user
-          schema:
-            type: string
-            format: uuid
-          example: "11111111-1111-1111-1111-111111111111"
         - $ref: "#/components/parameters/PageParam"
         - $ref: "#/components/parameters/LimitParam"
       responses:
@@ -578,14 +579,6 @@ paths:
       summary: List likes sent by a user (paginated)
       description: Returns all likes where `senderId` matches the given `userId`, ordered by `createdAt` descending.
       parameters:
-        - name: userId
-          in: path
-          required: true
-          description: UUID of the user
-          schema:
-            type: string
-            format: uuid
-          example: "11111111-1111-1111-1111-111111111111"
         - $ref: "#/components/parameters/PageParam"
         - $ref: "#/components/parameters/LimitParam"
       responses:
@@ -625,6 +618,32 @@ paths:
                 $ref: "#/components/schemas/CountResponse"
               example:
                 count: 7
+
+  /likes/has-liked/{userId}:
+    get:
+      tags: [likes]
+      operationId: hasLiked
+      summary: Check whether the authenticated user has liked another user
+      description: >-
+        Returns `liked: true` for a `LIKE` or `SUPER_LIKE` sent by the authenticated user to the specified user.
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: UUID of the user to check
+          schema:
+            type: string
+            format: uuid
+          example: "22222222-2222-2222-2222-222222222222"
+      responses:
+        "200":
+          description: Like status for the requested user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HasLikedResponse"
+              example:
+                liked: true
 
   /likes/{id}:
     get:

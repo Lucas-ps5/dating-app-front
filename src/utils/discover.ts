@@ -6,7 +6,9 @@
  * Calculates a person's age from their birthdate string (YYYY-MM-DD or ISO).
  * Returns null if birthdate is null, undefined, invalid, or future-dated.
  */
-export function calculateAge(birthdate: string | null | undefined): number | null {
+export function calculateAge(
+  birthdate: string | null | undefined,
+): number | null {
   if (!birthdate || typeof birthdate !== "string") {
     return null;
   }
@@ -26,7 +28,11 @@ export function calculateAge(birthdate: string | null | undefined): number | nul
 
   const birth = new Date(year, month, day);
   // Verify date didn't overflow (e.g. Feb 31)
-  if (birth.getFullYear() !== year || birth.getMonth() !== month || birth.getDate() !== day) {
+  if (
+    birth.getFullYear() !== year ||
+    birth.getMonth() !== month ||
+    birth.getDate() !== day
+  ) {
     return null;
   }
 
@@ -51,19 +57,35 @@ export function validateAgeRange(
 ): { isValid: boolean; error?: string } {
   if (ageMin !== undefined) {
     if (!Number.isFinite(ageMin) || ageMin < 18) {
-      return { isValid: false, error: t ? t("validation.minAge18") : "Minimum age must be at least 18." };
+      return {
+        isValid: false,
+        error: t
+          ? t("validation.minAge18")
+          : "Minimum age must be at least 18.",
+      };
     }
     if (ageMin > 100) {
-      return { isValid: false, error: t ? t("validation.minAge100") : "Minimum age cannot exceed 100." };
+      return {
+        isValid: false,
+        error: t ? t("validation.minAge100") : "Minimum age cannot exceed 100.",
+      };
     }
   }
 
   if (ageMax !== undefined) {
     if (!Number.isFinite(ageMax) || ageMax > 100) {
-      return { isValid: false, error: t ? t("validation.maxAge100") : "Maximum age cannot exceed 100." };
+      return {
+        isValid: false,
+        error: t ? t("validation.maxAge100") : "Maximum age cannot exceed 100.",
+      };
     }
     if (ageMax < 18) {
-      return { isValid: false, error: t ? t("validation.maxAge18") : "Maximum age must be at least 18." };
+      return {
+        isValid: false,
+        error: t
+          ? t("validation.maxAge18")
+          : "Maximum age must be at least 18.",
+      };
     }
   }
 
@@ -99,7 +121,12 @@ export function formatDistance(
   distance: number | null | undefined,
   t?: (key: string, options?: any) => string,
 ): string | null {
-  if (distance === null || distance === undefined || !Number.isFinite(distance) || distance < 0) {
+  if (
+    distance === null ||
+    distance === undefined ||
+    !Number.isFinite(distance) ||
+    distance < 0
+  ) {
     return null;
   }
 
@@ -107,7 +134,8 @@ export function formatDistance(
     return t ? t("distance.lessThan1km") : "< 1 km away";
   }
 
-  const rounded = distance < 10 ? distance.toFixed(1) : Math.round(distance).toString();
+  const rounded =
+    distance < 10 ? distance.toFixed(1) : Math.round(distance).toString();
   return t ? t("distance.kmAway", { distance: rounded }) : `${rounded} km away`;
 }
 
