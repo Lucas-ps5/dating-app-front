@@ -1,0 +1,22 @@
+{
+  "header": {
+    "badge": "Conversations",
+    "title": "Messages",
+    "subtitle": "Your conversations with matches. Tap a conversation to continue chatting.",
+    "totalConversations": "Total conversations: {{count}}"
+  },
+  "item": {
+    "member": "Member",
+    "noMessages": "No messages yet"
+  },
+  "empty": {
+    "noConversationsTitle": "No conversations yet",
+    "noConversationsDesc": "When you match with someone, your conversation will appear here. Start discovering people to find matches!",
+    "goDiscover": "Go discover"
+  },
+  "error": {
+    "title": "Unable to load conversations",
+    "defaultMsg": "Failed to connect to the chat service. Please check your internet connection and try again.",
+    "retry": "Try again"
+  }
+}

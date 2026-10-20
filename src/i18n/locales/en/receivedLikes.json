@@ -34,6 +34,7 @@
   "error": {
     "title": "Unable to load received likes",
     "defaultMsg": "Failed to connect to the likes service. Please check your internet connection and try again.",
-    "retry": "Try again"
+    "retry": "Try again",
+    "cta": "Discover profiles"
   }
 }

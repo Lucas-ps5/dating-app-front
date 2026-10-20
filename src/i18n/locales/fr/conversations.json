@@ -1,0 +1,22 @@
+{
+  "header": {
+    "badge": "Conversations",
+    "title": "Messages",
+    "subtitle": "Vos conversations avec vos matchs. Appuyez sur une conversation pour continuer à discuter.",
+    "totalConversations": "Total conversations : {{count}}"
+  },
+  "item": {
+    "member": "Membre",
+    "noMessages": "Aucun message pour le moment"
+  },
+  "empty": {
+    "noConversationsTitle": "Aucune conversation pour le moment",
+    "noConversationsDesc": "Lorsque vous matcherez avec quelqu'un, votre conversation apparaîtra ici. Commencez à découvrir des personnes pour trouver des matchs !",
+    "goDiscover": "Aller découvrir"
+  },
+  "error": {
+    "title": "Impossible de charger les conversations",
+    "defaultMsg": "Échec de la connexion au service de chat. Veuillez vérifier votre connexion internet et réessayer.",
+    "retry": "Réessayer"
+  }
+}

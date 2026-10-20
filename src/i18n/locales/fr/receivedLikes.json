@@ -1,6 +1,6 @@
 {
   "header": {
-    "badge": "J'aime reçus",
+    "badge": "Likes reçus",
     "title": "Personnes qui vous ont liké",
     "subtitle": "Parcourez les profils des personnes qui vous ont envoyé un like. Connectez-vous avec celles qui s'intéressent à vous.",
     "totalReceived": "Total reçu : {{count}}"
@@ -34,6 +34,7 @@
   "error": {
     "title": "Impossible de charger les likes reçus",
     "defaultMsg": "Échec de la connexion au service des likes. Veuillez vérifier votre connexion internet et réessayer.",
-    "retry": "Réessayer"
+    "retry": "Réessayer",
+    "cta": "Découvrir des profils"
   }
 }
