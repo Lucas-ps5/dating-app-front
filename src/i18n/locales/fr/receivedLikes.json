@@ -1,0 +1,39 @@
+{
+  "header": {
+    "badge": "J'aime reçus",
+    "title": "Personnes qui vous ont liké",
+    "subtitle": "Parcourez les profils des personnes qui vous ont envoyé un like. Connectez-vous avec celles qui s'intéressent à vous.",
+    "totalReceived": "Total reçu : {{count}}"
+  },
+  "card": {
+    "noPhoto": "Aucune photo disponible",
+    "member": "Membre",
+    "anonymous": "Anonyme",
+    "message": "Message",
+    "viewProfile": "Voir le profil",
+    "profile": "Profil",
+    "messageAria": "Envoyer un message à {{name}}",
+    "profileAria": "Voir le profil complet de {{name}}"
+  },
+  "pagination": {
+    "ariaNav": "Pagination des likes reçus",
+    "showing": "Affichage de {{start}} à {{end}} sur {{total}} personnes",
+    "prev": "Préc.",
+    "next": "Suiv.",
+    "parPage": "Par page :",
+    "ariaPage": "Page {{page}}",
+    "ariaPrev": "Page précédente",
+    "ariaNext": "Page suivante",
+    "selectLimit": "Sélectionner le nombre d'éléments par page"
+  },
+  "empty": {
+    "noLikesTitle": "Aucun like reçu pour le moment",
+    "noLikesDesc": "Vous n'avez reçu aucun like pour l'instant. Continuez à découvrir des personnes et elles vous likeront peut-être en retour !",
+    "resetAll": "Aller découvrir"
+  },
+  "error": {
+    "title": "Impossible de charger les likes reçus",
+    "defaultMsg": "Échec de la connexion au service des likes. Veuillez vérifier votre connexion internet et réessayer.",
+    "retry": "Réessayer"
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "header": {
+    "badge": "Received Likes",
+    "title": "People who liked you",
+    "subtitle": "Browse profiles of people who sent you a like. Connect with those who are interested in you.",
+    "totalReceived": "Total received: {{count}}"
+  },
+  "card": {
+    "noPhoto": "No photo available",
+    "member": "Member",
+    "anonymous": "Anonymous",
+    "message": "Message",
+    "viewProfile": "View Profile",
+    "profile": "Profile",
+    "messageAria": "Send message to {{name}}",
+    "profileAria": "View full profile of {{name}}"
+  },
+  "pagination": {
+    "ariaNav": "Received Likes Pagination",
+    "showing": "Showing {{start}}–{{end}} of {{total}} people",
+    "prev": "Prev",
+    "next": "Next",
+    "perPage": "Per page:",
+    "ariaPage": "Page {{page}}",
+    "ariaPrev": "Previous page",
+    "ariaNext": "Next page",
+    "selectLimit": "Select items per page"
+  },
+  "empty": {
+    "noLikesTitle": "No received likes yet",
+    "noLikesDesc": "You haven't received any likes yet. Keep discovering people and they might like you back!",
+    "resetAll": "Go discover"
+  },
+  "error": {
+    "title": "Unable to load received likes",
+    "defaultMsg": "Failed to connect to the likes service. Please check your internet connection and try again.",
+    "retry": "Try again"
+  }
+}

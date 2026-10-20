@@ -429,6 +429,38 @@ components:
           type: integer
           example: 6
 
+    FindUsersByIdsRequest:
+      type: object
+      required: [userIds]
+      properties:
+        userIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+          example:
+            - "a3f2c1d0-0001-4e2a-b123-000000000001"
+            - "a3f2c1d0-0002-4e2a-b123-000000000002"
+
+    UserSummary:
+      type: object
+      required: [id, username, photos]
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "a3f2c1d0-0001-4e2a-b123-000000000001"
+        username:
+          type: string
+          example: johndoe
+        photos:
+          type: array
+          maxItems: 1
+          items:
+            type: string
+            format: uri
+          example: ["http://localhost:9000/hmeet-media/users/abc123/avatar.jpg"]
+
     ErrorResponse:
       type: object
       properties:
@@ -589,6 +621,30 @@ paths:
               schema:
                 $ref: "#/components/schemas/PaginatedUsersResponse"
 
+  /by-ids:
+    post:
+      tags: [users]
+      summary: Get users by IDs with their first photo
+      description: Returns only the ID, username, and at most one photo for each matching user. Unknown IDs are omitted.
+      operationId: findUsersByIds
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FindUsersByIdsRequest"
+      responses:
+        "200":
+          description: Matching users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UserSummary"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
   /{id}:
     get:
       tags: [users]
@@ -690,6 +746,14 @@ paths:
         Geocoding is best-effort; coordinates are saved even when no location name can be resolved.
         Caller identity is forwarded by the api-gateway via the `x-user-id` header.
       operationId: updateMyLocation
+      parameters:
+        - name: x-user-id
+          in: header
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Keycloak subject (sub) of the authenticated user
       requestBody:
         required: true
         content:

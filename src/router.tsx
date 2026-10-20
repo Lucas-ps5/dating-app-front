@@ -7,6 +7,7 @@ import { UserProfilePage } from "@/pages/UserProfile";
 import HomePage from "@/pages/HomePage";
 import { MyProfilePage } from "@/pages/MyProfile";
 import { EditProfilePage } from "@/pages/EditProfile";
+import ReceivedLikesPage from "@/pages/ReceivedLikes";
 
 const router = createBrowserRouter([
   {
@@ -27,6 +28,10 @@ const router = createBrowserRouter([
       {
         path: "/discover",
         element: <DiscoverPage />,
+      },
+      {
+        path: "/likes",
+        element: <ReceivedLikesPage />,
       },
       {
         path: "/profile",
