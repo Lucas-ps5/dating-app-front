@@ -7,7 +7,8 @@
   },
   "item": {
     "member": "Membre",
-    "noMessages": "Aucun message pour le moment"
+    "noMessages": "Aucun message pour le moment",
+    "unreadCount": "{{count}} message(s) non lu(s)"
   },
   "empty": {
     "noConversationsTitle": "Aucune conversation pour le moment",

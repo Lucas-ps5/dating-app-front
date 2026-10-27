@@ -12,6 +12,12 @@ import receivedLikesEn from "./locales/en/receivedLikes.json";
 import receivedLikesFr from "./locales/fr/receivedLikes.json";
 import conversationsEn from "./locales/en/conversations.json";
 import conversationsFr from "./locales/fr/conversations.json";
+import matchesEn from "./locales/en/matches.json";
+import matchesFr from "./locales/fr/matches.json";
+import commonEn from "./locales/en/common.json";
+import commonFr from "./locales/fr/common.json";
+import chatEn from "./locales/en/chat.json";
+import chatFr from "./locales/fr/chat.json";
 
 const locale = navigator.language.split("-")[0] || "en";
 
@@ -24,6 +30,9 @@ i18n.use(initReactI18next).init({
       profile: profileEn,
       receivedLikes: receivedLikesEn,
       conversations: conversationsEn,
+      matches: matchesEn,
+      common: commonEn,
+      chat: chatEn,
     },
     fr: {
       register: registerFr,
@@ -32,11 +41,24 @@ i18n.use(initReactI18next).init({
       profile: profileFr,
       receivedLikes: receivedLikesFr,
       conversations: conversationsFr,
+      matches: matchesFr,
+      common: commonFr,
+      chat: chatFr,
     },
   },
   lng: locale,
   fallbackLng: "en",
-  ns: ["register", "discover", "home", "profile", "receivedLikes", "conversations"],
+  ns: [
+    "register",
+    "discover",
+    "home",
+    "profile",
+    "receivedLikes",
+    "conversations",
+    "matches",
+    "common",
+    "chat",
+  ],
   defaultNS: "discover",
   interpolation: {
     escapeValue: false,

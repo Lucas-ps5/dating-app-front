@@ -1,0 +1,40 @@
+{
+  "header": {
+    "badge": "Matchs",
+    "title": "Vos Matchs",
+    "subtitle": "Personnes avec qui vous avez matché. Commencez une conversation !",
+    "totalMatches": "Total matchs : {{count}}"
+  },
+  "card": {
+    "noPhoto": "Aucune photo disponible",
+    "member": "Membre",
+    "anonymous": "Anonyme",
+    "message": "Message",
+    "viewProfile": "Voir le profil",
+    "profile": "Profil",
+    "messageAria": "Envoyer un message à {{name}}",
+    "profileAria": "Voir le profil complet de {{name}}"
+  },
+  "pagination": {
+    "ariaNav": "Pagination des matchs",
+    "showing": "Affichage de {{start}} à {{end}} sur {{total}} matchs",
+    "prev": "Préc.",
+    "next": "Suiv.",
+    "parPage": "Par page :",
+    "ariaPage": "Page {{page}}",
+    "ariaPrev": "Page précédente",
+    "ariaNext": "Page suivante",
+    "selectLimit": "Sélectionner le nombre d'éléments par page"
+  },
+  "empty": {
+    "noMatchesTitle": "Aucun match pour le moment",
+    "noMatchesDesc": "Vous n'avez matché avec personne pour l'instant. Continuez à liker des profils et vous obtiendrez des matchs bientôt !",
+    "resetAll": "Aller découvrir"
+  },
+  "error": {
+    "title": "Impossible de charger les matchs",
+    "defaultMsg": "Échec de la connexion au service des matchs. Veuillez vérifier votre connexion internet et réessayer.",
+    "retry": "Réessayer",
+    "cta": "Découvrir des profils"
+  }
+}

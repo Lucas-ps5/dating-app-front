@@ -1,0 +1,42 @@
+{
+  "header": {
+    "member": "Membre",
+    "online": "En ligne",
+    "back": "Retour"
+  },
+  "menu": {
+    "media": "Médias",
+    "files": "Fichiers",
+    "block": "Bloquer l'utilisateur",
+    "report": "Signaler l'utilisateur",
+    "open": "Plus d'options"
+  },
+  "date": {
+    "today": "Aujourd'hui",
+    "yesterday": "Hier"
+  },
+  "messages": {
+    "label": "Messages",
+    "empty": "Aucun message pour le moment. Commencez la conversation !",
+    "member": "Membre",
+    "sent": "Envoyé",
+    "read": "Lu",
+    "imageAlt": "Image",
+    "jumpToLatest": "Aller au dernier message"
+  },
+  "input": {
+    "placeholder": "Écrivez un message...",
+    "label": "Saisie du message",
+    "send": "Envoyer",
+    "error": "Le message n'a pas pu être envoyé. Réessaie."
+  },
+  "error": {
+    "title": "Impossible de charger la conversation",
+    "description": "Échec de la connexion au service de chat. Veuillez vérifier votre connexion internet et réessayer.",
+    "retry": "Réessayer",
+    "noUserId": "Aucun utilisateur sélectionné",
+    "userNotFound": "Utilisateur introuvable",
+    "conversationNotFound": "Aucune conversation trouvée avec cet utilisateur",
+    "backToChat": "Retour aux conversations"
+  }
+}

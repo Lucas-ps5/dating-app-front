@@ -325,14 +325,6 @@ paths:
       summary: List all matches for a specific user (paginated)
       description: Returns all active matches where the given user appears as either `user1Id` or `user2Id`, ordered by `matchedAt` descending.
       parameters:
-        - name: userId
-          in: path
-          required: true
-          description: UUID of the user whose matches to retrieve
-          schema:
-            type: string
-            format: uuid
-          example: "11111111-1111-1111-1111-111111111111"
         - $ref: "#/components/parameters/PageParam"
         - $ref: "#/components/parameters/LimitParam"
       responses:

@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { useFetchLikesCount } from "@/composables/useFetchLikesCount";
 import { useFetchMatchsCount } from "@/composables/useFetchMatchsCount";
+import { useGetMyUnreadMessagesCount } from "@/composables/useGetMyUnreadMessagesCount";
 import Image from "@/components/ui/Image";
 
 import { useAuth } from "@/hooks/useAuth";
@@ -30,9 +31,12 @@ export default function AppLayout() {
   const { data: matchCount, isLoading: isLoadingMatchs } =
     useFetchMatchsCount();
   const { data: likeCount, isLoading: isLoadingLikes } = useFetchLikesCount();
+  const { data: unreadMessagesCount, isLoading: isLoadingUnreadMessages } =
+    useGetMyUnreadMessagesCount();
 
   const matchesTotal = matchCount?.count ?? 0;
   const likesTotal = likeCount?.count ?? 0;
+  const unreadMessagesTotal = unreadMessagesCount?.count ?? 0;
 
   return (
     <div className="flex flex-col h-screen bg-background">
@@ -69,6 +73,13 @@ export default function AppLayout() {
                   {likesTotal}
                 </span>
               )}
+              {item.to === "/chat" &&
+                !isLoadingUnreadMessages &&
+                unreadMessagesTotal > 0 && (
+                  <span className="ml-1 px-1.5 py-0.5 text-xs rounded-full gradient-primary text-primary-foreground">
+                    {unreadMessagesTotal}
+                  </span>
+                )}
             </NavLink>
           ))}
         </div>
@@ -118,6 +129,13 @@ export default function AppLayout() {
                   {likesTotal}
                 </span>
               )}
+              {item.to === "/chat" &&
+                !isLoadingUnreadMessages &&
+                unreadMessagesTotal > 0 && (
+                  <span className="absolute -top-1 right-0 w-4 h-4 text-[9px] flex items-center justify-center rounded-full gradient-primary text-primary-foreground">
+                    {unreadMessagesTotal}
+                  </span>
+                )}
             </NavLink>
           );
         })}

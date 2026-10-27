@@ -47,8 +47,8 @@
     "profileAria": "View full profile of {{name}}"
   },
   "distance": {
-    "lessThan1km": "< 1 km away",
-    "kmAway": "{{distance}} km away"
+    "lessThan1km": "< 1 km",
+    "kmAway": "{{distance}} km"
   },
   "pagination": {
     "ariaNav": "Discovery Pagination",

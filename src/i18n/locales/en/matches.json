@@ -1,0 +1,40 @@
+{
+  "header": {
+    "badge": "Matches",
+    "title": "Your Matches",
+    "subtitle": "People you've matched with. Start a conversation!",
+    "totalMatches": "Total matches: {{count}}"
+  },
+  "card": {
+    "noPhoto": "No photo available",
+    "member": "Member",
+    "anonymous": "Anonymous",
+    "message": "Message",
+    "viewProfile": "View Profile",
+    "profile": "Profile",
+    "messageAria": "Send message to {{name}}",
+    "profileAria": "View full profile of {{name}}"
+  },
+  "pagination": {
+    "ariaNav": "Matches Pagination",
+    "showing": "Showing {{start}}–{{end}} of {{total}} matches",
+    "prev": "Prev",
+    "next": "Next",
+    "perPage": "Per page:",
+    "ariaPage": "Page {{page}}",
+    "ariaPrev": "Previous page",
+    "ariaNext": "Next page",
+    "selectLimit": "Select items per page"
+  },
+  "empty": {
+    "noMatchesTitle": "No matches yet",
+    "noMatchesDesc": "You haven't matched with anyone yet. Keep liking profiles and you'll get matches soon!",
+    "resetAll": "Go discover"
+  },
+  "error": {
+    "title": "Unable to load matches",
+    "defaultMsg": "Failed to connect to the matches service. Please check your internet connection and try again.",
+    "retry": "Try again",
+    "cta": "Discover profiles"
+  }
+}

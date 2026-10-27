@@ -19,7 +19,6 @@ import {
   User as UserIcon,
   Users,
   Ruler,
-  X,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useGetUserById } from "@/composables/useGetUserById";
@@ -37,6 +36,7 @@ import {
 } from "@/utils/profile";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Image } from "@/components/ui/Image";
+import { MessageModal } from "@/components/ui/MessageModal";
 
 /* -------------------------------------------------------------------------- */
 /*  Petits composants réutilisables                                           */
@@ -105,7 +105,12 @@ export const UserProfilePage: React.FC = () => {
   const { mutate: createLike, isPending: isLiking } = useCreateLike();
   const { mutate: sendMessage, isPending: isSendingMessage } = useSendMessage();
   const [isMessageModalOpen, setIsMessageModalOpen] = useState(false);
-  const [messageContent, setMessageContent] = useState("");
+
+  const handleSendMessage = async (content: string) => {
+    if (user.id) {
+      sendMessage({ receiverId: user.id, content });
+    }
+  };
 
   const handleLike = () => {
     if (!id || hasLiked?.liked || isLiking) return;
@@ -586,87 +591,20 @@ export const UserProfilePage: React.FC = () => {
       </div>
 
       {/* Barre d'action fixe (mobile uniquement) */}
-      <div className="md:hidden fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/85 backdrop-blur px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+      <div className="md:hidden fixed inset-x-0 bottom-14 z-40 border-t border-border bg-background/85 backdrop-blur px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
         <div className="flex items-center gap-3">
           {messageButton}
           {likeButton}
         </div>
       </div>
 
-      {/* Message Modal */}
-      {isMessageModalOpen && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
-          onClick={() => setIsMessageModalOpen(false)}
-        >
-          <div
-            className="w-full max-w-md bg-card border border-border rounded-3xl shadow-xl p-6 animate-slide-up"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-foreground">
-                {t("profilePage.sendMessage")}
-              </h2>
-              <button
-                type="button"
-                onClick={() => setIsMessageModalOpen(false)}
-                className="p-1 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <p className="text-sm text-muted-foreground mb-4">
-              {t("profilePage.messageTo", { username: displayName })}
-            </p>
-            <textarea
-              value={messageContent}
-              onChange={(e) => setMessageContent(e.target.value)}
-              placeholder={t("profilePage.messagePlaceholder")}
-              className="w-full min-h-[120px] p-4 rounded-xl bg-secondary/60 border border-border/40 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary resize-none"
-              maxLength={2000}
-              disabled={isSendingMessage}
-            />
-            <div className="flex items-center justify-between mt-4">
-              <span className="text-xs text-muted-foreground">
-                {messageContent.length}/2000
-              </span>
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setMessageContent("");
-                    setIsMessageModalOpen(false);
-                  }}
-                  disabled={isSendingMessage}
-                  className="px-4 py-2 rounded-xl text-sm font-semibold bg-secondary hover:bg-secondary/80 text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {t("common.cancel")}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (messageContent.trim() && user.id) {
-                      sendMessage(
-                        { receiverId: user.id, content: messageContent.trim() },
-                        {
-                          onSuccess: () => {
-                            setMessageContent("");
-                            setIsMessageModalOpen(false);
-                          },
-                        },
-                      );
-                    }
-                  }}
-                  disabled={isSendingMessage || !messageContent.trim()}
-                  className="px-4 py-2 rounded-xl text-sm font-semibold bg-primary hover:bg-primary/90 text-primary-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isSendingMessage ? t("loading") : t("common.send")}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <MessageModal
+        isOpen={isMessageModalOpen}
+        onOpenChange={setIsMessageModalOpen}
+        onSend={handleSendMessage}
+        isPending={isSendingMessage}
+        recipientName={displayName}
+      />
     </div>
   );
 };

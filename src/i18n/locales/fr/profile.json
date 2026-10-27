@@ -45,7 +45,9 @@
     "profileVisibilityDesc": "Un seul réglage appliqué aux relations recherchées, centres d'intérêts, fantasmes et enfants",
     "accountDesc": "Informations du compte",
     "inactiveHint": "Votre profil est masqué.",
-    "activeHint": "Votre profil est visible."
+    "activeHint": "Votre profil est visible.",
+    "languages": "Langues",
+    "relationshipFamily": "Relations et famille"
   },
   "fields": {
     "username": "Nom d'utilisateur",
@@ -158,7 +160,8 @@
       "yes": "Oui",
       "no": "Non",
       "maybe": "Peut-être",
-      "preferNotToSay": "Je préfère ne pas répondre"
+      "preferNotToSay": "Je préfère ne pas répondre",
+      "prefer_not_to_say": "Je préfère ne pas répondre"
     },
     "visibility": {
       "public": "Visible par tous",
@@ -277,7 +280,7 @@
     "notFoundTitle": "Profil introuvable",
     "notFoundDesc": "Ce profil n'existe pas ou n'est plus disponible.",
     "back": "Retour",
-    "sendMessage": "Envoyer un message",
+    "sendMessage": "Message",
     "liked": "liké",
     "like": "liker",
     "activeMember": "Membre actif",
@@ -329,7 +332,8 @@
   "wantsChildren": {
     "NO": "Non",
     "YES": "Oui",
-    "PREFER_NOT_TO_SAY": "Préfère ne pas répondre"
+    "PREFER_NOT_TO_SAY": "Préfère ne pas répondre",
+    "MAYBE": "Peut-être"
   },
   "filters": {
     "searchPlaceholder": "Rechercher parmi les profils chargés (nom, métier, ville)...",

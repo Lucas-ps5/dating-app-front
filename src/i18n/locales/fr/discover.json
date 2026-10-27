@@ -48,7 +48,7 @@
   },
   "distance": {
     "lessThan1km": "< 1 km",
-    "kmAway": "à {{distance}} km"
+    "kmAway": "{{distance}} km"
   },
   "pagination": {
     "ariaNav": "Pagination de découverte",

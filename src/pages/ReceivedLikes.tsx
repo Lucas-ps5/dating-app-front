@@ -13,7 +13,11 @@ import type { UserSummary } from "@/types/user";
 const DEFAULT_LIMIT = 12;
 const MAX_LIMIT = 100;
 
-const parsePositiveInt = (value: string | null, fallback: number, max?: number) => {
+const parsePositiveInt = (
+  value: string | null,
+  fallback: number,
+  max?: number,
+) => {
   if (!value) return fallback;
   const n = parseInt(value, 10);
   if (Number.isNaN(n) || n < 1) return fallback;
@@ -26,9 +30,16 @@ export const ReceivedLikesPage: React.FC = () => {
 
   // L'URL est la seule source de vérité : plus de double état ni de re-render au montage.
   const page = parsePositiveInt(searchParams.get("page"), 1);
-  const limit = parsePositiveInt(searchParams.get("limit"), DEFAULT_LIMIT, MAX_LIMIT);
+  const limit = parsePositiveInt(
+    searchParams.get("limit"),
+    DEFAULT_LIMIT,
+    MAX_LIMIT,
+  );
 
-  const updateParams = (next: { page?: number; limit?: number }, replace = false) => {
+  const updateParams = (
+    next: { page?: number; limit?: number },
+    replace = false,
+  ) => {
     setSearchParams(
       (prev) => {
         const params = new URLSearchParams(prev); // conserve les autres paramètres éventuels
@@ -88,14 +99,15 @@ export const ReceivedLikesPage: React.FC = () => {
     if (likesData && totalPages >= 1 && page > totalPages) {
       updateParams({ page: totalPages }, true);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [likesData, totalPages, page]);
 
   const handlePageChange = (newPage: number) => {
     updateParams({ page: newPage });
     window.scrollTo({
       top: 0,
-      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+        ? "auto"
+        : "smooth",
     });
   };
 
@@ -134,7 +146,10 @@ export const ReceivedLikesPage: React.FC = () => {
             role="status"
             className="self-start md:self-auto inline-flex items-center gap-2 px-4 py-2 rounded-full bg-card border border-border/80 text-sm font-medium text-foreground shadow-sm tabular-nums"
           >
-            <span className="size-2 rounded-full bg-primary" aria-hidden="true" />
+            <span
+              className="size-2 rounded-full bg-primary"
+              aria-hidden="true"
+            />
             {t("header.totalReceived", { count: total })}
           </div>
         )}
@@ -146,7 +161,10 @@ export const ReceivedLikesPage: React.FC = () => {
         className="min-h-[400px]"
       >
         {isLoading ? (
-          <DiscoverSkeleton count={Math.min(limit, DEFAULT_LIMIT)} variant="grid" />
+          <DiscoverSkeleton
+            count={Math.min(limit, DEFAULT_LIMIT)}
+            variant="grid"
+          />
         ) : isError ? (
           <DiscoverErrorState error={error} onRetry={handleRetry} />
         ) : users.length === 0 ? (
@@ -170,7 +188,7 @@ export const ReceivedLikesPage: React.FC = () => {
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold shadow-sm hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background transition-colors"
             >
               <Compass className="size-4" aria-hidden="true" />
-              {t("empty.cta")}
+              {t("empty.resetAll")}
             </Link>
           </div>
         ) : (
@@ -189,7 +207,9 @@ export const ReceivedLikesPage: React.FC = () => {
       </section>
 
       {!isLoading && !isError && total > 0 && (
-        <nav aria-label={t("pagination.ariaLabel", { defaultValue: "Pagination" })}>
+        <nav
+          aria-label={t("pagination.ariaLabel", { defaultValue: "Pagination" })}
+        >
           <DiscoverPagination
             page={page}
             limit={limit}

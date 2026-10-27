@@ -1,0 +1,42 @@
+{
+  "header": {
+    "member": "Member",
+    "online": "Online",
+    "back": "Back"
+  },
+  "menu": {
+    "media": "Media",
+    "files": "Files",
+    "block": "Block user",
+    "report": "Report user",
+    "open": "More options"
+  },
+  "date": {
+    "today": "Today",
+    "yesterday": "Yesterday"
+  },
+  "messages": {
+    "label": "Messages",
+    "empty": "No messages yet. Start the conversation!",
+    "member": "Member",
+    "sent": "Sent",
+    "read": "Read",
+    "imageAlt": "Image",
+    "jumpToLatest": "Jump to latest message"
+  },
+  "input": {
+    "placeholder": "Type a message...",
+    "label": "Message input",
+    "send": "Send",
+    "error": "Failed to send message. Please try again."
+  },
+  "error": {
+    "title": "Unable to load conversation",
+    "description": "Failed to connect to the chat service. Please check your internet connection and try again.",
+    "retry": "Try again",
+    "noUserId": "No user selected",
+    "userNotFound": "User not found",
+    "conversationNotFound": "No conversation found with this user",
+    "backToChat": "Back to conversations"
+  }
+}

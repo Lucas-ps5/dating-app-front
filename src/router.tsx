@@ -8,7 +8,10 @@ import HomePage from "@/pages/HomePage";
 import { MyProfilePage } from "@/pages/MyProfile";
 import { EditProfilePage } from "@/pages/EditProfile";
 import ReceivedLikesPage from "@/pages/ReceivedLikes";
+import MatchesPage from "@/pages/Matches";
 import ConversationsPage from "@/pages/Conversations";
+import ChatPage from "@/pages/Chat";
+import ConversationDetailsPage from "@/pages/ConversationDetails";
 
 const router = createBrowserRouter([
   {
@@ -35,8 +38,20 @@ const router = createBrowserRouter([
         element: <ReceivedLikesPage />,
       },
       {
+        path: "/matches",
+        element: <MatchesPage />,
+      },
+      {
         path: "/chat",
         element: <ConversationsPage />,
+      },
+      {
+        path: "/chat/:userId",
+        element: <ChatPage />,
+      },
+      {
+        path: "/chat/conversation/:conversationId",
+        element: <ConversationDetailsPage />,
       },
       {
         path: "/profile",

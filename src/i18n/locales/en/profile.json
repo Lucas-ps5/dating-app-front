@@ -43,7 +43,9 @@
     "wantsChildren": "Wants children",
     "profileVisibility": "Profile visibility",
     "profileVisibilityDesc": "A single setting applied to relationship types sought, sexual interests, fantasies and children.",
-    "accountDesc": "Account info"
+    "accountDesc": "Account info",
+    "languages": "Languages spoken",
+    "relationshipFamily": "Relations and family"
   },
   "fields": {
     "username": "Username",
@@ -156,7 +158,8 @@
       "yes": "Yes",
       "no": "No",
       "maybe": "Maybe",
-      "preferNotToSay": "Prefer not to say"
+      "preferNotToSay": "Prefer not to say",
+      "prefer_not_to_say": "Prefer not to say"
     },
     "title": "Edit profile",
     "subtitle": "Update your details. Changes are visible on your profile right away.",
@@ -270,7 +273,7 @@
     "notFoundTitle": "Profile not found",
     "notFoundDesc": "This profile may not exist or is no longer available.",
     "back": "Back",
-    "sendMessage": "Send message",
+    "sendMessage": "Message",
     "liked": "Liked",
     "like": "Like",
     "activeMember": "Active member",
@@ -322,7 +325,8 @@
   "wantsChildren": {
     "NO": "No",
     "YES": "Yes",
-    "PREFER_NOT_TO_SAY": "Prefer not to say"
+    "PREFER_NOT_TO_SAY": "Prefer not to say",
+    "MAYBE": "Maybe"
   },
     "filters": {
     "searchPlaceholder": "Search loaded profiles (name, title, location)...",

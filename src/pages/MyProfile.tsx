@@ -590,7 +590,9 @@ export const MyProfilePage: React.FC = () => {
                   <DetailRow
                     icon={Baby}
                     label={t("fields.wantsChildren")}
-                    value={formatWantsChildren(user.wantsChildren, t)}
+                    value={t(
+                      `edit.wantsChildren.${user.wantsChildren?.toLowerCase()}`,
+                    )}
                     emptyLabel={t("empty.wantsChildren")}
                   />
                 )}
@@ -600,9 +602,9 @@ export const MyProfilePage: React.FC = () => {
 
           {/* Centres d'intérêt & fantasmes */}
           {hasInterestsOrFantasies && (
-            <Card ariaLabel={t("sections.interestsFantasies")}>
+            <Card ariaLabel={t("profilePage.interestsFantasies")}>
               <SectionTitle icon={Sparkles}>
-                {t("sections.interestsFantasies")}
+                {t("profilePage.interestsFantasies")}
               </SectionTitle>
               {hasInterests && (
                 <ul className="flex flex-wrap gap-2">

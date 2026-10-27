@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, type FC, type ReactNode } from "react";
+import { useEffect, useMemo, type FC, type ReactNode } from "react";
 import { Link, useNavigate } from "react-router";
 import { Controller, useForm, type Control, type Path } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -231,8 +231,8 @@ const editProfileSchema = yup.object({
       ageMax: optionalNumber(18, 100).when("ageMin", ([min], schema) =>
         min ? schema.min(min, "edit.validation.ageRange") : schema,
       ),
-      genderPreference: enumField(GENDER_PREFERENCE_OPTIONS),
-      maxDistance: optionalNumber(0, 100000),
+      genderPreference: yup.string().optional(),
+      maxDistance: optionalNumber(0, 100000).optional(),
       heightMinCm: optionalNumber(120, 250),
       heightMaxCm: optionalNumber(120, 250).when(
         "heightMinCm",
@@ -450,135 +450,55 @@ const SelectField: FC<{
     <Controller
       control={control}
       name={name}
-      render={({ field, fieldState }) => (
-        <div className="flex flex-col gap-1.5">
-          <Label className="text-xs text-muted-foreground">
-            {t(labelKey)}
-            {optional && (
-              <span className="ml-2 text-[11px] text-muted-foreground/70">
-                {t("edit.form.optional")}
-              </span>
-            )}
-          </Label>
-          <Select
-            value={(field.value as string | undefined) || NONE}
-            onValueChange={(v) => field.onChange(v === NONE ? undefined : v)}
-          >
-            <SelectTrigger
-              onBlur={field.onBlur}
-              aria-invalid={Boolean(fieldState.error)}
-              className={cn(
-                inputClass,
-                fieldState.error && "border-destructive",
+      render={({ field, fieldState }) => {
+        const rawValue = field.value as string | undefined;
+        const selectedOption = options.find(
+          (o) => o.value.toLowerCase() === rawValue?.toLowerCase(),
+        );
+
+        return (
+          <div className="flex flex-col gap-1.5">
+            <Label className="text-xs text-muted-foreground">
+              {t(labelKey)}
+              {optional && (
+                <span className="ml-2 text-[11px] text-muted-foreground/70">
+                  {t("edit.form.optional")}
+                </span>
               )}
+            </Label>
+            <Select
+              value={selectedOption ? selectedOption.value : NONE}
+              onValueChange={(v) => field.onChange(v === NONE ? undefined : v)}
             >
-              <SelectValue
-                placeholder={t(placeholderKey ?? "edit.form.selectPlaceholder")}
-              />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={NONE}>
-                {t("edit.form.preferNotToSay")}
-              </SelectItem>
-              {options.map(({ value, labelKey: optLabelKey }) => (
-                <SelectItem key={value} value={value}>
-                  {t(optLabelKey)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <FieldError field={name} message={fieldState.error?.message} />
-        </div>
-      )}
-    />
-  );
-};
-
-/** SÃ©lecteur de visibilitÃ© sous forme de cartes avec icÃ´ne + description. */
-const VISIBILITY_META: Record<
-  ProfileVisibility,
-  { icon: LucideIcon; descKey: string; fallback: string }
-> = {
-  PUBLIC: {
-    icon: Globe,
-    descKey: "edit.visibility.publicDesc",
-    fallback: "Visible par tous les membres",
-  },
-  MATCHES_ONLY: {
-    icon: Users,
-    descKey: "edit.visibility.matchesOnlyDesc",
-    fallback: "Visible uniquement par vos matchs",
-  },
-  HIDDEN: {
-    icon: EyeOff,
-    descKey: "edit.visibility.hiddenDesc",
-    fallback: "Visible uniquement par vous",
-  },
-};
-
-const VisibilityPicker: FC<{
-  control: Control<EditProfileForm>;
-  onValueChange: (v: ProfileVisibility) => void;
-}> = ({ control, onValueChange }) => {
-  const { t } = useTranslation("profile");
-  return (
-    <Controller
-      control={control}
-      name="relationshipTypesSoughtVisibility"
-      render={({ field }) => (
-        <div
-          role="radiogroup"
-          className="grid grid-cols-1 sm:grid-cols-3 gap-3"
-        >
-          {PROFILE_VISIBILITY_OPTIONS.map(({ value, labelKey }) => {
-            const { icon: Icon, descKey, fallback } = VISIBILITY_META[value];
-            const selected = field.value === value;
-            return (
-              <label
-                key={value}
+              <SelectTrigger
+                onBlur={field.onBlur}
+                aria-invalid={Boolean(fieldState.error)}
                 className={cn(
-                  "flex cursor-pointer flex-col gap-1.5 rounded-2xl border p-3.5 transition-all duration-200",
-                  "bg-background/60 border-border hover:border-primary/50",
-                  "focus-within:ring-2 focus-within:ring-primary/50",
-                  selected &&
-                    "border-primary bg-primary/10 shadow-[0_0_12px_hsl(350_80%_60%/0.15)]",
+                  inputClass,
+                  fieldState.error && "border-destructive",
                 )}
               >
-                <input
-                  type="radio"
-                  name="visibility"
-                  value={value}
-                  checked={selected}
-                  onChange={() => {
-                    field.onChange(value);
-                    onValueChange(value);
-                  }}
-                  onBlur={field.onBlur}
-                  className="sr-only"
-                />
-                <Icon
-                  className={cn(
-                    "h-4 w-4",
-                    selected ? "text-primary" : "text-muted-foreground",
+                <SelectValue
+                  placeholder={t(
+                    placeholderKey ?? "edit.form.selectPlaceholder",
                   )}
-                  aria-hidden
                 />
-                <span
-                  className={cn(
-                    "text-sm font-semibold",
-                    selected ? "text-primary" : "text-foreground",
-                  )}
-                >
-                  {t(labelKey)}
-                </span>
-                <span className="text-[11px] leading-snug text-muted-foreground">
-                  {t(descKey, { defaultValue: fallback })}
-                </span>
-              </label>
-            );
-          })}
-        </div>
-      )}
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={NONE}>
+                  {t("edit.form.preferNotToSay")}
+                </SelectItem>
+                {options.map(({ value, labelKey: optLabelKey }) => (
+                  <SelectItem key={value} value={value}>
+                    {t(optLabelKey)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <FieldError field={name} message={fieldState.error?.message} />
+          </div>
+        );
+      }}
     />
   );
 };
@@ -598,45 +518,111 @@ export const EditProfilePage: FC = () => {
     refetch,
   } = useFetchCurrentUser();
 
+  const initialValues = useMemo<EditProfileForm | undefined>(() => {
+    if (!user) return undefined;
+
+    const userAny = user as Record<string, any>;
+    const prefs =
+      typeof user.preferences === "object" && user.preferences !== null
+        ? (user.preferences as Record<string, any>)
+        : typeof user.preferences === "string"
+          ? (() => {
+              try {
+                return JSON.parse(user.preferences);
+              } catch {
+                return {};
+              }
+            })()
+          : {};
+
+    const rawGender = (
+      prefs.genderPreference ??
+      prefs.gender_preference ??
+      userAny.genderPreference ??
+      userAny.gender_preference
+    )
+      ?.toString()
+      .trim()
+      .toLowerCase();
+
+    const parseNum = (v: unknown): number | undefined => {
+      if (v == null || v === "") return undefined;
+      const n = Number(v);
+      return Number.isNaN(n) ? undefined : n;
+    };
+
+    return {
+      username: user.username ?? "",
+      title: user.title ?? "",
+      bio: user.bio ?? "",
+      birthdate: user.birthdate ? user.birthdate.slice(0, 10) : "",
+      heightCm: user.heightCm ?? undefined,
+      languagesSpoken: user.languagesSpoken ?? [],
+      gender:
+        user.gender === "male" || user.gender === "female"
+          ? user.gender
+          : undefined,
+      city: user.city ?? "",
+      country: user.country ?? "",
+      isActive: user.isActive ?? true,
+      preferences: {
+        ageMin: parseNum(
+          prefs.ageMin ?? prefs.age_min ?? userAny.ageMin ?? userAny.age_min,
+        ),
+        ageMax: parseNum(
+          prefs.ageMax ?? prefs.age_max ?? userAny.ageMax ?? userAny.age_max,
+        ),
+        genderPreference:
+          rawGender === "male" || rawGender === "female"
+            ? (rawGender as Gender)
+            : undefined,
+        maxDistance: parseNum(
+          prefs.maxDistance ??
+            prefs.max_distance ??
+            userAny.maxDistance ??
+            userAny.max_distance,
+        ),
+        heightMinCm: parseNum(
+          prefs.heightMinCm ??
+            prefs.height_min_cm ??
+            userAny.heightMinCm ??
+            userAny.height_min_cm,
+        ),
+        heightMaxCm: parseNum(
+          prefs.heightMaxCm ??
+            prefs.height_max_cm ??
+            userAny.heightMaxCm ??
+            userAny.height_max_cm,
+        ),
+      },
+      relationshipTypesSought: user.relationshipTypesSought ?? [],
+      sexualInterests: user.sexualInterests ?? [],
+      fantasiesText: user.fantasiesText ?? "",
+      hasChildren: user.hasChildren ?? undefined,
+      wantsChildren: user.wantsChildren ?? undefined,
+      relationshipTypesSoughtVisibility:
+        user.relationshipTypesSoughtVisibility ?? undefined,
+      sexualInterestsVisibility: user.sexualInterestsVisibility ?? undefined,
+      fantasiesTextVisibility: user.fantasiesTextVisibility ?? undefined,
+      hasChildrenVisibility: user.hasChildrenVisibility ?? undefined,
+      wantsChildrenVisibility: user.wantsChildrenVisibility ?? undefined,
+    };
+  }, [user]);
+
   const {
     register,
     handleSubmit,
     reset,
     watch,
+    getValues,
     setValue,
     control,
     formState: { errors, isDirty },
   } = useForm<EditProfileForm>({
     resolver: yupResolver(editProfileSchema),
-    defaultValues: {
-      username: "",
-      title: "",
-      bio: "",
-      birthdate: "",
-      heightCm: undefined,
-      languagesSpoken: [],
-      gender: undefined,
-      city: "",
-      country: "",
-      isActive: true,
-      preferences: {
-        ageMin: undefined,
-        ageMax: undefined,
-        genderPreference: undefined,
-        maxDistance: undefined,
-        heightMinCm: undefined,
-        heightMaxCm: undefined,
-      },
-      relationshipTypesSought: [],
-      sexualInterests: [],
-      fantasiesText: "",
-      hasChildren: undefined,
-      wantsChildren: undefined,
-      relationshipTypesSoughtVisibility: undefined,
-      sexualInterestsVisibility: undefined,
-      fantasiesTextVisibility: undefined,
-      hasChildrenVisibility: undefined,
-      wantsChildrenVisibility: undefined,
+    values: initialValues,
+    resetOptions: {
+      keepDirtyValues: true,
     },
     mode: "onTouched",
   });
@@ -649,7 +635,7 @@ export const EditProfilePage: FC = () => {
     ? values.languagesSpoken
     : [];
 
-  /** ComplÃ©tion du profil (indicateur motivant en haut de page). */
+  /** Complétion du profil (indicateur motivant en haut de page). */
   const completion = useMemo(() => {
     const checks = [
       Boolean(values.title),
@@ -666,45 +652,6 @@ export const EditProfilePage: FC = () => {
     ];
     return Math.round((checks.filter(Boolean).length / checks.length) * 100);
   }, [values, languages.length]);
-
-  useEffect(() => {
-    if (!user) return;
-    reset({
-      username: user.username ?? "",
-      title: user.title ?? "",
-      bio: user.bio ?? "",
-      birthdate: user.birthdate ? user.birthdate.slice(0, 10) : "",
-      heightCm: user.heightCm ?? undefined,
-      languagesSpoken: user.languagesSpoken ?? [],
-      gender:
-        user.gender === "male" || user.gender === "female"
-          ? user.gender
-          : undefined,
-      city: user.city ?? "",
-      country: user.country ?? "",
-      isActive: user.isActive ?? true,
-      preferences: {
-        ageMin: user.preferences?.ageMin ?? undefined,
-        ageMax: user.preferences?.ageMax ?? undefined,
-        genderPreference:
-          (user.preferences?.genderPreference as Gender) ?? undefined,
-        maxDistance: user.preferences?.maxDistance ?? undefined,
-        heightMinCm: user.preferences?.heightMinCm ?? undefined,
-        heightMaxCm: user.preferences?.heightMaxCm ?? undefined,
-      },
-      relationshipTypesSought: user.relationshipTypesSought ?? [],
-      sexualInterests: user.sexualInterests ?? [],
-      fantasiesText: user.fantasiesText ?? "",
-      hasChildren: user.hasChildren ?? undefined,
-      wantsChildren: user.wantsChildren ?? undefined,
-      relationshipTypesSoughtVisibility:
-        user.relationshipTypesSoughtVisibility ?? undefined,
-      sexualInterestsVisibility: user.sexualInterestsVisibility ?? undefined,
-      fantasiesTextVisibility: user.fantasiesTextVisibility ?? undefined,
-      hasChildrenVisibility: user.hasChildrenVisibility ?? undefined,
-      wantsChildrenVisibility: user.wantsChildrenVisibility ?? undefined,
-    });
-  }, [user, reset]);
 
   // Avertit l'utilisateur s'il quitte la page avec des modifications non enregistrÃ©es.
   useEffect(() => {
@@ -776,6 +723,7 @@ export const EditProfilePage: FC = () => {
       updateProfile(payload);
     },
     () => {
+      console.log(values);
       toast.error(t("edit.invalid"));
     },
   );
@@ -1102,7 +1050,7 @@ export const EditProfilePage: FC = () => {
             </Field>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 hidden sm:grid-cols-2 gap-3">
             <SelectField
               control={control}
               name="preferences.genderPreference"
