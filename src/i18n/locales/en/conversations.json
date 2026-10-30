@@ -8,7 +8,10 @@
   "item": {
     "member": "Member",
     "noMessages": "No messages yet",
-    "unreadCount": "{{count}} unread message(s)"
+    "unreadCount": "{{count}} unread message(s)",
+    "online": "Online",
+    "onlineAria": "Online",
+    "offline": "Offline"
   },
   "empty": {
     "noConversationsTitle": "No conversations yet",

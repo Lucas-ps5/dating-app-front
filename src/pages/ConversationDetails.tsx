@@ -97,6 +97,35 @@ function formatTime(iso: string | null | undefined, locale: string) {
   });
 }
 
+/**
+ * Ancienneté de la dernière présence, en relatif.
+ * Retourne "" si la date est absente, invalide ou de moins d'une minute
+ * (le libellé « à l'instant » est géré à part).
+ */
+function formatLastSeen(iso: string | null | undefined, locale: string) {
+  if (!iso) return "";
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return "";
+
+  const diffMs = Date.now() - date.getTime();
+  const abs = Math.abs(diffMs);
+  const rtf = new Intl.RelativeTimeFormat(locale, { numeric: "auto" });
+
+  if (abs < 60_000) return "";
+  if (abs < 3_600_000)
+    return rtf.format(-Math.round(diffMs / 60_000), "minute");
+  if (abs < 86_400_000)
+    return rtf.format(-Math.round(diffMs / 3_600_000), "hour");
+  if (abs < 7 * 86_400_000)
+    return rtf.format(-Math.round(diffMs / 86_400_000), "day");
+
+  return date.toLocaleDateString(locale, {
+    day: "numeric",
+    month: "short",
+    ...(date.getFullYear() !== new Date().getFullYear() && { year: "numeric" }),
+  });
+}
+
 function buildItems(
   messages: Message[],
   currentUserId: string | undefined,
@@ -138,32 +167,42 @@ const Avatar = memo(
   ({
     user,
     className = "h-10 w-10",
+    showPresence = false,
   }: {
     user: ChatUser;
     className?: string;
+    showPresence?: boolean;
   }) => {
     const photo = user.photos?.[0];
+    const isOnline = user.isOnline === true;
     return (
-      <div
-        className={`relative shrink-0 overflow-hidden rounded-full bg-secondary ${className}`}
-      >
-        {photo ? (
-          <Image
-            isLocal={false}
-            url={photo}
-            alt=""
-            className="h-full w-full object-cover"
-          />
-        ) : (
-          <div
-            className="flex h-full w-full items-center justify-center text-sm font-semibold text-white/90"
-            style={{
-              backgroundColor: `hsl(${hueFromString(user.id)} 35% 32%)`,
-            }}
+      <div className={`relative shrink-0 ${className}`}>
+        <div className="h-full w-full overflow-hidden rounded-full bg-secondary">
+          {photo ? (
+            <Image
+              isLocal={false}
+              url={photo}
+              alt=""
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            <div
+              className="flex h-full w-full items-center justify-center text-sm font-semibold text-white/90"
+              style={{
+                backgroundColor: `hsl(${hueFromString(user.id)} 35% 32%)`,
+              }}
+              aria-hidden="true"
+            >
+              {(user.username?.[0] ?? "?").toUpperCase()}
+            </div>
+          )}
+        </div>
+
+        {showPresence && isOnline && (
+          <span
             aria-hidden="true"
-          >
-            {(user.username?.[0] ?? "?").toUpperCase()}
-          </div>
+            className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-card bg-success shadow-sm"
+          />
         )}
       </div>
     );
@@ -428,8 +467,10 @@ const ConversationDetailsPage: React.FC = () => {
         : [],
     [conversation, currentUserId],
   );
-  const { data: usersData, isLoading: isLoadingUsers } =
-    useFetchUsersByIds(otherUserIds);
+  const { data: usersData, isLoading: isLoadingUsers } = useFetchUsersByIds(
+    otherUserIds,
+    { refetchInterval: 60_000 },
+  );
   const otherUser = usersData?.[0];
 
   /* ----- Données dérivées ------------------------------------------------- */
@@ -453,6 +494,36 @@ const ConversationDetailsPage: React.FC = () => {
 
   const isReady = Boolean(conversation && otherUser);
   const lastMessage = sortedMessages[sortedMessages.length - 1];
+
+  // Présence : en ligne, sinon dernière activité connue.
+  const presence = useMemo(() => {
+    if (!otherUser) return { isOnline: false, label: "" };
+
+    if (otherUser.isOnline === true) {
+      return { isOnline: true, label: t("header.online") };
+    }
+
+    const lastOnlineAt = otherUser.lastOnlineAt;
+    if (!lastOnlineAt) {
+      return { isOnline: false, label: t("header.offline") };
+    }
+
+    const seen = formatLastSeen(lastOnlineAt, i18n.language);
+    if (!seen) {
+      return { isOnline: false, label: t("header.justNow") };
+    }
+
+    // Au-delà d'une semaine, on affiche la date plutôt qu'un relatif.
+    const isOlderThanAWeek =
+      Date.now() - new Date(lastOnlineAt).getTime() >= 7 * 86_400_000;
+
+    return {
+      isOnline: false,
+      label: isOlderThanAWeek
+        ? t("header.lastSeenOn", { date: seen })
+        : t("header.lastSeen", { time: seen }),
+    };
+  }, [otherUser, i18n.language, t]);
 
   // Nombre de messages non lus pour l'utilisateur courant (valeur primitive :
   // l'effet ne dépend plus de l'identité de l'objet `conversation`)
@@ -628,10 +699,25 @@ const ConversationDetailsPage: React.FC = () => {
           <ArrowLeft className="h-5 w-5" />
         </button>
 
-        <Avatar user={otherUser} />
-        <h1 className="min-w-0 flex-1 truncate font-semibold text-foreground">
-          {otherUser.username || t("header.member")}
-        </h1>
+        <Avatar user={otherUser} showPresence />
+        <div className="min-w-0 flex-1">
+          <h1 className="truncate font-semibold text-foreground">
+            {otherUser.username || t("header.member")}
+          </h1>
+          <p
+            className={`mt-0.5 flex items-center gap-1.5 truncate text-xs ${
+              presence.isOnline ? "text-success" : "text-muted-foreground"
+            }`}
+          >
+            <span
+              aria-hidden="true"
+              className={`h-1.5 w-1.5 shrink-0 rounded-full ${
+                presence.isOnline ? "bg-success" : "bg-muted-foreground/70"
+              }`}
+            />
+            <span className="truncate">{presence.label}</span>
+          </p>
+        </div>
 
         <ChatMenu />
       </header>

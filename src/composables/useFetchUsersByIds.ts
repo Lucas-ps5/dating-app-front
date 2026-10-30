@@ -1,7 +1,18 @@
 import { useQuery } from "@tanstack/react-query";
 import { Users } from "@/api/users";
 
-export const useFetchUsersByIds = (ids: string[]) => {
+interface UseFetchUsersByIdsOptions {
+  /**
+   * Intervalle de rafraîchissement en ms (ex. 60_000 pour suivre la présence).
+   * Désactivé par défaut.
+   */
+  refetchInterval?: number;
+}
+
+export const useFetchUsersByIds = (
+  ids: string[],
+  options: UseFetchUsersByIdsOptions = {},
+) => {
   return useQuery({
     queryKey: ["users-by-ids", ...ids],
     queryFn: async () => {
@@ -15,5 +26,6 @@ export const useFetchUsersByIds = (ids: string[]) => {
 
       return data;
     },
+    refetchInterval: options.refetchInterval,
   });
 };

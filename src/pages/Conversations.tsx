@@ -70,7 +70,7 @@ export const ConversationsPage: React.FC = () => {
     isLoading: isLoadingUsers,
     isError: isErrorUsers,
     error: usersError,
-  } = useFetchUsersByIds(otherUserIds);
+  } = useFetchUsersByIds(otherUserIds, { refetchInterval: 60_000 });
 
   const usersMap = useMemo(() => {
     const map = new Map<string, UserSummary>();
@@ -457,6 +457,7 @@ const ConversationItem = memo<ConversationItemProps>(
     );
     const hasMessage = Boolean(conversation.lastMessagePreview);
     const hasUnread = unreadCount > 0;
+    const isOnline = user.isOnline === true;
 
     return (
       <Link
@@ -465,34 +466,44 @@ const ConversationItem = memo<ConversationItemProps>(
           hasUnread ? "bg-primary/[0.05]" : ""
         }`}
       >
-        <div
-          className={`relative h-14 w-14 shrink-0 overflow-hidden rounded-full bg-secondary ${
-            hasUnread
-              ? "ring-2 ring-primary ring-offset-2 ring-offset-card"
-              : "border border-border/60"
-          }`}
-        >
-          {primaryPhoto ? (
-            <Image
-              isLocal={false}
-              url={primaryPhoto}
-              alt={t("item.photoAlt", {
-                username,
-                defaultValue: `Photo de profil de ${username}`,
-              })}
-              loading="lazy"
-              className="h-full w-full object-cover"
-            />
-          ) : (
-            <div
+        <div className="relative h-14 w-14 shrink-0">
+          <div
+            className={`h-full w-full overflow-hidden rounded-full bg-secondary ${
+              hasUnread
+                ? "ring-2 ring-primary ring-offset-2 ring-offset-card"
+                : "border border-border/60"
+            }`}
+          >
+            {primaryPhoto ? (
+              <Image
+                isLocal={false}
+                url={primaryPhoto}
+                alt={t("item.photoAlt", {
+                  username,
+                  defaultValue: `Photo de profil de ${username}`,
+                })}
+                loading="lazy"
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <div
+                aria-hidden="true"
+                className="flex h-full w-full items-center justify-center text-lg font-semibold text-white/90"
+                style={{
+                  backgroundColor: `hsl(${hueFromString(user.id)} 35% 32%)`,
+                }}
+              >
+                {(user.username?.[0] ?? "?").toUpperCase()}
+              </div>
+            )}
+          </div>
+
+          {isOnline && (
+            <span
               aria-hidden="true"
-              className="flex h-full w-full items-center justify-center text-lg font-semibold text-white/90"
-              style={{
-                backgroundColor: `hsl(${hueFromString(user.id)} 35% 32%)`,
-              }}
-            >
-              {(user.username?.[0] ?? "?").toUpperCase()}
-            </div>
+              title={t("item.online", { defaultValue: "En ligne" })}
+              className="absolute bottom-0 right-0 h-3.5 w-3.5 rounded-full border-2 border-card bg-success shadow-sm"
+            />
           )}
         </div>
 
@@ -504,6 +515,11 @@ const ConversationItem = memo<ConversationItemProps>(
           >
             <Highlight text={username} query={query} />
           </h3>
+          <span className="sr-only">
+            {isOnline
+              ? t("item.online", { defaultValue: "En ligne" })
+              : t("item.offline", { defaultValue: "Hors ligne" })}
+          </span>
           <p
             className={`mt-0.5 truncate text-sm ${
               hasMessage

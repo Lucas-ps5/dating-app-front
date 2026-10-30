@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import Keycloak from "keycloak-js";
 // import { keycloak } from "../plugins/keycloak";
 import { AuthContext, type AuthContextType } from "./AuthContext";
@@ -7,6 +7,7 @@ import { setToken } from "@/plugins/clients";
 import { getCoordinates } from "@/utils/geolocation";
 import { useDiscoverStore } from "@/store/useDiscoverStore";
 import { checkAndUpdateLocationIfNeeded } from "@/utils/locationUpdate";
+import { Users } from "@/api/users";
 
 // Create Keycloak instance directly here to avoid import issues
 const keycloak = new Keycloak({
@@ -43,6 +44,27 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     null,
   );
   const { setCoordinates } = useDiscoverStore();
+  const heartbeatIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const startHeartbeat = () => {
+    if (heartbeatIntervalRef.current) {
+      clearInterval(heartbeatIntervalRef.current);
+    }
+    // Call immediately on start
+    Users.heartbeatCurrentUser().catch(console.error);
+    // Then every 5 minutes
+    heartbeatIntervalRef.current = setInterval(() => {
+      Users.heartbeatCurrentUser().catch(console.error);
+    }, 5 * 60 * 1000);
+  };
+
+  const stopHeartbeat = () => {
+    if (heartbeatIntervalRef.current) {
+      clearInterval(heartbeatIntervalRef.current);
+      heartbeatIntervalRef.current = null;
+    }
+  };
+
   useEffect(() => {
     keycloak.onAuthSuccess = async () => {
       setAuthenticated(true);
@@ -65,6 +87,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         console.warn("Failed to check/update location:", error);
       }
 
+      // Start heartbeat to keep user online
+      startHeartbeat();
+
       keycloak
         .loadUserInfo()
         .then((info) => setUserInfo(info as Record<string, unknown>));
@@ -78,6 +103,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setAuthenticated(false);
       setUserInfo(null);
       setToken(undefined);
+      stopHeartbeat();
     };
 
     initializeKeycloak()
@@ -91,6 +117,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       keycloak.onAuthSuccess = undefined;
       keycloak.onAuthRefreshSuccess = undefined;
       keycloak.onAuthLogout = undefined;
+      stopHeartbeat();
     };
   }, []);
 

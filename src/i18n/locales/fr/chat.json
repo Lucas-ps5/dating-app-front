@@ -2,6 +2,10 @@
   "header": {
     "member": "Membre",
     "online": "En ligne",
+    "offline": "Hors ligne",
+    "justNow": "À l'instant",
+    "lastSeen": "Vu {{time}}",
+    "lastSeenOn": "Vu le {{date}}",
     "back": "Retour"
   },
   "menu": {
