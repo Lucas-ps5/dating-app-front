@@ -7,13 +7,14 @@ import { useFetchUsersByIds } from "@/composables/useFetchUsersByIds";
 import { Image } from "@/components/ui/Image";
 import { DiscoverErrorState } from "@/components/discover/DiscoverErrorState";
 import type { UserSummary } from "@/types/user";
+import { normalize } from "@/utils/text";
 import {
-  normalize,
   getConversationDate,
   formatTimestamp,
   hueFromString,
   getOtherUserId,
-} from "@/utils/methods";
+  getUnreadCount,
+} from "@/utils/chat";
 import type { Conversation } from "@/api/chat";
 import { Link } from "react-router";
 
@@ -28,14 +29,6 @@ interface ConversationWithUser {
   user: UserSummary;
   unreadCount: number;
 }
-
-const getUnreadCount = (
-  conversation: Conversation,
-  currentUserId: string | undefined,
-): number =>
-  conversation.user1Id === currentUserId
-    ? (conversation.unreadCountUser1 ?? 0)
-    : (conversation.unreadCountUser2 ?? 0);
 
 /* -------------------------------------------------------------------------- */
 /* Page                                                                       */

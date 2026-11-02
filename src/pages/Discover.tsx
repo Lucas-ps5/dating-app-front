@@ -18,6 +18,8 @@ import { DiscoverSkeleton } from "@/components/discover/DiscoverSkeleton";
 import { DiscoverEmptyState } from "@/components/discover/DiscoverEmptyState";
 import { DiscoverErrorState } from "@/components/discover/DiscoverErrorState";
 import { getStoredCoordinates, refreshCoordinates } from "@/utils/geolocation";
+import { matchesUserSearch } from "@/utils/discover";
+import { parsePositiveInt, MAX_PAGE_LIMIT } from "@/utils/pagination";
 
 export const DiscoverPage: React.FC = () => {
   const { t } = useTranslation("discover");
@@ -60,12 +62,10 @@ export const DiscoverPage: React.FC = () => {
       setAgeRange(parsedMin ?? DEFAULT_AGE_MIN, parsedMax ?? DEFAULT_AGE_MAX);
     }
     if (urlPage) {
-      const p = parseInt(urlPage, 10);
-      if (!isNaN(p) && p > 0) setPage(p);
+      setPage(parsePositiveInt(urlPage, 1));
     }
     if (urlLimit) {
-      const l = parseInt(urlLimit, 10);
-      if (!isNaN(l) && l > 0 && l <= 100) setLimit(l);
+      setLimit(parsePositiveInt(urlLimit, DEFAULT_LIMIT, MAX_PAGE_LIMIT));
     }
   }, []);
 
@@ -104,18 +104,10 @@ export const DiscoverPage: React.FC = () => {
   // Client-side search filtering on currently loaded page results
   const deferredSearch = useDeferredValue(clientSearch.trim().toLowerCase());
 
-  const filteredUsers = useMemo(() => {
-    if (!deferredSearch) return users;
-
-    return users.filter((u) => {
-      const usernameMatch = u.username?.toLowerCase().includes(deferredSearch);
-      const titleMatch = u.title?.toLowerCase().includes(deferredSearch);
-      const cityMatch = u.city?.toLowerCase().includes(deferredSearch);
-      const countryMatch = u.country?.toLowerCase().includes(deferredSearch);
-
-      return usernameMatch || titleMatch || cityMatch || countryMatch;
-    });
-  }, [users, deferredSearch]);
+  const filteredUsers = useMemo(
+    () => users.filter((u) => matchesUserSearch(u, deferredSearch)),
+    [users, deferredSearch],
+  );
 
   const isFiltered =
     gender !== undefined ||

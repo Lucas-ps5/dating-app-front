@@ -140,6 +140,26 @@ export function formatDistance(
 }
 
 /**
+ * Matches a user against a client-side search query.
+ * Looks into username, title, city and country (case-insensitive).
+ */
+export function matchesUserSearch(
+  user: {
+    username?: string | null;
+    title?: string | null;
+    city?: string | null;
+    country?: string | null;
+  },
+  query: string,
+): boolean {
+  const needle = query.trim().toLowerCase();
+  if (!needle) return true;
+  return [user.username, user.title, user.city, user.country].some((field) =>
+    field?.toLowerCase().includes(needle),
+  );
+}
+
+/**
  * Generates an array of page numbers and ellipsis tokens for pagination.
  */
 export function generatePaginationRange(

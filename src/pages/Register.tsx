@@ -22,6 +22,7 @@ import { Gender } from "@/api/users";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import { getCurrentCoordinates } from "@/utils/geolocation";
 import Image from "@/components/ui/Image";
 
 const GENDER_OPTIONS = [
@@ -107,28 +108,22 @@ export default function RegisterPage() {
   };
 
   // Geolocation auto-fill
-  const handleGetLocation = () => {
-    if (!navigator.geolocation) {
-      toast.error("Geolocation is not supported by your browser.");
-      return;
-    }
+  const handleGetLocation = async () => {
     setGeoLoading(true);
-    navigator.geolocation.getCurrentPosition(
-      ({ coords }) => {
-        setValue("latitude", parseFloat(coords.latitude.toFixed(6)), {
-          shouldValidate: true,
-        });
-        setValue("longitude", parseFloat(coords.longitude.toFixed(6)), {
-          shouldValidate: true,
-        });
-        setGeoLoading(false);
-        toast.success("Location detected!");
-      },
-      () => {
-        toast.error("Could not retrieve your location.");
-        setGeoLoading(false);
-      },
-    );
+    try {
+      const coords = await getCurrentCoordinates();
+      setValue("latitude", parseFloat(coords.latitude.toFixed(6)), {
+        shouldValidate: true,
+      });
+      setValue("longitude", parseFloat(coords.longitude.toFixed(6)), {
+        shouldValidate: true,
+      });
+      toast.success("Location detected!");
+    } catch {
+      toast.error("Could not retrieve your location.");
+    } finally {
+      setGeoLoading(false);
+    }
   };
 
   const inputClass =

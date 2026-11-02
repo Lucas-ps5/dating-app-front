@@ -28,15 +28,21 @@ import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { useFetchCurrentUser } from "@/composables/useFetchCurrentUser";
 import { useUpdateProfile } from "@/composables/useUpdateProfile";
-import type {
-  UpdateUserRequest,
-  RelationshipType,
-  SexualInterest,
-  HasChildren,
-  WantsChildren,
-  ProfileVisibility,
-} from "@/api/users";
+import type { UpdateUserRequest } from "@/api/users";
 import { calculateAge } from "@/utils/discover";
+import { optionalNumber, enumArray, enumField } from "@/utils/validation";
+import {
+  GENDER_PREFERENCE_OPTIONS,
+  RELATIONSHIP_TYPE_OPTIONS,
+  SEXUAL_INTEREST_OPTIONS,
+  HAS_CHILDREN_OPTIONS,
+  WANTS_CHILDREN_OPTIONS,
+  PROFILE_VISIBILITY_OPTIONS,
+  BIO_MAX,
+  FANTASIES_MAX,
+} from "@/utils/profileOptions";
+import { parseList } from "@/utils/text";
+import { getMaxBirthdate } from "@/utils/date";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -57,135 +63,12 @@ import { Toggle } from "@/components/ui/toggle";
  * `as const satisfies` : on garde les types littÃ©raux (utiles pour yup)
  * tout en vÃ©rifiant la compatibilitÃ© avec les types de l'API.
  */
-const GENDER_PREFERENCE_OPTIONS = [
-  { value: "male", labelKey: "edit.gender.male" },
-  { value: "female", labelKey: "edit.gender.female" },
-] as const satisfies ReadonlyArray<{
-  value: "male" | "female";
-  labelKey: string;
-}>;
 
-const RELATIONSHIP_TYPE_OPTIONS = [
-  {
-    value: "DISCREET_RELATIONSHIP",
-    labelKey: "edit.relationshipTypes.discreetRelationship",
-  },
-  {
-    value: "ENHANCED_FRIENDSHIP",
-    labelKey: "edit.relationshipTypes.enhancedFriendship",
-  },
-  { value: "ONE_ON_ONE_SEX", labelKey: "edit.relationshipTypes.oneOnOneSex" },
-  {
-    value: "ONE_NIGHT_STAND",
-    labelKey: "edit.relationshipTypes.oneNightStand",
-  },
-  { value: "EXPERIMENTING", labelKey: "edit.relationshipTypes.experimenting" },
-  {
-    value: "EROTIC_FANTASIES",
-    labelKey: "edit.relationshipTypes.eroticFantasies",
-  },
-] as const satisfies ReadonlyArray<{
-  value: RelationshipType;
-  labelKey: string;
-}>;
 
-const SEXUAL_INTEREST_OPTIONS = [
-  { value: "ROLEPLAY", labelKey: "edit.sexualInterests.roleplay" },
-  { value: "BDSM", labelKey: "edit.sexualInterests.bdsm" },
-  { value: "SENSORY_PLAY", labelKey: "edit.sexualInterests.sensoryPlay" },
-  {
-    value: "VOYEURISM_EXHIBITIONISM",
-    labelKey: "edit.sexualInterests.voyeurismExhibitionism",
-  },
-  { value: "SWINGING", labelKey: "edit.sexualInterests.swinging" },
-  {
-    value: "GROUP_EXPERIENCES",
-    labelKey: "edit.sexualInterests.groupExperiences",
-  },
-  { value: "TANTRA", labelKey: "edit.sexualInterests.tantra" },
-  { value: "POWER_EXCHANGE", labelKey: "edit.sexualInterests.powerExchange" },
-  { value: "OTHER", labelKey: "edit.sexualInterests.other" },
-] as const satisfies ReadonlyArray<{ value: SexualInterest; labelKey: string }>;
 
-const HAS_CHILDREN_OPTIONS = [
-  { value: "NO", labelKey: "edit.hasChildren.no" },
-  { value: "YES_LIVING_WITH_ME", labelKey: "edit.hasChildren.yesLivingWithMe" },
-  {
-    value: "YES_NOT_LIVING_WITH_ME",
-    labelKey: "edit.hasChildren.yesNotLivingWithMe",
-  },
-  { value: "PREFER_NOT_TO_SAY", labelKey: "edit.hasChildren.preferNotToSay" },
-] as const satisfies ReadonlyArray<{ value: HasChildren; labelKey: string }>;
 
-const WANTS_CHILDREN_OPTIONS = [
-  { value: "YES", labelKey: "edit.wantsChildren.yes" },
-  { value: "NO", labelKey: "edit.wantsChildren.no" },
-  { value: "MAYBE", labelKey: "edit.wantsChildren.maybe" },
-  { value: "PREFER_NOT_TO_SAY", labelKey: "edit.wantsChildren.preferNotToSay" },
-] as const satisfies ReadonlyArray<{ value: WantsChildren; labelKey: string }>;
-
-const PROFILE_VISIBILITY_OPTIONS = [
-  { value: "PUBLIC", labelKey: "edit.visibility.public" },
-  { value: "MATCHES_ONLY", labelKey: "edit.visibility.matchesOnly" },
-  { value: "HIDDEN", labelKey: "edit.visibility.hidden" },
-] as const satisfies ReadonlyArray<{
-  value: ProfileVisibility;
-  labelKey: string;
-}>;
-
-const BIO_MAX = 500;
-const FANTASIES_MAX = 2000;
 
 /* ---- Helpers de validation ---- */
-const optionValues = <T extends string>(
-  opts: ReadonlyArray<{ value: T }>,
-): T[] => opts.map((o) => o.value);
-
-/** Nombre optionnel : "" / NaN / null -> undefined */
-const optionalNumber = (
-  min: number,
-  max: number,
-  minMsg?: string,
-  maxMsg?: string,
-) =>
-  yup
-    .number()
-    .transform((value, original) =>
-      original === "" || original == null || Number.isNaN(value)
-        ? undefined
-        : value,
-    )
-    .integer()
-    .min(min, minMsg)
-    .max(max, maxMsg)
-    .optional();
-
-const enumArray = <T extends string>(opts: ReadonlyArray<{ value: T }>) =>
-  yup
-    .array()
-    .of(yup.mixed<T>().oneOf(optionValues(opts)).required())
-    .defined();
-
-const enumField = <T extends string>(opts: ReadonlyArray<{ value: T }>) =>
-  yup.mixed<T>().oneOf(optionValues(opts)).optional();
-
-/** "fr, en  de" -> ["fr", "en", "de"] */
-const parseList = (v: unknown): string[] =>
-  Array.isArray(v)
-    ? (v as string[])
-    : typeof v === "string"
-      ? v
-          .split(/[\s,]+/)
-          .map((s) => s.trim())
-          .filter(Boolean)
-      : [];
-
-const parseLines = (v: string): string[] =>
-  v
-    .split(/\r?\n/)
-    .map((s) => s.trim())
-    .filter(Boolean);
-
 /* ---- Validation schema ---- */
 const editProfileSchema = yup.object({
   username: yup
@@ -740,11 +623,7 @@ export const EditProfilePage: FC = () => {
     );
   }
 
-  const maxBirthdate = new Date(
-    new Date().setFullYear(new Date().getFullYear() - 18),
-  )
-    .toISOString()
-    .split("T")[0];
+  const maxBirthdate = getMaxBirthdate(18);
 
   return (
     <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 pb-0 animate-fade-in">

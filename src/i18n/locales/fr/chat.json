@@ -4,8 +4,8 @@
     "online": "En ligne",
     "offline": "Hors ligne",
     "justNow": "À l'instant",
-    "lastSeen": "Vu {{time}}",
-    "lastSeenOn": "Vu le {{date}}",
+    "lastSeen": "En ligne {{time}}",
+    "lastSeenOn": "En ligne le {{date}}",
     "back": "Retour"
   },
   "menu": {

@@ -39,6 +39,8 @@ import {
   formatRelationshipTypes,
   formatWantsChildren,
 } from "@/utils/profile";
+import { capitalize } from "@/utils/text";
+import { hasNumber } from "@/utils/numbers";
 import { ProfileSkeleton } from "@/components/profile/ProfileSkeleton";
 import { ProfileErrorState } from "@/components/profile/ProfileErrorState";
 import { ProfilePhotoGallery } from "@/components/profile/ProfilePhotoGallery";
@@ -219,12 +221,6 @@ const Prose: React.FC<{ children: React.ReactNode }> = ({ children }) => (
 /* -------------------------------------------------------------------------- */
 /*  Helpers                                                                   */
 /* -------------------------------------------------------------------------- */
-
-const capitalize = (value: string): string =>
-  value.charAt(0).toUpperCase() + value.slice(1);
-
-const hasNumber = (n: unknown): n is number =>
-  typeof n === "number" && Number.isFinite(n);
 
 const VISIBILITY_ICONS: Record<string, LucideIcon> = {
   PUBLIC: Globe,

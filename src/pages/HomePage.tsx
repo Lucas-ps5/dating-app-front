@@ -12,6 +12,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useFetchMatchsCount } from "@/composables/useFetchMatchsCount";
 import { useDiscoverUsers } from "@/composables/useDiscoverUsers";
 import { calculateAge, formatLocation } from "@/utils/discover";
+import { getFirstName } from "@/utils/text";
 import { useGetMyUnreadMessagesCount } from "@/composables/useGetMyUnreadMessagesCount";
 import { Image } from "@/components/ui/Image";
 
@@ -33,7 +34,7 @@ export default function HomePage() {
     (userInfo?.name as string) ||
     (userInfo?.preferred_username as string) ||
     "";
-  const firstName = rawName ? rawName.split(" ")[0] : "";
+  const firstName = getFirstName(rawName);
 
   const cards = [
     {

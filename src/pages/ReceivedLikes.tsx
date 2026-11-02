@@ -9,20 +9,11 @@ import { DiscoverPagination } from "@/components/discover/DiscoverPagination";
 import { DiscoverSkeleton } from "@/components/discover/DiscoverSkeleton";
 import { DiscoverErrorState } from "@/components/discover/DiscoverErrorState";
 import type { UserSummary } from "@/types/user";
-
-const DEFAULT_LIMIT = 12;
-const MAX_LIMIT = 100;
-
-const parsePositiveInt = (
-  value: string | null,
-  fallback: number,
-  max?: number,
-) => {
-  if (!value) return fallback;
-  const n = parseInt(value, 10);
-  if (Number.isNaN(n) || n < 1) return fallback;
-  return max ? Math.min(n, max) : n;
-};
+import {
+  parsePositiveInt,
+  DEFAULT_PAGE_LIMIT,
+  MAX_PAGE_LIMIT,
+} from "@/utils/pagination";
 
 export const ReceivedLikesPage: React.FC = () => {
   const { t } = useTranslation("receivedLikes");
@@ -32,8 +23,8 @@ export const ReceivedLikesPage: React.FC = () => {
   const page = parsePositiveInt(searchParams.get("page"), 1);
   const limit = parsePositiveInt(
     searchParams.get("limit"),
-    DEFAULT_LIMIT,
-    MAX_LIMIT,
+    DEFAULT_PAGE_LIMIT,
+    MAX_PAGE_LIMIT,
   );
 
   const updateParams = (
@@ -49,7 +40,8 @@ export const ReceivedLikesPage: React.FC = () => {
         if (nextPage > 1) params.set("page", String(nextPage));
         else params.delete("page");
 
-        if (nextLimit !== DEFAULT_LIMIT) params.set("limit", String(nextLimit));
+        if (nextLimit !== DEFAULT_PAGE_LIMIT)
+          params.set("limit", String(nextLimit));
         else params.delete("limit");
 
         return params;
@@ -162,7 +154,7 @@ export const ReceivedLikesPage: React.FC = () => {
       >
         {isLoading ? (
           <DiscoverSkeleton
-            count={Math.min(limit, DEFAULT_LIMIT)}
+            count={Math.min(limit, DEFAULT_PAGE_LIMIT)}
             variant="grid"
           />
         ) : isError ? (

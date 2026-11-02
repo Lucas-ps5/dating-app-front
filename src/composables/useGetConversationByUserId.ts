@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useGetMyConversations } from "./useGetMyConversations";
-import { getOtherUserId } from "@/utils/methods";
+import { getOtherUserId } from "@/utils/chat";
 
 export const useGetConversationByUserId = (
   userId: string | undefined,

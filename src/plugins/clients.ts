@@ -2,6 +2,7 @@ import { client as usersClient } from "@/api/users/client.gen";
 import { client as chatClient } from "@/api/chat/client.gen";
 import { client as mediaClient } from "@/api/media/client.gen";
 import { client as matchesClient } from "@/api/matches/client.gen";
+import { client as notificationsClient } from "@/api/notifications/client.gen";
 
 let token: string | undefined = undefined;
 
@@ -15,6 +16,7 @@ if (baseURL) {
   chatClient.setConfig({ baseURL: baseURL + "/chat" });
   mediaClient.setConfig({ baseURL: baseURL + "/media" });
   matchesClient.setConfig({ baseURL: baseURL + "/matches" });
+  notificationsClient.setConfig({ baseURL: baseURL + "/notifications" });
 }
 
 // Interceptors are only used to inject the Authorization header dynamically
@@ -34,6 +36,11 @@ mediaClient.instance.interceptors.request.use((config) => {
 });
 
 matchesClient.instance.interceptors.request.use((config) => {
+  if (token) config.headers.set("Authorization", `Bearer ${token}`);
+  return config;
+});
+
+notificationsClient.instance.interceptors.request.use((config) => {
   if (token) config.headers.set("Authorization", `Bearer ${token}`);
   return config;
 });

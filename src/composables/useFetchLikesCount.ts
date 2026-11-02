@@ -11,5 +11,6 @@ export function useFetchLikesCount() {
 
       return data;
     },
+    staleTime: 5000
   });
 }

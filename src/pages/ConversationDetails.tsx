@@ -29,7 +29,14 @@ import { useSendMessage } from "@/composables/useSendMessage";
 import { useMarkMessagesAsRead } from "@/composables/useMarkMessagesAsRead";
 import { useFetchUsersByIds } from "@/composables/useFetchUsersByIds";
 import { Image } from "@/components/ui/Image";
-import { getOtherUserId, hueFromString } from "@/utils/methods";
+import {
+  getOtherUserId,
+  hueFromString,
+  buildChatItems,
+  buildPresence,
+  getUnreadCount,
+} from "@/utils/chat";
+import { formatTime, toTime } from "@/utils/date";
 import { MessageType } from "@/api/chat";
 import type { Message } from "@/api/chat";
 
@@ -41,123 +48,8 @@ type ChatUser = NonNullable<
   ReturnType<typeof useFetchUsersByIds>["data"]
 >[number];
 
-type ListItem =
-  | { kind: "day"; key: string; label: string }
-  | {
-      kind: "message";
-      key: string;
-      message: Message;
-      isOwn: boolean;
-      isFirstInGroup: boolean;
-      isLastInGroup: boolean;
-    };
-
-/** Messages du même expéditeur à moins de 5 min => même groupe visuel */
-const GROUP_WINDOW_MS = 5 * 60 * 1000;
-const DAY_MS = 86_400_000;
+/** Distance au bas de la liste pour afficher le bouton « remonter ». */
 const NEAR_BOTTOM_PX = 120;
-
-const toTime = (value?: string | null) =>
-  value ? new Date(value).getTime() : 0;
-
-const startOfDay = (d: Date) =>
-  new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
-
-const isSameDay = (a?: string | null, b?: string | null) =>
-  !!a && !!b && new Date(a).toDateString() === new Date(b).toDateString();
-
-const isSameGroup = (a: Message, b: Message) =>
-  a.senderId === b.senderId &&
-  isSameDay(a.sentAt, b.sentAt) &&
-  Math.abs(toTime(b.sentAt) - toTime(a.sentAt)) < GROUP_WINDOW_MS;
-
-function formatDayLabel(
-  iso: string,
-  locale: string,
-  labels: { today: string; yesterday: string },
-) {
-  const date = new Date(iso);
-  const now = new Date();
-  const diff = Math.round((startOfDay(now) - startOfDay(date)) / DAY_MS);
-  if (diff === 0) return labels.today;
-  if (diff === 1) return labels.yesterday;
-  return new Intl.DateTimeFormat(locale, {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    year: date.getFullYear() !== now.getFullYear() ? "numeric" : undefined,
-  }).format(date);
-}
-
-function formatTime(iso: string | null | undefined, locale: string) {
-  if (!iso) return "";
-  return new Date(iso).toLocaleTimeString(locale, {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
-
-/**
- * Ancienneté de la dernière présence, en relatif.
- * Retourne "" si la date est absente, invalide ou de moins d'une minute
- * (le libellé « à l'instant » est géré à part).
- */
-function formatLastSeen(iso: string | null | undefined, locale: string) {
-  if (!iso) return "";
-  const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) return "";
-
-  const diffMs = Date.now() - date.getTime();
-  const abs = Math.abs(diffMs);
-  const rtf = new Intl.RelativeTimeFormat(locale, { numeric: "auto" });
-
-  if (abs < 60_000) return "";
-  if (abs < 3_600_000)
-    return rtf.format(-Math.round(diffMs / 60_000), "minute");
-  if (abs < 86_400_000)
-    return rtf.format(-Math.round(diffMs / 3_600_000), "hour");
-  if (abs < 7 * 86_400_000)
-    return rtf.format(-Math.round(diffMs / 86_400_000), "day");
-
-  return date.toLocaleDateString(locale, {
-    day: "numeric",
-    month: "short",
-    ...(date.getFullYear() !== new Date().getFullYear() && { year: "numeric" }),
-  });
-}
-
-function buildItems(
-  messages: Message[],
-  currentUserId: string | undefined,
-  locale: string,
-  labels: { today: string; yesterday: string },
-): ListItem[] {
-  const items: ListItem[] = [];
-
-  messages.forEach((message, index) => {
-    const prev = messages[index - 1];
-    const next = messages[index + 1];
-
-    if (message.sentAt && (!prev || !isSameDay(prev.sentAt, message.sentAt))) {
-      items.push({
-        kind: "day",
-        key: `day-${message.sentAt}`,
-        label: formatDayLabel(message.sentAt, locale, labels),
-      });
-    }
-
-    items.push({
-      kind: "message",
-      key: message.id ?? `msg-${index}`,
-      message,
-      isOwn: message.senderId === currentUserId,
-      isFirstInGroup: !prev || !isSameGroup(prev, message),
-      isLastInGroup: !next || !isSameGroup(message, next),
-    });
-  });
-
-  return items;
-}
 
 /* -------------------------------------------------------------------------- */
 /*  Petits composants                                                         */
@@ -485,7 +377,7 @@ const ConversationDetailsPage: React.FC = () => {
 
   const items = useMemo(
     () =>
-      buildItems(sortedMessages, currentUserId, i18n.language, {
+      buildChatItems(sortedMessages, currentUserId, i18n.language, {
         today: t("date.today"),
         yesterday: t("date.yesterday"),
       }),
@@ -496,41 +388,22 @@ const ConversationDetailsPage: React.FC = () => {
   const lastMessage = sortedMessages[sortedMessages.length - 1];
 
   // Présence : en ligne, sinon dernière activité connue.
-  const presence = useMemo(() => {
-    if (!otherUser) return { isOnline: false, label: "" };
-
-    if (otherUser.isOnline === true) {
-      return { isOnline: true, label: t("header.online") };
-    }
-
-    const lastOnlineAt = otherUser.lastOnlineAt;
-    if (!lastOnlineAt) {
-      return { isOnline: false, label: t("header.offline") };
-    }
-
-    const seen = formatLastSeen(lastOnlineAt, i18n.language);
-    if (!seen) {
-      return { isOnline: false, label: t("header.justNow") };
-    }
-
-    // Au-delà d'une semaine, on affiche la date plutôt qu'un relatif.
-    const isOlderThanAWeek =
-      Date.now() - new Date(lastOnlineAt).getTime() >= 7 * 86_400_000;
-
-    return {
-      isOnline: false,
-      label: isOlderThanAWeek
-        ? t("header.lastSeenOn", { date: seen })
-        : t("header.lastSeen", { time: seen }),
-    };
-  }, [otherUser, i18n.language, t]);
+  const presence = useMemo(
+    () =>
+      buildPresence(otherUser, i18n.language, {
+        online: t("header.online"),
+        offline: t("header.offline"),
+        justNow: t("header.justNow"),
+        lastSeen: (time: string) => t("header.lastSeen", { time }),
+        lastSeenOn: (date: string) => t("header.lastSeenOn", { date }),
+      }),
+    [otherUser, i18n.language, t],
+  );
 
   // Nombre de messages non lus pour l'utilisateur courant (valeur primitive :
   // l'effet ne dépend plus de l'identité de l'objet `conversation`)
   const unreadCount = conversation
-    ? conversation.user1Id === currentUserId
-      ? (conversation.unreadCountUser1 ?? 0)
-      : (conversation.unreadCountUser2 ?? 0)
+    ? getUnreadCount(conversation, currentUserId)
     : 0;
 
   // Marque les messages comme lus, une seule fois par valeur de compteur.
@@ -709,12 +582,6 @@ const ConversationDetailsPage: React.FC = () => {
               presence.isOnline ? "text-success" : "text-muted-foreground"
             }`}
           >
-            <span
-              aria-hidden="true"
-              className={`h-1.5 w-1.5 shrink-0 rounded-full ${
-                presence.isOnline ? "bg-success" : "bg-muted-foreground/70"
-              }`}
-            />
             <span className="truncate">{presence.label}</span>
           </p>
         </div>

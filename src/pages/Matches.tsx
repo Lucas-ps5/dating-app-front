@@ -9,23 +9,14 @@ import { UserCard } from "@/components/discover/UserCard";
 import { DiscoverPagination } from "@/components/discover/DiscoverPagination";
 import { DiscoverSkeleton } from "@/components/discover/DiscoverSkeleton";
 import { DiscoverErrorState } from "@/components/discover/DiscoverErrorState";
-import { getOtherUserId } from "@/utils/methods";
+import { getOtherUserId } from "@/utils/chat";
+import {
+  parsePositiveInt,
+  DEFAULT_PAGE_LIMIT,
+  MAX_PAGE_LIMIT,
+} from "@/utils/pagination";
 import type { UserSummary } from "@/types/user";
 import type { Match } from "@/api/matches";
-
-const DEFAULT_LIMIT = 12;
-const MAX_LIMIT = 100;
-
-const parsePositiveInt = (
-  value: string | null,
-  fallback: number,
-  max?: number,
-) => {
-  if (!value) return fallback;
-  const n = parseInt(value, 10);
-  if (Number.isNaN(n) || n < 1) return fallback;
-  return max ? Math.min(n, max) : n;
-};
 
 export const MatchesPage: React.FC = () => {
   const { t } = useTranslation("matches");
@@ -38,8 +29,8 @@ export const MatchesPage: React.FC = () => {
   const page = parsePositiveInt(searchParams.get("page"), 1);
   const limit = parsePositiveInt(
     searchParams.get("limit"),
-    DEFAULT_LIMIT,
-    MAX_LIMIT,
+    DEFAULT_PAGE_LIMIT,
+    MAX_PAGE_LIMIT,
   );
 
   const updateParams = (
@@ -55,7 +46,8 @@ export const MatchesPage: React.FC = () => {
         if (nextPage > 1) params.set("page", String(nextPage));
         else params.delete("page");
 
-        if (nextLimit !== DEFAULT_LIMIT) params.set("limit", String(nextLimit));
+        if (nextLimit !== DEFAULT_PAGE_LIMIT)
+          params.set("limit", String(nextLimit));
         else params.delete("limit");
 
         return params;
@@ -174,7 +166,7 @@ export const MatchesPage: React.FC = () => {
           if (isLoading) {
             return (
               <DiscoverSkeleton
-                count={Math.min(limit, DEFAULT_LIMIT)}
+                count={Math.min(limit, DEFAULT_PAGE_LIMIT)}
                 variant="grid"
               />
             );
