@@ -9,6 +9,7 @@ import { MyProfilePage } from "@/pages/MyProfile";
 import { EditProfilePage } from "@/pages/EditProfile";
 import ReceivedLikesPage from "@/pages/ReceivedLikes";
 import MatchesPage from "@/pages/Matches";
+import NotificationsPage from "@/pages/Notifications";
 import ConversationsPage from "@/pages/Conversations";
 import ConversationDetailsPage from "@/pages/ConversationDetails";
 
@@ -39,6 +40,10 @@ const router = createBrowserRouter([
       {
         path: "/matches",
         element: <MatchesPage />,
+      },
+      {
+        path: "/notifications",
+        element: <NotificationsPage />,
       },
       {
         path: "/chat",

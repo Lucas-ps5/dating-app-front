@@ -1,6 +1,7 @@
 import { Outlet, NavLink, useLocation } from "react-router";
 import {
   Heart,
+  Bell,
   MessageCircle,
   User,
   Compass,
@@ -9,9 +10,8 @@ import {
   LogOut,
 } from "lucide-react";
 import { useFetchLikesCount } from "@/composables/useFetchLikesCount";
-import { useFetchMatchsCount } from "@/composables/useFetchMatchsCount";
+import { useGetUnreadNotificationCount } from "@/composables/useGetUnreadNotificationCount";
 import { useGetMyUnreadMessagesCount } from "@/composables/useGetMyUnreadMessagesCount";
-import Image from "@/components/ui/Image";
 
 import { useAuth } from "@/hooks/useAuth";
 
@@ -19,7 +19,7 @@ const navItems = [
   { to: "/dashboard", icon: LayoutDashboard, label: "Home" },
   { to: "/discover", icon: Compass, label: "Discover" },
   { to: "/likes", icon: ThumbsUp, label: "Likes" },
-  { to: "/matches", icon: Heart, label: "Matches" },
+  { to: "/notifications", icon: Bell, label: "Notifications" },
   { to: "/chat", icon: MessageCircle, label: "Chat" },
   { to: "/profile", icon: User, label: "Profile" },
 ];
@@ -28,13 +28,13 @@ export default function AppLayout() {
   const { userInfo, logout } = useAuth();
   const location = useLocation();
 
-  const { data: matchCount, isLoading: isLoadingMatchs } =
-    useFetchMatchsCount();
+  const { data: notificationCount, isLoading: isLoadingNotifications } =
+    useGetUnreadNotificationCount();
   const { data: likeCount, isLoading: isLoadingLikes } = useFetchLikesCount();
   const { data: unreadMessagesCount, isLoading: isLoadingUnreadMessages } =
     useGetMyUnreadMessagesCount();
 
-  const matchesTotal = matchCount?.count ?? 0;
+  const notificationsTotal = notificationCount?.count ?? 0;
   const likesTotal = likeCount?.count ?? 0;
   const unreadMessagesTotal = unreadMessagesCount?.count ?? 0;
 
@@ -61,11 +61,11 @@ export default function AppLayout() {
             >
               <item.icon className="w-4 h-4" />
               {item.label}
-              {item.to === "/matches" &&
-                !isLoadingMatchs &&
-                matchesTotal > 0 && (
+              {item.to === "/notifications" &&
+                !isLoadingNotifications &&
+                notificationsTotal > 0 && (
                   <span className="ml-1 px-1.5 py-0.5 text-xs rounded-full gradient-primary text-primary-foreground">
-                    {matchesTotal}
+                    {notificationsTotal}
                   </span>
                 )}
               {item.to === "/likes" && !isLoadingLikes && likesTotal > 0 && (
@@ -119,9 +119,9 @@ export default function AppLayout() {
               >
                 {item.label}
               </span>
-              {item.to === "/matches" && matchesTotal > 0 && (
+              {item.to === "/notifications" && notificationsTotal > 0 && (
                 <span className="absolute -top-1 right-0 w-4 h-4 text-[9px] flex items-center justify-center rounded-full gradient-primary text-primary-foreground">
-                  {matchesTotal}
+                  {notificationsTotal}
                 </span>
               )}
               {item.to === "/likes" && likesTotal > 0 && (

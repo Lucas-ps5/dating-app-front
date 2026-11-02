@@ -14,6 +14,8 @@ import conversationsEn from "./locales/en/conversations.json";
 import conversationsFr from "./locales/fr/conversations.json";
 import matchesEn from "./locales/en/matches.json";
 import matchesFr from "./locales/fr/matches.json";
+import notificationsEn from "./locales/en/notifications.json";
+import notificationsFr from "./locales/fr/notifications.json";
 import commonEn from "./locales/en/common.json";
 import commonFr from "./locales/fr/common.json";
 import chatEn from "./locales/en/chat.json";
@@ -31,6 +33,7 @@ i18n.use(initReactI18next).init({
       receivedLikes: receivedLikesEn,
       conversations: conversationsEn,
       matches: matchesEn,
+      notifications: notificationsEn,
       common: commonEn,
       chat: chatEn,
     },
@@ -42,6 +45,7 @@ i18n.use(initReactI18next).init({
       receivedLikes: receivedLikesFr,
       conversations: conversationsFr,
       matches: matchesFr,
+      notifications: notificationsFr,
       common: commonFr,
       chat: chatFr,
     },
@@ -56,6 +60,7 @@ i18n.use(initReactI18next).init({
     "receivedLikes",
     "conversations",
     "matches",
+    "notifications",
     "common",
     "chat",
   ],

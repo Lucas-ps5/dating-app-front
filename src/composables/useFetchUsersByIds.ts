@@ -7,6 +7,11 @@ interface UseFetchUsersByIdsOptions {
    * Désactivé par défaut.
    */
   refetchInterval?: number;
+  /**
+   * Désactive la requête (par défaut la requête est ignorée si la liste
+   * d'identifiants est vide, pour ne pas interroger l'API sans intérêt).
+   */
+  enabled?: boolean;
 }
 
 export const useFetchUsersByIds = (
@@ -27,5 +32,6 @@ export const useFetchUsersByIds = (
       return data;
     },
     refetchInterval: options.refetchInterval,
+    enabled: (options.enabled ?? true) && ids.length > 0,
   });
 };

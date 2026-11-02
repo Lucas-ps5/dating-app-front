@@ -1,0 +1,47 @@
+{
+  "header": {
+    "badge": "Notifications",
+    "title": "Notifications",
+    "subtitle": "Les visites de profil et les nouveaux matchs, au même endroit.",
+    "unreadCount": "Notifications non lues : {{count}}",
+    "allRead": "Vous êtes à jour",
+    "markAllRead": "Tout marquer comme lu",
+    "markingAllRead": "Marquage..."
+  },
+  "types": {
+    "PROFILE_VISITED": {
+      "label": "Visite de profil",
+      "text": "<0>{{username}}</0> a visité votre profil",
+      "textPlain": "{{username}} a visité votre profil",
+      "textUnknown": "Quelqu'un a visité votre profil"
+    },
+    "NEW_MATCH": {
+      "label": "Nouveau match",
+      "text": "Vous avez un nouveau match avec <0>{{username}}</0>",
+      "textPlain": "Vous avez un nouveau match avec {{username}}",
+      "textUnknown": "Vous avez un nouveau match"
+    }
+  },
+  "item": {
+    "unread": "Non lu",
+    "markRead": "Marquer comme lu",
+    "markedRead": "Lu",
+    "marking": "Marquage...",
+    "viewProfile": "Voir le profil",
+    "viewMatch": "Voir le match",
+    "photoAlt": "Photo de {{username}}",
+    "unknownActor": "Quelqu'un",
+    "justNow": "à l'instant",
+    "ariaLabel": "{{type}} : {{text}}"
+  },
+  "empty": {
+    "title": "Aucune notification pour le moment",
+    "description": "Lorsqu'une personne visite votre profil ou que vous obtenez un nouveau match, cela apparaîtra ici.",
+    "cta": "Aller découvrir"
+  },
+  "error": {
+    "title": "Impossible de charger les notifications",
+    "defaultMsg": "Échec de la connexion au service des notifications. Veuillez vérifier votre connexion internet et réessayer.",
+    "retry": "Réessayer"
+  }
+}

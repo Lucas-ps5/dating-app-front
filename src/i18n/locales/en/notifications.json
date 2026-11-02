@@ -1,0 +1,47 @@
+{
+  "header": {
+    "badge": "Notifications",
+    "title": "Notifications",
+    "subtitle": "Profile visits and new matches, all in one place.",
+    "unreadCount": "Unread notifications: {{count}}",
+    "allRead": "You're all caught up",
+    "markAllRead": "Mark all as read",
+    "markingAllRead": "Marking..."
+  },
+  "types": {
+    "PROFILE_VISITED": {
+      "label": "Profile visit",
+      "text": "<0>{{username}}</0> visited your profile",
+      "textPlain": "{{username}} visited your profile",
+      "textUnknown": "Someone visited your profile"
+    },
+    "NEW_MATCH": {
+      "label": "New match",
+      "text": "You have a new match with <0>{{username}}</0>",
+      "textPlain": "You have a new match with {{username}}",
+      "textUnknown": "You have a new match"
+    }
+  },
+  "item": {
+    "unread": "Unread",
+    "markRead": "Mark as read",
+    "markedRead": "Read",
+    "marking": "Marking...",
+    "viewProfile": "View profile",
+    "viewMatch": "View match",
+    "photoAlt": "Photo of {{username}}",
+    "unknownActor": "Someone",
+    "justNow": "just now",
+    "ariaLabel": "{{type}}: {{text}}"
+  },
+  "empty": {
+    "title": "No notifications yet",
+    "description": "When someone visits your profile or you get a new match, it will show up here.",
+    "cta": "Go discover"
+  },
+  "error": {
+    "title": "Unable to load notifications",
+    "defaultMsg": "Failed to connect to the notifications service. Please check your internet connection and try again.",
+    "retry": "Try again"
+  }
+}
