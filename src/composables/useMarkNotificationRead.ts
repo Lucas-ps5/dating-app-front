@@ -19,8 +19,13 @@ import { notificationKeys } from "@/composables/notificationKeys";
  *
  * On success the cached lists are patched in place with the updated
  * notification, and the unread count is invalidated.
+ *
+ * @param options.onError Called when the call fails. Useful to notify the
+ * user, since the page may already be unmounted (the user was redirected).
  */
-export const useMarkNotificationRead = () => {
+export const useMarkNotificationRead = (
+  options: { onError?: () => void } = {},
+) => {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -47,6 +52,11 @@ export const useMarkNotificationRead = () => {
       queryClient.invalidateQueries({
         queryKey: notificationKeys.unreadCount(),
       });
+    },
+    onError: () => {
+      // Called even when the component unmounted (e.g. the user was
+      // redirected), the mutation itself lives in the query client cache.
+      options.onError?.();
     },
   });
 };

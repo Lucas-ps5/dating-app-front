@@ -8,6 +8,7 @@ import {
   RotateCcw,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 import { useListNotifications } from "@/composables/useListNotifications";
 import { useGetUnreadNotificationCount } from "@/composables/useGetUnreadNotificationCount";
 import { useMarkNotificationRead } from "@/composables/useMarkNotificationRead";
@@ -31,7 +32,11 @@ export const NotificationsPage: React.FC = () => {
   const { data: unreadCountData } = useGetUnreadNotificationCount();
   const unreadCount = unreadCountData?.count ?? 0;
 
-  const markRead = useMarkNotificationRead();
+  const markRead = useMarkNotificationRead({
+    onError: () => {
+      toast.error(t("error.markReadFailed"));
+    },
+  });
   const markAllRead = useMarkAllNotificationsRead();
 
   // Les acteurs (utilisateurs à l'origine de la notification) sont résolus en lot.

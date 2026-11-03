@@ -24,19 +24,29 @@ const navItems = [
   { to: "/profile", icon: User, label: "Profile" },
 ];
 
+function CountBadge({ count }: { count: number }) {
+  if (count <= 0) return null;
+
+  return (
+    <span className="absolute -top-2 -right-2 min-w-4 h-4 px-1 text-[10px] leading-none font-semibold flex items-center justify-center rounded-full gradient-primary text-primary-foreground ring-2 ring-card">
+      {count > 99 ? "99+" : count}
+    </span>
+  );
+}
+
 export default function AppLayout() {
   const { userInfo, logout } = useAuth();
   const location = useLocation();
 
-  const { data: notificationCount, isLoading: isLoadingNotifications } =
-    useGetUnreadNotificationCount();
-  const { data: likeCount, isLoading: isLoadingLikes } = useFetchLikesCount();
-  const { data: unreadMessagesCount, isLoading: isLoadingUnreadMessages } =
-    useGetMyUnreadMessagesCount();
+  const { data: notificationCount } = useGetUnreadNotificationCount();
+  const { data: likeCount } = useFetchLikesCount();
+  const { data: unreadMessagesCount } = useGetMyUnreadMessagesCount();
 
-  const notificationsTotal = notificationCount?.count ?? 0;
-  const likesTotal = likeCount?.count ?? 0;
-  const unreadMessagesTotal = unreadMessagesCount?.count ?? 0;
+  const counts: Record<string, number> = {
+    "/notifications": notificationCount?.count ?? 0,
+    "/likes": likeCount?.count ?? 0,
+    "/chat": unreadMessagesCount?.count ?? 0,
+  };
 
   return (
     <div className="flex flex-col h-screen bg-background">
@@ -59,27 +69,11 @@ export default function AppLayout() {
                 }`
               }
             >
-              <item.icon className="w-4 h-4" />
+              <span className="relative inline-flex">
+                <item.icon className="w-4 h-4" />
+                <CountBadge count={counts[item.to] ?? 0} />
+              </span>
               {item.label}
-              {item.to === "/notifications" &&
-                !isLoadingNotifications &&
-                notificationsTotal > 0 && (
-                  <span className="ml-1 px-1.5 py-0.5 text-xs rounded-full gradient-primary text-primary-foreground">
-                    {notificationsTotal}
-                  </span>
-                )}
-              {item.to === "/likes" && !isLoadingLikes && likesTotal > 0 && (
-                <span className="ml-1 px-1.5 py-0.5 text-xs rounded-full gradient-primary text-primary-foreground">
-                  {likesTotal}
-                </span>
-              )}
-              {item.to === "/chat" &&
-                !isLoadingUnreadMessages &&
-                unreadMessagesTotal > 0 && (
-                  <span className="ml-1 px-1.5 py-0.5 text-xs rounded-full gradient-primary text-primary-foreground">
-                    {unreadMessagesTotal}
-                  </span>
-                )}
             </NavLink>
           ))}
         </div>
@@ -109,33 +103,19 @@ export default function AppLayout() {
             <NavLink
               key={item.to}
               to={item.to}
-              className="flex flex-col items-center gap-0.5 p-1 relative"
+              className="flex flex-col items-center gap-0.5 p-1"
             >
-              <item.icon
-                className={`w-5 h-5 ${isActive ? "text-primary" : "text-muted-foreground"}`}
-              />
+              <span className="relative inline-flex">
+                <item.icon
+                  className={`w-5 h-5 ${isActive ? "text-primary" : "text-muted-foreground"}`}
+                />
+                <CountBadge count={counts[item.to] ?? 0} />
+              </span>
               <span
                 className={`text-[10px] ${isActive ? "text-primary font-semibold" : "text-muted-foreground"}`}
               >
                 {item.label}
               </span>
-              {item.to === "/notifications" && notificationsTotal > 0 && (
-                <span className="absolute -top-1 right-0 w-4 h-4 text-[9px] flex items-center justify-center rounded-full gradient-primary text-primary-foreground">
-                  {notificationsTotal}
-                </span>
-              )}
-              {item.to === "/likes" && likesTotal > 0 && (
-                <span className="absolute -top-1 right-0 w-4 h-4 text-[9px] flex items-center justify-center rounded-full gradient-primary text-primary-foreground">
-                  {likesTotal}
-                </span>
-              )}
-              {item.to === "/chat" &&
-                !isLoadingUnreadMessages &&
-                unreadMessagesTotal > 0 && (
-                  <span className="absolute -top-1 right-0 w-4 h-4 text-[9px] flex items-center justify-center rounded-full gradient-primary text-primary-foreground">
-                    {unreadMessagesTotal}
-                  </span>
-                )}
             </NavLink>
           );
         })}

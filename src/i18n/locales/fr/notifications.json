@@ -42,6 +42,7 @@
   "error": {
     "title": "Impossible de charger les notifications",
     "defaultMsg": "Échec de la connexion au service des notifications. Veuillez vérifier votre connexion internet et réessayer.",
+    "markReadFailed": "Impossible de marquer la notification comme lue.",
     "retry": "Réessayer"
   }
 }

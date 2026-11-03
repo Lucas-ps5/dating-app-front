@@ -1,5 +1,5 @@
-import React from "react";
-import { Link } from "react-router";
+import React, { useCallback } from "react";
+import { Link, useNavigate } from "react-router";
 import { Eye, Heart, Check, User, Sparkles } from "lucide-react";
 import { Trans, useTranslation } from "react-i18next";
 import { NotificationType } from "@/api/notifications";
@@ -52,6 +52,7 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
   onMarkRead,
 }) => {
   const { t, i18n } = useTranslation("notifications");
+  const navigate = useNavigate();
 
   const config =
     TYPE_CONFIG[notification.type] ??
@@ -71,10 +72,36 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
     ? t(`types.${notification.type}.textPlain`, { username })
     : t(`types.${notification.type}.textUnknown`);
 
+  const target = config.action.to(notification.actorId);
+
+  /**
+   * Clicking the notification redirects the user to the related page and
+   * marks the notification as read (only if it is still unread).
+   */
+  const handleActivate = useCallback(() => {
+    if (!isRead && !isMarking) {
+      onMarkRead(notification.id);
+    }
+    navigate(target);
+  }, [isRead, isMarking, onMarkRead, notification.id, navigate, target]);
+
+  const handleKeyDown = useCallback(
+    (event: React.KeyboardEvent<HTMLElement>) => {
+      if (event.key !== "Enter" && event.key !== " ") return;
+      event.preventDefault();
+      handleActivate();
+    },
+    [handleActivate],
+  );
+
   return (
     <article
+      role="link"
+      tabIndex={0}
       aria-label={t("item.ariaLabel", { type: typeLabel, text: plainText })}
-      className={`group relative flex items-start gap-4 p-4 sm:p-5 rounded-2xl border transition-colors ${
+      onClick={handleActivate}
+      onKeyDown={handleKeyDown}
+      className={`group relative flex items-start gap-4 p-4 sm:p-5 rounded-2xl border transition-colors cursor-pointer hover:border-primary/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
         isRead
           ? "bg-card/60 border-border/60"
           : "bg-primary/[0.05] border-primary/25 shadow-sm"
@@ -126,15 +153,6 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
           >
             {typeLabel}
           </span>
-          {!isRead && (
-            <span className="inline-flex items-center gap-1 text-xs font-medium text-primary">
-              <span
-                aria-hidden="true"
-                className="size-1.5 rounded-full bg-primary"
-              />
-              {t("item.unread")}
-            </span>
-          )}
           {timestamp && (
             <time
               dateTime={notification.createdAt}
@@ -162,24 +180,19 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
 
         <div className="flex flex-wrap items-center gap-2 pt-1">
           <Link
-            to={config.action.to(notification.actorId)}
+            to={target}
+            onClick={(event) => {
+              // The link navigates on its own, only the read state is handled here.
+              event.stopPropagation();
+              if (!isRead && !isMarking) {
+                onMarkRead(notification.id);
+              }
+            }}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-foreground bg-secondary hover:bg-secondary/80 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <ActionIcon className="size-3.5" aria-hidden="true" />
             {actionLabel}
           </Link>
-
-          {!isRead && (
-            <button
-              type="button"
-              onClick={() => onMarkRead(notification.id)}
-              disabled={isMarking}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-primary hover:bg-primary/10 transition-colors disabled:opacity-60 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            >
-              <Check className="size-3.5" aria-hidden="true" />
-              {isMarking ? t("item.marking") : t("item.markRead")}
-            </button>
-          )}
         </div>
       </div>
     </article>
