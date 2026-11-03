@@ -32,5 +32,7 @@ export const useGetUnreadNotificationCount = (
     },
     enabled: options.enabled ?? true,
     refetchInterval: options.refetchInterval,
+    staleTime: 30_000,
+    refetchOnWindowFocus: true,
   });
 };

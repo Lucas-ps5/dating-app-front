@@ -11,5 +11,7 @@ export const useGetMyUnreadMessagesCount = () => {
 
       return data;
     },
+    staleTime: 30_000,
+    refetchOnWindowFocus: true,
   });
 };

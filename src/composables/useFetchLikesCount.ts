@@ -11,6 +11,7 @@ export function useFetchLikesCount() {
 
       return data;
     },
-    staleTime: 5000
+    staleTime: 30_000,
+    refetchOnWindowFocus: true,
   });
 }

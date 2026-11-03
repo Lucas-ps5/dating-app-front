@@ -119,7 +119,7 @@ export const NotificationsPage: React.FC = () => {
       <section
         aria-label={t("header.badge")}
         aria-busy={isLoading}
-        className="min-h-[400px]"
+        className="min-h-100"
       >
         {(() => {
           if (isLoading) {

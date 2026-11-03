@@ -20,7 +20,9 @@ export const useMarkMessagesAsRead = (conversationId: string) => {
         queryKey: ["conversation", conversationId],
       });
       // Liste des conversations (badge de non-lus)
-      queryClient.invalidateQueries({ queryKey: ["conversations"] });
+      queryClient.invalidateQueries({ queryKey: ["my-conversations"] });
+      // Compteur global de messages non lus affiché dans la barre de navigation
+      queryClient.invalidateQueries({ queryKey: ["unread-messages-count"] });
     },
   });
 };
