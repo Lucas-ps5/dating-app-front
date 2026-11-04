@@ -121,14 +121,21 @@
   "imageUpload": {
     "upload": "Télécharger une image",
     "selectForPreview": "Sélectionnez une image pour aperçu.",
+    "hint": "Glissez une image ici ou cliquez. JPEG, PNG, WebP ou GIF, 10 Mo max.",
+    "previewAlt": "Aperçu de l'image téléchargée",
     "uploading": "Téléchargement...",
     "uploaded": "Ajouté avec succès",
     "error": "Échec du chargement de l'image. Veuillez réessayer.",
-    "unsupportedType": "Type de fichier non pris en charge : {type}. Veuillez télécharger un JPEG, PNG, WebP ou GIF.",
-    "tooLarge": "Fichier trop volumineux : {size} Mo. Maximum 10 Mo.",
+    "invalidResponse": "Le serveur n'a pas renvoyé d'URL d'image. Veuillez réessayer.",
+    "serverError": "Erreur du serveur{{status}}. Veuillez réessayer.",
+    "noResponse": "Aucune réponse du serveur. Veuillez vérifier votre connexion et réessayer.",
+    "unsupportedType": "Type de fichier non pris en charge : {{type}}. Veuillez télécharger un JPEG, PNG, WebP ou GIF.",
+    "tooLarge": "Fichier trop volumineux : {{size}} Mo. Maximum 10 Mo.",
     "delete": "Supprimer",
     "deleting": "Suppression en cours...",
-    "deleteError": "Échec de la suppression de l'image. Veuillez réessayer."
+    "deleteError": "Échec de la suppression de l'image. Veuillez réessayer.",
+    "compressing": "Compression en cours...",
+    "compressionError": "Impossible de compresser l'image. Veuillez essayer avec une autre image."
   },
   "edit": {
     "relationshipTypes": {

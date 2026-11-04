@@ -375,9 +375,15 @@ export const MyProfilePage: React.FC = () => {
 
           <ImageUpload
             context="avatar"
+            compression
+            showPreview={false}
             onImageUploaded={(url) => {
               // Mise à jour fonctionnelle : évite d'utiliser un état périmé.
               setPhotos((prev) => [...prev, url]);
+            }}
+            onImageDeleted={(_objectName, url) => {
+              // La galerie affiche les mêmes URLs : on les retire des deux côtés.
+              setPhotos((prev) => prev.filter((photo) => photo !== url));
             }}
           />
         </section>

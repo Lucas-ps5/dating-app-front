@@ -119,14 +119,21 @@
   "imageUpload": {
     "upload": "Upload Image",
     "selectForPreview": "Select an image to preview.",
+    "hint": "Drag an image here or click. JPEG, PNG, WebP or GIF, 10 MB max.",
+    "previewAlt": "Preview of the uploaded image",
     "uploading": "Uploading...",
     "uploaded": "Uploaded successfully",
     "error": "Failed to upload image. Please try again.",
-    "unsupportedType": "Unsupported file type: {type}. Please upload a JPEG, PNG, WebP, or GIF.",
-    "tooLarge": "File is too large: {size} MB. Max is 10 MB.",
+    "invalidResponse": "The server did not return an image URL. Please try again.",
+    "serverError": "Server error{{status}}. Please try again.",
+    "noResponse": "No response from the server. Please check your connection and try again.",
+    "unsupportedType": "Unsupported file type: {{type}}. Please upload a JPEG, PNG, WebP, or GIF.",
+    "tooLarge": "File is too large: {{size}} MB. Max is 10 MB.",
     "delete": "Delete",
     "deleting": "Deleting...",
-    "deleteError": "Failed to delete image. Please try again."
+    "deleteError": "Failed to delete image. Please try again.",
+    "compressing": "Compressing...",
+    "compressionError": "Unable to compress image. Please try another image."
   },
   "edit": {
     "relationshipTypes": {
@@ -328,7 +335,7 @@
     "PREFER_NOT_TO_SAY": "Prefer not to say",
     "MAYBE": "Maybe"
   },
-    "filters": {
+  "filters": {
     "searchPlaceholder": "Search loaded profiles (name, title, location)...",
     "searchAria": "Search loaded profiles locally",
     "clearSearch": "Clear search",
