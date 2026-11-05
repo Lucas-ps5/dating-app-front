@@ -56,6 +56,20 @@ export const getUnreadCount = (
     : (conversation.unreadCountUser2 ?? 0);
 
 /**
+ * Detects whether a message preview content represents an image URL
+ * (e.g. from the media service or an image file URL).
+ */
+export function isImagePreview(preview?: string | null): boolean {
+  if (!preview) return false;
+  const trimmed = preview.trim();
+  return (
+    /\/media\/images(?:\/|$)/i.test(trimmed) ||
+    /^(https?:\/\/|\/)[^\s]+\.(?:jpe?g|png|webp|gif)(\?.*)?$/i.test(trimmed) ||
+    /\/hmeet-media\//i.test(trimmed)
+  );
+}
+
+/**
  * Format timestamp for messaging UI:
  * - today → time (HH:mm)
  * - yesterday → "yesterday"

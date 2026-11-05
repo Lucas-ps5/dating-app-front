@@ -1,12 +1,6 @@
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router";
-import {
-  MapPin,
-  Briefcase,
-  User as UserIcon,
-  MessageSquare,
-  ArrowUpRight,
-} from "lucide-react";
+import React, { memo, useEffect, useState } from "react";
+import { Link } from "react-router";
+import { MapPin, Briefcase, ChevronRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Image } from "@/components/ui/Image";
 import type { UserWithDistance } from "@/api/users";
@@ -17,238 +11,220 @@ interface UserCardProps {
   variant?: "grid" | "list";
 }
 
-export const UserCard: React.FC<UserCardProps> = ({
+/* -------------------------------------------------------------------------- */
+/* Helpers                                                                     */
+/* -------------------------------------------------------------------------- */
+
+/** Teinte stable dérivée du pseudo : chaque profil sans photo a sa propre couleur. */
+const hueFromString = (value: string): number => {
+  let hash = 0;
+  for (const char of value) hash = (hash * 31 + char.charCodeAt(0)) % 360;
+  return hash;
+};
+
+const getInitials = (name: string): string =>
+  name.trim().slice(0, 2).toUpperCase() || "?";
+
+interface PhotoFallbackProps {
+  name: string;
+  size: "sm" | "lg";
+}
+
+const PhotoFallback: React.FC<PhotoFallbackProps> = ({ name, size }) => {
+  const hue = hueFromString(name);
+  return (
+    <div
+      aria-hidden="true"
+      className="flex h-full w-full items-center justify-center"
+      style={{
+        background: `linear-gradient(160deg, hsl(${hue} 22% 22%), hsl(${hue} 18% 10%))`,
+      }}
+    >
+      <span
+        className={
+          size === "lg"
+            ? "grid h-20 w-20 place-items-center rounded-full bg-white/5 text-2xl font-semibold text-zinc-100 ring-1 ring-white/15"
+            : "grid h-10 w-10 place-items-center rounded-full bg-white/5 text-sm font-semibold text-zinc-100 ring-1 ring-white/15"
+        }
+      >
+        {getInitials(name)}
+      </span>
+    </div>
+  );
+};
+
+const Chip: React.FC<React.PropsWithChildren<{ className?: string }>> = ({
+  children,
+  className = "",
+}) => (
+  <span
+    className={`inline-flex items-center gap-1 rounded-full bg-black/55 px-2.5 py-1 text-[11px] font-medium text-zinc-100 ring-1 ring-white/10 backdrop-blur-md ${className}`}
+  >
+    {children}
+  </span>
+);
+
+/* -------------------------------------------------------------------------- */
+/* Composant                                                                   */
+/* -------------------------------------------------------------------------- */
+
+const UserCardBase: React.FC<UserCardProps> = ({
   user,
   variant = "grid",
 }) => {
   const { t } = useTranslation("discover");
-  const navigate = useNavigate();
   const [imageError, setImageError] = useState(false);
 
+  const primaryPhoto = user.photos?.[0] ?? null;
+
+  // Si la photo change (ex. liste réutilisée / pagination), on retente l'image.
+  useEffect(() => setImageError(false), [primaryPhoto]);
+
+  const displayName = user.username || t("card.member");
   const age = calculateAge(user.birthdate);
   const location = formatLocation(user.city, user.country);
-  const distanceStr = formatDistance(user.distance, t);
-  const primaryPhoto =
-    user.photos && user.photos.length > 0 ? user.photos[0] : null;
-  const hasPhoto = Boolean(primaryPhoto && !imageError);
+  const distance = formatDistance(user.distance, t);
+  const photoUrl = primaryPhoto && !imageError ? primaryPhoto : null;
 
-  const handleCardClick = () => {
-    if (user.id) {
-      navigate(`/users/${user.id}`);
-    }
-  };
+  const profileHref = user.id ? `/users/${user.id}` : undefined;
 
-  const handleMessageClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (user.id) {
-      navigate(`/chat?userId=${user.id}`);
-    }
-  };
+  // Lien étiré : toute la carte est cliquable, sans imbriquer de bouton dans un
+  // role="button". Middle-click / "ouvrir dans un nouvel onglet" fonctionnent.
+  const stretchedLink = profileHref ? (
+    <Link
+      to={profileHref}
+      aria-label={t("card.viewProfile", {
+        name: displayName,
+        defaultValue: "Voir le profil de {{name}}",
+      })}
+      className="absolute inset-0 z-10 rounded-[inherit] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary"
+    />
+  ) : null;
 
-  // LIST VARIANT
+  /* ------------------------------ LIST VARIANT ----------------------------- */
   if (variant === "list") {
     return (
-      <div
-        onClick={handleCardClick}
-        role="button"
-        tabIndex={0}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            handleCardClick();
-          }
-        }}
-        className="group relative flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-xl bg-card border border-border/80 hover:border-zinc-500/40 hover:bg-zinc-900/60 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-      >
-        <div className="flex items-center gap-4 min-w-0 w-full sm:w-auto">
-          {/* Avatar / Photo */}
-          <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden bg-secondary shrink-0 border border-border/60">
-            {hasPhoto ? (
-              <Image
-                isLocal={false}
-                url={primaryPhoto!}
-                alt={user.username || "User profile photo"}
-                loading="lazy"
-                onError={() => setImageError(true)}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-              />
-            ) : (
-              <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-zinc-800 to-zinc-900 text-zinc-400">
-                <UserIcon className="w-7 h-7 text-zinc-500" />
-                <span className="text-[10px] font-medium uppercase tracking-wider text-zinc-500 mt-1">
-                  {user.username?.slice(0, 2) || "—"}
-                </span>
-              </div>
-            )}
-            {distanceStr && (
-              <span className="absolute bottom-1 right-1 sm:hidden px-1.5 py-0.5 rounded text-[9px] font-medium bg-black/80 backdrop-blur-md text-zinc-200">
-                {distanceStr}
+      <article className="group relative flex items-center gap-4 rounded-xl border border-border/70 bg-card p-3 transition-colors duration-200 hover:border-zinc-500/40 hover:bg-zinc-900/60 sm:p-4">
+        {stretchedLink}
+
+        <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl border border-border/60 bg-secondary sm:h-20 sm:w-20">
+          {photoUrl ? (
+            <Image
+              isLocal={false}
+              url={photoUrl}
+              alt=""
+              loading="lazy"
+              onError={() => setImageError(true)}
+              className="h-full w-full object-cover motion-safe:transition-transform motion-safe:duration-300 motion-safe:group-hover:scale-105"
+            />
+          ) : (
+            <PhotoFallback name={displayName} size="sm" />
+          )}
+        </div>
+
+        <div className="min-w-0 flex-1">
+          <h3 className="truncate text-base font-semibold text-foreground">
+            {displayName}
+            {age !== null && (
+              <span className="ml-2 font-normal text-muted-foreground">
+                {age} {t("filters.yrs")}
               </span>
             )}
-          </div>
+          </h3>
 
-          {/* User Details */}
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2 flex-wrap">
-              <h3 className="font-semibold text-base text-foreground truncate group-hover:text-primary transition-colors">
-                {user.username || t("card.member")}
-              </h3>
-              {age !== null && (
-                <span className="text-xs px-2 py-0.5 rounded-full bg-secondary/80 text-zinc-300 font-medium">
-                  {age} {t("filters.yrs")}
+          {user.title && (
+            <p className="mt-0.5 flex items-center gap-1.5 text-xs text-muted-foreground">
+              <Briefcase className="h-3.5 w-3.5 shrink-0 text-zinc-500" />
+              <span className="truncate">{user.title}</span>
+            </p>
+          )}
+
+          {(location || distance) && (
+            <p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
+              <MapPin className="h-3.5 w-3.5 shrink-0 text-zinc-500" />
+              {location && <span className="min-w-0 truncate">{location}</span>}
+              {distance && (
+                <span className="shrink-0 whitespace-nowrap text-zinc-500">
+                  {location ? `· ${distance}` : distance}
                 </span>
               )}
-            </div>
-
-            {user.title && (
-              <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1 truncate">
-                <Briefcase className="w-3.5 h-3.5 shrink-0 text-zinc-500" />
-                <span className="truncate">{user.title}</span>
-              </div>
-            )}
-
-            <div className="flex items-center gap-3 text-xs text-muted-foreground mt-1.5 flex-wrap">
-              {location && (
-                <div className="flex items-center gap-1">
-                  <MapPin className="w-3.5 h-3.5 text-zinc-500 shrink-0" />
-                  <span className="truncate">{location}</span>
-                </div>
-              )}
-              {distanceStr && (
-                <span className="hidden sm:inline-block px-2 py-0.5 rounded bg-zinc-800/80 text-[11px] text-zinc-300">
-                  {distanceStr}
-                </span>
-              )}
-            </div>
-          </div>
+            </p>
+          )}
         </div>
 
-        {/* Actions */}
-        <div className="flex items-center gap-2 w-full sm:w-auto justify-end pt-2 sm:pt-0 border-t sm:border-t-0 border-border/40">
-          <button
-            type="button"
-            onClick={handleMessageClick}
-            aria-label={t("card.messageAria", {
-              name: user.username || t("card.member"),
-            })}
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium bg-secondary hover:bg-zinc-800 text-zinc-200 transition-colors"
-          >
-            <MessageSquare className="w-3.5 h-3.5 text-zinc-400" />
-            <span>{t("card.message")}</span>
-          </button>
-        </div>
-      </div>
+        <ChevronRight
+          aria-hidden="true"
+          className="h-5 w-5 shrink-0 text-zinc-600 transition-colors group-hover:text-zinc-300"
+        />
+      </article>
     );
   }
 
-  // GRID VARIANT
+  /* ------------------------------ GRID VARIANT ----------------------------- */
   return (
-    <div
-      onClick={handleCardClick}
-      role="button"
-      tabIndex={0}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          handleCardClick();
-        }
-      }}
-      className="group relative flex flex-col overflow-hidden rounded-2xl bg-card border border-border/80 hover:border-zinc-500/50 hover:shadow-2xl transition-all duration-300 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-    >
-      {/* Photo Container */}
+    <article className="group relative isolate overflow-hidden rounded-2xl border border-border/70 bg-card transition-[border-color,box-shadow] duration-300 hover:border-zinc-500/50 hover:shadow-2xl">
+      {stretchedLink}
+
       <div className="relative aspect-[3/4] w-full overflow-hidden bg-zinc-900">
-        {hasPhoto ? (
+        {photoUrl ? (
           <Image
             isLocal={false}
-            url={primaryPhoto!}
-            alt={
-              user.username
-                ? `${user.username}'s profile photo`
-                : "Member photo"
-            }
+            url={photoUrl}
+            alt=""
             loading="lazy"
             onError={() => setImageError(true)}
-            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            className="h-full w-full object-cover motion-safe:transition-transform motion-safe:duration-500 motion-safe:group-hover:scale-105"
           />
         ) : (
-          <div className="h-full w-full flex flex-col items-center justify-center bg-gradient-to-br from-zinc-900 via-zinc-850 to-zinc-950 p-6 text-center">
-            <div className="w-20 h-20 rounded-2xl bg-zinc-800/80 border border-zinc-700/50 flex items-center justify-center mb-3 shadow-inner">
-              <UserIcon className="w-10 h-10 text-zinc-500" />
-            </div>
-            <p className="text-sm font-semibold text-zinc-300">
-              {user.username || t("card.member")}
-            </p>
-            <span className="text-xs text-zinc-600 mt-1">
-              {t("card.noPhoto")}
-            </span>
-          </div>
+          <PhotoFallback name={displayName} size="lg" />
         )}
 
-        {/* Ambient Gradient Overlays for Readability */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent pointer-events-none" />
+        {/* Voile : renforce la lisibilité du texte, surtout en bas */}
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
 
-        {/* Distance Badge (Top Left) */}
-        {distanceStr && (
-          <div className="absolute top-3 left-3 z-10">
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium bg-black/60 backdrop-blur-md text-zinc-200 border border-white/10 shadow-sm">
-              <MapPin className="w-3 h-3 text-primary" />
-              {distanceStr}
-            </span>
-          </div>
-        )}
-
-        {/* Gender Badge (Top Right) */}
-        {user.gender && (
-          <div className="absolute top-3 right-3 z-10">
-            <span className="px-2.5 py-1 rounded-full text-[10px] font-semibold uppercase tracking-wider bg-black/60 backdrop-blur-md text-zinc-300 border border-white/10">
-              {user.gender}
-            </span>
-          </div>
-        )}
-
-        {/* In-Card Details (Bottom Overlay) */}
-        <div className="absolute bottom-0 inset-x-0 p-4 z-10 flex flex-col gap-1 text-white">
-          <div className="flex items-baseline gap-2">
-            <h3 className="text-lg font-bold tracking-tight text-white truncate drop-shadow-sm group-hover:text-primary transition-colors">
-              {user.username || t("card.anonymous")}
-            </h3>
-            {age !== null && (
-              <span className="text-base font-normal text-zinc-300 drop-shadow-sm">
-                {age}
-              </span>
-            )}
-          </div>
-
-          {user.title && (
-            <div className="flex items-center gap-1.5 text-xs text-zinc-300 truncate drop-shadow-sm">
-              <Briefcase className="w-3 h-3 text-zinc-400 shrink-0" />
-              <span className="truncate">{user.title}</span>
-            </div>
+        {/* Badges du haut */}
+        <div className="absolute inset-x-3 top-3 flex items-start justify-between gap-2">
+          {distance ? (
+            <Chip className="min-w-0 max-w-[60%]">
+              <MapPin className="h-3 w-3 shrink-0 text-primary" />
+              <span className="truncate">{distance}</span>
+            </Chip>
+          ) : (
+            <span />
           )}
-
-          {location && (
-            <div className="flex items-center gap-1.5 text-xs text-zinc-400 truncate mt-0.5">
-              <MapPin className="w-3 h-3 text-zinc-500 shrink-0" />
-              <span className="truncate">{location}</span>
-            </div>
+          {user.gender && (
+            <Chip className="shrink-0 capitalize">{user.gender}</Chip>
           )}
         </div>
-      </div>
 
-      {/* Card Footer Bar */}
-      <div className="p-3 bg-zinc-950/70 border-t border-border/40 flex items-center justify-between gap-2">
-        <button
-          type="button"
-          onClick={handleMessageClick}
-          aria-label={t("card.messageAria", {
-            name: user.username || t("card.member"),
-          })}
-          className="flex-1 inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-xs font-medium bg-secondary/80 hover:bg-secondary text-zinc-200 transition-colors"
-        >
-          <MessageSquare className="w-3.5 h-3.5 text-zinc-400" />
-          <span>{t("card.message")}</span>
-        </button>
+        {/* Infos du bas */}
+        <div className="absolute inset-x-0 bottom-0 p-4">
+          <div className="min-w-0 text-white">
+            <h3 className="truncate text-lg font-semibold leading-tight tracking-tight">
+              {displayName}
+              {age !== null && (
+                <span className="ml-1.5 font-normal text-zinc-300">{age}</span>
+              )}
+            </h3>
+
+            {user.title && (
+              <p className="mt-1 flex items-center gap-1.5 text-xs text-zinc-200">
+                <Briefcase className="h-3 w-3 shrink-0 text-zinc-400" />
+                <span className="truncate">{user.title}</span>
+              </p>
+            )}
+
+            {location && (
+              <p className="mt-0.5 flex items-center gap-1.5 text-xs text-zinc-300">
+                <MapPin className="h-3 w-3 shrink-0 text-zinc-400" />
+                <span className="truncate">{location}</span>
+              </p>
+            )}
+          </div>
+        </div>
       </div>
-    </div>
+    </article>
   );
 };
+
+export const UserCard = memo(UserCardBase);

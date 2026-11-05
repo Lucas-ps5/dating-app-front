@@ -30,6 +30,11 @@ import { useMarkMessagesAsRead } from "@/composables/useMarkMessagesAsRead";
 import { useFetchUsersByIds } from "@/composables/useFetchUsersByIds";
 import { Image } from "@/components/ui/Image";
 import {
+  ChatImageUpload,
+  type ChatImageUploadHandle,
+} from "@/components/chat/ChatImageUpload";
+import MessageImagePreview from "@/components/chat/MessageImagePreview";
+import {
   getOtherUserId,
   hueFromString,
   buildChatItems,
@@ -225,10 +230,19 @@ interface MessageBubbleProps {
   isFirstInGroup: boolean;
   isLastInGroup: boolean;
   otherUser: ChatUser;
+  /** Ouvre l'aperçu plein écran de l'image du message. */
+  onImageClick?: (url: string) => void;
 }
 
 const MessageBubble = memo<MessageBubbleProps>(
-  ({ message, isOwn, isFirstInGroup, isLastInGroup, otherUser }) => {
+  ({
+    message,
+    isOwn,
+    isFirstInGroup,
+    isLastInGroup,
+    otherUser: _otherUser,
+    onImageClick,
+  }) => {
     const { t, i18n } = useTranslation("chat");
     const isImage = message.type === MessageType.IMAGE;
     const isRead = message.status === "READ";
@@ -266,12 +280,19 @@ const MessageBubble = memo<MessageBubbleProps>(
             }`}
           >
             {isImage ? (
-              <Image
-                isLocal={false}
-                url={message.content || ""}
-                alt={t("message.imageAlt")}
-                className="max-h-72 w-auto max-w-full rounded-xl object-cover"
-              />
+              <button
+                type="button"
+                onClick={() => onImageClick?.(message.content || "")}
+                aria-label={t("messages.imagePreview.open")}
+                className="block cursor-zoom-in overflow-hidden rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+              >
+                <Image
+                  isLocal={false}
+                  url={message.content || ""}
+                  alt={t("messages.imageAlt")}
+                  className="max-h-72 w-auto max-w-full rounded-xl object-cover"
+                />
+              </button>
             ) : (
               <p className="whitespace-pre-wrap break-words">
                 {message.content || ""}
@@ -325,9 +346,12 @@ const ConversationDetailsPage: React.FC = () => {
   const [messageText, setMessageText] = useState("");
   const [sendError, setSendError] = useState(false);
   const [showJump, setShowJump] = useState(false);
+  // URL de l'image affichée en aperçu plein écran (null = aperçu fermé)
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const chatImageUploadRef = useRef<ChatImageUploadHandle>(null);
   const isNearBottomRef = useRef(true);
   const hasInitialScrolled = useRef(false);
   // Dernier nombre de non-lus pour lequel on a déjà lancé le marquage "lu"
@@ -338,7 +362,7 @@ const ConversationDetailsPage: React.FC = () => {
     isLoading: isLoadingConversation,
     isError: isErrorConversation,
     error: conversationError,
-    refetch
+    refetch,
   } = useGetConversationById(conversationId || "");
 
   const { mutateAsync: sendMessage, isPending: isSending } = useSendMessage();
@@ -489,14 +513,52 @@ const ConversationDetailsPage: React.FC = () => {
         content,
         type: MessageType.TEXT,
       });
-    } catch (_error) {
+    } catch {
       setMessageText(content);
       setSendError(true);
     } finally {
       textareaRef.current?.focus();
-      refetch()
+      refetch();
     }
-  }, [messageText, otherUser, isSending, sendMessage]);
+  }, [messageText, otherUser, isSending, sendMessage, refetch]);
+
+  const handleSendImage = useCallback(
+    async (imageUrl: string) => {
+      if (!otherUser) return;
+      setSendError(false);
+      try {
+        await sendMessage({
+          receiverId: otherUser.id,
+          content: imageUrl,
+          type: MessageType.IMAGE,
+        });
+      } catch (_error) {
+        setSendError(true);
+        throw _error;
+      } finally {
+        refetch();
+      }
+    },
+    [otherUser, sendMessage, refetch],
+  );
+
+  const handlePaste = useCallback(
+    (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+      const clipboardItems = e.clipboardData?.items;
+      if (!clipboardItems) return;
+      for (let i = 0; i < clipboardItems.length; i++) {
+        if (clipboardItems[i].type.startsWith("image/")) {
+          const file = clipboardItems[i].getAsFile();
+          if (file) {
+            e.preventDefault();
+            void chatImageUploadRef.current?.uploadFile(file);
+            break;
+          }
+        }
+      }
+    },
+    [],
+  );
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -623,6 +685,7 @@ const ConversationDetailsPage: React.FC = () => {
                   isFirstInGroup={item.isFirstInGroup}
                   isLastInGroup={item.isLastInGroup}
                   otherUser={otherUser}
+                  onImageClick={setPreviewImage}
                 />
               ),
             )
@@ -656,12 +719,19 @@ const ConversationDetailsPage: React.FC = () => {
           </p>
         )}
 
-        <div className="flex items-end gap-2 rounded-3xl border border-border bg-secondary py-1.5 pl-4 pr-1.5 transition-shadow focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20">
+        <div className="relative flex items-end gap-2 rounded-3xl border border-border bg-secondary py-1.5 pl-2 pr-1.5 transition-shadow focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20">
+          <ChatImageUpload
+            ref={chatImageUploadRef}
+            context="chat"
+            onImageUploaded={handleSendImage}
+            disabled={isSending}
+          />
           <textarea
             ref={textareaRef}
             value={messageText}
             onChange={(e) => setMessageText(e.target.value)}
             onKeyDown={handleKeyDown}
+            onPaste={handlePaste}
             placeholder={t("input.placeholder")}
             rows={1}
             enterKeyHint="send"
@@ -678,6 +748,15 @@ const ConversationDetailsPage: React.FC = () => {
           </button>
         </div>
       </form>
+
+      {/* Aperçu plein écran d'une image de message */}
+      {previewImage && (
+        <MessageImagePreview
+          src={previewImage}
+          alt={t("messages.imageAlt")}
+          onClose={() => setPreviewImage(null)}
+        />
+      )}
     </div>
   );
 };

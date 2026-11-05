@@ -1,5 +1,11 @@
 import React, { memo, useMemo, useState } from "react";
-import { MessageSquare, Search, SearchX, X } from "lucide-react";
+import {
+  Image as ImageIcon,
+  MessageSquare,
+  Search,
+  SearchX,
+  X,
+} from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/hooks/useAuth";
 import { useGetMyConversations } from "@/composables/useGetMyConversations";
@@ -14,6 +20,7 @@ import {
   hueFromString,
   getOtherUserId,
   getUnreadCount,
+  isImagePreview,
 } from "@/utils/chat";
 import type { Conversation } from "@/api/chat";
 import { Link } from "react-router";
@@ -121,6 +128,49 @@ export const ConversationsPage: React.FC = () => {
     setFilter("all");
   };
 
+  const renderListContent = () => {
+    if (isLoading) {
+      return <ConversationsSkeleton />;
+    }
+    if (isError) {
+      return (
+        <DiscoverErrorState
+          error={error}
+          onRetry={() => refetchConversations()}
+        />
+      );
+    }
+    if (!hasConversations) {
+      return <EmptyConversations />;
+    }
+    if (filteredConversations.length === 0) {
+      return (
+        <NoResults
+          query={query.trim()}
+          filter={filter}
+          onReset={resetFilters}
+        />
+      );
+    }
+    return (
+      <ul className="overflow-hidden rounded-3xl border border-border/80 bg-card shadow-sm">
+        {filteredConversations.map(({ conversation, user, unreadCount }) => (
+          <li
+            key={user.id}
+            className="relative after:pointer-events-none after:absolute after:bottom-0 after:left-[5.25rem] after:right-0 after:h-px after:bg-border/60 last:after:hidden"
+          >
+            <ConversationItem
+              conversation={conversation}
+              user={user}
+              unreadCount={unreadCount}
+              query={query.trim()}
+            />
+          </li>
+        ))}
+      </ul>
+    );
+  };
+
   return (
     <div className="mx-auto max-w-3xl space-y-6 px-4 py-6 sm:px-6 sm:py-10">
       <header className="space-y-1.5">
@@ -181,40 +231,7 @@ export const ConversationsPage: React.FC = () => {
         aria-busy={isLoading}
         className="min-h-[400px]"
       >
-        {isLoading ? (
-          <ConversationsSkeleton />
-        ) : isError ? (
-          <DiscoverErrorState
-            error={error}
-            onRetry={() => refetchConversations()}
-          />
-        ) : !hasConversations ? (
-          <EmptyConversations />
-        ) : filteredConversations.length === 0 ? (
-          <NoResults
-            query={query.trim()}
-            filter={filter}
-            onReset={resetFilters}
-          />
-        ) : (
-          <ul className="overflow-hidden rounded-3xl border border-border/80 bg-card shadow-sm">
-            {filteredConversations.map(
-              ({ conversation, user, unreadCount }) => (
-                <li
-                  key={user.id}
-                  className="relative after:pointer-events-none after:absolute after:bottom-0 after:left-[5.25rem] after:right-0 after:h-px after:bg-border/60 last:after:hidden"
-                >
-                  <ConversationItem
-                    conversation={conversation}
-                    user={user}
-                    unreadCount={unreadCount}
-                    query={query.trim()}
-                  />
-                </li>
-              ),
-            )}
-          </ul>
-        )}
+        {renderListContent()}
 
         {/* Annonce vocale du nombre de résultats pendant la recherche */}
         {isSearching && (
@@ -449,8 +466,33 @@ const ConversationItem = memo<ConversationItemProps>(
       i18n.language,
     );
     const hasMessage = Boolean(conversation.lastMessagePreview);
+    const isImage = isImagePreview(conversation.lastMessagePreview);
     const hasUnread = unreadCount > 0;
     const isOnline = user.isOnline === true;
+
+    let previewClass = "italic text-muted-foreground/70";
+    if (hasMessage) {
+      previewClass = hasUnread
+        ? "font-medium text-foreground"
+        : "text-muted-foreground";
+    }
+
+    let previewContent: React.ReactNode = t("item.noMessages");
+    if (hasMessage) {
+      if (isImage) {
+        previewContent = (
+          <span className="inline-flex items-center gap-1.5">
+            <ImageIcon
+              className="h-3.5 w-3.5 shrink-0 text-muted-foreground"
+              aria-hidden="true"
+            />
+            <span>{t("item.imageMessage", { defaultValue: "Photo" })}</span>
+          </span>
+        );
+      } else {
+        previewContent = conversation.lastMessagePreview;
+      }
+    }
 
     return (
       <Link
@@ -513,18 +555,8 @@ const ConversationItem = memo<ConversationItemProps>(
               ? t("item.online", { defaultValue: "En ligne" })
               : t("item.offline", { defaultValue: "Hors ligne" })}
           </span>
-          <p
-            className={`mt-0.5 truncate text-sm ${
-              hasMessage
-                ? hasUnread
-                  ? "font-medium text-foreground"
-                  : "text-muted-foreground"
-                : "italic text-muted-foreground/70"
-            }`}
-          >
-            {hasMessage
-              ? conversation.lastMessagePreview
-              : t("item.noMessages")}
+          <p className={`mt-0.5 truncate text-sm ${previewClass}`}>
+            {previewContent}
           </p>
         </div>
 

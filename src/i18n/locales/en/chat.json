@@ -26,13 +26,32 @@
     "sent": "Sent",
     "read": "Read",
     "imageAlt": "Image",
-    "jumpToLatest": "Jump to latest message"
+    "jumpToLatest": "Jump to latest message",
+    "imagePreview": {
+      "label": "Image preview",
+      "open": "View image",
+      "close": "Close preview"
+    }
   },
   "input": {
     "placeholder": "Type a message...",
     "label": "Message input",
     "send": "Send",
     "error": "Failed to send message. Please try again."
+  },
+  "imageUpload": {
+    "attachImage": "Attach an image",
+    "uploading": "Uploading...",
+    "compressing": "Compressing...",
+    "sending": "Sending...",
+    "uploaded": "Sent",
+    "cancel": "Cancel",
+    "previewAlt": "Preview",
+    "error": "Failed to send image. Please try again.",
+    "compressionError": "Unable to compress image. Please try another image.",
+    "tooLarge": "File is too large: {{size}} MB. Max is 10 MB.",
+    "unsupportedType": "Unsupported file type: {{type}}. Please select a JPEG, PNG, WebP or GIF.",
+    "invalidResponse": "The server did not return an image URL. Please try again."
   },
   "error": {
     "title": "Unable to load conversation",

@@ -1,4 +1,5 @@
 import { Outlet, NavLink, useLocation } from "react-router";
+import { useTranslation } from "react-i18next";
 import {
   Heart,
   Bell,
@@ -16,13 +17,13 @@ import { useGetMyUnreadMessagesCount } from "@/composables/useGetMyUnreadMessage
 import { useAuth } from "@/hooks/useAuth";
 
 const navItems = [
-  { to: "/dashboard", icon: LayoutDashboard, label: "Home" },
-  { to: "/discover", icon: Compass, label: "Discover" },
-  { to: "/likes", icon: ThumbsUp, label: "Likes" },
-  { to: "/notifications", icon: Bell, label: "Notifications" },
-  { to: "/chat", icon: MessageCircle, label: "Chat" },
-  { to: "/profile", icon: User, label: "Profile" },
-];
+  { to: "/dashboard", icon: LayoutDashboard, labelKey: "home" },
+  { to: "/discover", icon: Compass, labelKey: "discover" },
+  { to: "/likes", icon: ThumbsUp, labelKey: "likes" },
+  { to: "/notifications", icon: Bell, labelKey: "notifications" },
+  { to: "/chat", icon: MessageCircle, labelKey: "chat" },
+  { to: "/profile", icon: User, labelKey: "profile" },
+] as const;
 
 function CountBadge({ count }: { count: number }) {
   if (count <= 0) return null;
@@ -37,6 +38,7 @@ function CountBadge({ count }: { count: number }) {
 export default function AppLayout() {
   const { userInfo, logout } = useAuth();
   const location = useLocation();
+  const { t } = useTranslation("nav");
 
   const { data: notificationCount } = useGetUnreadNotificationCount();
   const { data: likeCount } = useFetchLikesCount();
@@ -73,16 +75,18 @@ export default function AppLayout() {
                 <item.icon className="w-4 h-4" />
                 <CountBadge count={counts[item.to] ?? 0} />
               </span>
-              {item.label}
+              {t(item.labelKey)}
             </NavLink>
           ))}
         </div>
         <div className="flex items-center gap-3">
           <span className="text-sm text-muted-foreground">
-            {(userInfo?.preferred_username as string) || "Profile"}
+            {(userInfo?.preferred_username as string) || t("profile")}
           </span>
           <button
             onClick={() => logout()}
+            aria-label={t("logout")}
+            title={t("logout")}
             className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
           >
             <LogOut className="w-4 h-4" />
@@ -114,7 +118,7 @@ export default function AppLayout() {
               <span
                 className={`text-[10px] ${isActive ? "text-primary font-semibold" : "text-muted-foreground"}`}
               >
-                {item.label}
+                {t(item.labelKey)}
               </span>
             </NavLink>
           );

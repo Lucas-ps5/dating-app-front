@@ -8,6 +8,7 @@
   "item": {
     "member": "Member",
     "noMessages": "No messages yet",
+    "imageMessage": "Photo",
     "unreadCount": "{{count}} unread message(s)",
     "online": "Online",
     "onlineAria": "Online",

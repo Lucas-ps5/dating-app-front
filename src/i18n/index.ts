@@ -20,6 +20,8 @@ import commonEn from "./locales/en/common.json";
 import commonFr from "./locales/fr/common.json";
 import chatEn from "./locales/en/chat.json";
 import chatFr from "./locales/fr/chat.json";
+import navEn from "./locales/en/nav.json";
+import navFr from "./locales/fr/nav.json";
 
 const locale = navigator.language.split("-")[0] || "en";
 
@@ -36,6 +38,7 @@ i18n.use(initReactI18next).init({
       notifications: notificationsEn,
       common: commonEn,
       chat: chatEn,
+      nav: navEn,
     },
     fr: {
       register: registerFr,
@@ -48,6 +51,7 @@ i18n.use(initReactI18next).init({
       notifications: notificationsFr,
       common: commonFr,
       chat: chatFr,
+      nav: navFr,
     },
   },
   lng: locale,
@@ -63,6 +67,7 @@ i18n.use(initReactI18next).init({
     "notifications",
     "common",
     "chat",
+    "nav",
   ],
   defaultNS: "discover",
   interpolation: {

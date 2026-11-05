@@ -26,13 +26,32 @@
     "sent": "Envoyé",
     "read": "Lu",
     "imageAlt": "Image",
-    "jumpToLatest": "Aller au dernier message"
+    "jumpToLatest": "Aller au dernier message",
+    "imagePreview": {
+      "label": "Aperçu de l'image",
+      "open": "Voir l'image",
+      "close": "Fermer l'aperçu"
+    }
   },
   "input": {
     "placeholder": "Écrivez un message...",
     "label": "Saisie du message",
     "send": "Envoyer",
     "error": "Le message n'a pas pu être envoyé. Réessaie."
+  },
+  "imageUpload": {
+    "attachImage": "Joindre une image",
+    "uploading": "Envoi de l'image...",
+    "compressing": "Compression de l'image...",
+    "sending": "Envoi du message...",
+    "uploaded": "Envoyé",
+    "cancel": "Annuler",
+    "previewAlt": "Aperçu",
+    "error": "Échec de l'envoi de l'image. Veuillez réessayer.",
+    "compressionError": "Impossible de compresser l'image. Veuillez choisir une autre image.",
+    "tooLarge": "Le fichier est trop volumineux : {{size}} Mo. Maximum 10 Mo.",
+    "unsupportedType": "Type de fichier non supporté : {{type}}. Veuillez choisir un fichier JPEG, PNG, WebP ou GIF.",
+    "invalidResponse": "Le serveur n'a pas retourné d'URL d'image. Veuillez réessayer."
   },
   "error": {
     "title": "Impossible de charger la conversation",
